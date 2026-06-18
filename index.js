@@ -27,6 +27,8 @@ const kSceneViewModeKey = `${kStoragePrefix}SceneViewMode`;
 const kRelationFilterKey = `${kStoragePrefix}RelationFilter`;
 const kFloatingCollapsedKey = `${kStoragePrefix}FloatingCollapsed`;
 const kCustomCssKey = `${kStoragePrefix}CustomCss`;
+const kFontSizeKey = `${kStoragePrefix}FontSize`;
+const kThoughtsEnabledKey = `${kStoragePrefix}ThoughtsEnabled`;
 
 let gEnabled = false;
 let gLang = "ru";
@@ -45,6 +47,8 @@ let gPinnedNpcs = [];
 let gSceneViewMode = "full";
 let gRelationFilter = "top3";
 let gCustomCss = "";
+let gFontSize = "normal";
+let gThoughtsEnabled = true;
 
 const kDefaultState = {
     scene: {
@@ -139,7 +143,13 @@ xmlLatestNotFound: "Не найдено последнее сообщение с
         customCss: "Custom CSS",
 customCssPlaceholder: "Пиши CSS для Mom Infoblock. Например: .mib-board { border-color: red; }",
 saveCustomCss: "Сохранить CSS",
-clearCustomCss: "Очистить CSS"
+clearCustomCss: "Очистить CSS",
+        fontSize: "Размер текста",
+fontSmall: "Мелкий",
+fontNormal: "Обычный",
+fontLarge: "Крупный",
+fontXLarge: "Очень крупный",
+        thoughtsEnabled: "Включить мысли NPC",
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -214,7 +224,13 @@ xmlLatestNotFound: "No latest message with <mom_infoblock> found.",
         customCss: "Custom CSS",
 customCssPlaceholder: "Write CSS for Mom Infoblock. Example: .mib-board { border-color: red; }",
 saveCustomCss: "Save CSS",
-clearCustomCss: "Clear CSS"
+clearCustomCss: "Clear CSS",
+        fontSize: "Font Size",
+fontSmall: "Small",
+fontNormal: "Normal",
+fontLarge: "Large",
+fontXLarge: "Extra large",
+        thoughtsEnabled: "Enable NPC Thoughts",
     }
 };
 
@@ -445,6 +461,8 @@ function LoadSettings() {
     gActiveTab = localStorage.getItem(kActiveTabKey) || "scene";
     gSceneViewMode = localStorage.getItem(kSceneViewModeKey) || "full";
     gRelationFilter = localStorage.getItem(kRelationFilterKey) || "top3";
+    gFontSize = localStorage.getItem(kFontSizeKey) || "normal";
+    gThoughtsEnabled = localStorage.getItem(kThoughtsEnabledKey) !== "false";
 }
 
 function SaveSettings() {
@@ -461,6 +479,8 @@ function SaveSettings() {
     localStorage.setItem(kActiveTabKey, gActiveTab);
     localStorage.setItem(kSceneViewModeKey, gSceneViewMode);
     localStorage.setItem(kRelationFilterKey, gRelationFilter);
+    localStorage.setItem(kFontSizeKey, gFontSize);
+    localStorage.setItem(kThoughtsEnabledKey, String(gThoughtsEnabled));
 }
 
 function LoadState() {
@@ -535,6 +555,10 @@ function ApplyCustomCss() {
     }
 
     style.textContent = gCustomCss;
+}
+
+function ApplyFontSize() {
+    document.documentElement.setAttribute("data-mib-font-size", gFontSize || "normal");
 }
 
 function LoadPinnedNpcs() {
@@ -680,12 +704,12 @@ function BuildStateInjection() {
         lines.push(gNotes.trim());
     }
 
-    if (gState.thoughts.length) {
-        lines.push("Private NPC thoughts - internal memory only, never write these in visible narrative:");
-        for (const t of gState.thoughts) {
-            lines.push(`- ${t.name}: ${t.text}`);
-        }
+if (gThoughtsEnabled && gState.thoughts.length) {
+    lines.push("Private NPC thoughts - internal memory only, never write these in visible narrative:");
+    for (const t of gState.thoughts) {
+        lines.push(`- ${t.name}: ${t.text}`);
     }
+}
 
     lines.push("[/MOM INFOBLOCK STATE]");
 
@@ -704,11 +728,15 @@ function InjectPrompt() {
         RebuildStateFromCurrentChat();
 
         const systemPrompt = gLang === "en" ? kSystemPromptEn : kSystemPromptRu;
-        const chronicleHint = gChronicleEnabled
-            ? ""
-            : "\nChronicle module is disabled. Omit <chronicle>.";
+const chronicleHint = gChronicleEnabled
+    ? ""
+    : "\nChronicle module is disabled. Omit <chronicle>.";
 
-        const fullPrompt = `${systemPrompt}${chronicleHint}\n\n${BuildStateInjection()}`;
+const thoughtsHint = gThoughtsEnabled
+    ? ""
+    : "\nNPC thoughts module is disabled. Omit <thk> entirely and do not write private NPC thoughts.";
+
+ const fullPrompt = `${systemPrompt}${chronicleHint}${thoughtsHint}\n\n${BuildStateInjection()}`;
 
         stContext.setExtensionPrompt?.(kPromptInjectionId, fullPrompt, 1, 0);
     } catch (error) {
@@ -823,15 +851,15 @@ function ParseMomInfoblock(text) {
         });
     }
 
-    const thk = doc.querySelector("thk");
+const thk = doc.querySelector("thk");
 
-    if (thk) {
-        parsed.thoughts = String(thk.textContent || "")
-            .replace(/\r/g, "\n")
-            .split("\n")
-            .map(ParseThoughtLine)
-            .filter(Boolean);
-    }
+if (thk && gThoughtsEnabled) {
+    parsed.thoughts = String(thk.textContent || "")
+        .replace(/\r/g, "\n")
+        .split("\n")
+        .map(ParseThoughtLine)
+        .filter(Boolean);
+}
 
     const tailText = rawText.slice(rawText.indexOf(rawXml) + rawXml.length);
     const nsfwMatch = tailText.match(/<nsfw\s+f="(.*?)"\s+p="(.*?)"\s*\/?>/i);
@@ -874,7 +902,7 @@ function ApplyParsedToState(parsed, baseState = gState) {
 
     next.chars = Array.isArray(parsed.chars) ? parsed.chars : [];
     next.rels = Array.isArray(parsed.rels) ? parsed.rels : [];
-    next.thoughts = Array.isArray(parsed.thoughts) ? parsed.thoughts : [];
+ next.thoughts = gThoughtsEnabled && Array.isArray(parsed.thoughts) ? parsed.thoughts : [];
     next.nsfw = parsed.nsfw || null;
 
     if (gChronicleEnabled) {
@@ -956,7 +984,7 @@ function RenderMiniStatChip(label, value, delta, kind) {
 }
 
 function RenderRelationCard(r, state) {
-    const thought = FindThoughtForNpc(state.thoughts, r.source);
+const thought = gThoughtsEnabled ? FindThoughtForNpc(state.thoughts, r.source) : null;
 
     return `
         <div class="mib-rel mib-rel-accordion mib-open">
@@ -1054,9 +1082,11 @@ const relsHtml = filteredRels.length
     ? `${RenderRelationFilterNote(sortedRels)}${filteredRels.map(r => RenderRelationCard(r, state)).join("")}`
     : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
 
-const extraThoughts = (state.thoughts || []).filter(thought => {
-    return !sortedRels.some(rel => NamesSoftMatch(thought.name, rel.source));
-});
+const extraThoughts = gThoughtsEnabled
+    ? (state.thoughts || []).filter(thought => {
+        return !sortedRels.some(rel => NamesSoftMatch(thought.name, rel.source));
+    })
+    : [];
 
 const thoughtsHtml = extraThoughts.length
     ? extraThoughts.map(t => `
@@ -2560,6 +2590,7 @@ LoadNotes();
 LoadPinnedNpcs();
 LoadCustomCss();
 ApplyCustomCss();
+ApplyFontSize();
 
     SyncSettingsControls();
     UpdateSettingsText();
