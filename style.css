@@ -1307,3 +1307,45 @@
     line-height: 1.5;
     white-space: normal;
 }
+
+.mib-presence-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    border: 1px solid transparent;
+}
+
+.mib-presence-focus {
+    background: rgba(130, 180, 255, 0.12);
+    color: #b8d2ff;
+    border-color: rgba(130, 180, 255, 0.24);
+}
+
+.mib-presence-near {
+    background: rgba(220, 180, 120, 0.12);
+    color: #f0cf9b;
+    border-color: rgba(220, 180, 120, 0.24);
+}
+
+.mib-presence-watch {
+    background: rgba(180, 150, 255, 0.12);
+    color: #d0c0ff;
+    border-color: rgba(180, 150, 255, 0.24);
+}
+
+.mib-presence-background {
+    background: rgba(140, 160, 190, 0.12);
+    color: #b4c1de;
+    border-color: rgba(140, 160, 190, 0.22);
+}
+
+.mib-presence-left {
+    background: rgba(220, 110, 130, 0.12);
+    color: #f0a3b2;
+    border-color: rgba(220, 110, 130, 0.24);
+}
