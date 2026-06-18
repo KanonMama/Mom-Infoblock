@@ -253,6 +253,54 @@
     justify-content: flex-end;
 }
 
+.mib-pin-btn {
+    appearance: none;
+    width: 23px;
+    height: 23px;
+    min-width: 23px;
+    border: 1px solid var(--mib-soft-border);
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at 32% 22%, rgba(255,255,255,0.12), transparent 36%),
+        rgba(255,255,255,0.035);
+    color: var(--mib-dim);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    font-size: 0;
+    line-height: 1;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.mib-pin-btn::before {
+    content: "☆";
+    font-size: 13px;
+    line-height: 1;
+    transform: translateY(-0.5px);
+}
+
+.mib-pin-btn:hover {
+    color: var(--mib-text);
+    border-color: var(--mib-border);
+    background: rgba(255,255,255,0.075);
+    transform: translateY(-1px);
+}
+
+.mib-pin-btn.mib-pinned {
+    color: var(--mib-accent-2);
+    border-color: rgba(192, 156, 255, 0.40);
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.18), transparent 38%),
+        rgba(192, 156, 255, 0.14);
+    box-shadow: 0 0 10px rgba(192, 156, 255, 0.18);
+}
+
+.mib-pin-btn.mib-pinned::before {
+    content: "★";
+}
+
 .mib-chip,
 .mib-status-chip {
     display: inline-flex;
