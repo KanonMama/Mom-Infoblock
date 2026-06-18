@@ -150,6 +150,12 @@ fontNormal: "Обычный",
 fontLarge: "Крупный",
 fontXLarge: "Очень крупный",
         thoughtsEnabled: "Включить мысли NPC",
+        cssPresetCompactThin: "Тоньше и плотнее",
+cssPresetBiggerText: "Крупнее текст",
+cssPresetTransparent: "Прозрачнее",
+cssPresetHighContrast: "Контрастнее",
+cssPresetPurpleGlow: "Фиолетовое свечение",
+insertPreset: "Вставить пресет",
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -231,6 +237,12 @@ fontNormal: "Normal",
 fontLarge: "Large",
 fontXLarge: "Extra large",
         thoughtsEnabled: "Enable NPC Thoughts",
+        cssPresetCompactThin: "Compact thin",
+cssPresetBiggerText: "Bigger text",
+cssPresetTransparent: "More transparent",
+cssPresetHighContrast: "High contrast",
+cssPresetPurpleGlow: "Purple glow",
+insertPreset: "Insert preset",
     }
 };
 
@@ -524,6 +536,88 @@ function SaveNotes() {
     }
 }
 
+const kCssPresets = {
+    compactThin: `
+.mib-board {
+    padding: 8px;
+    border-radius: 12px;
+}
+
+.mib-section,
+.mib-header,
+.mib-char,
+.mib-rel,
+.mib-compact-rel {
+    padding: 7px 8px;
+    margin-bottom: 6px;
+}
+
+.mib-tabs {
+    margin-bottom: 7px;
+}
+`.trim(),
+
+    biggerText: `
+.mib-board,
+#mib_floating_host,
+#mib_dock_host {
+    font-size: 15px;
+}
+
+.mib-chip,
+.mib-status-chip,
+.mib-mini-stat {
+    font-size: 11px;
+}
+`.trim(),
+
+    transparent: `
+.mib-board {
+    background: rgba(12, 18, 28, 0.58);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mib-section,
+.mib-header,
+.mib-char,
+.mib-rel,
+.mib-compact-rel {
+    background: rgba(255,255,255,0.018);
+}
+`.trim(),
+
+    highContrast: `
+.mib-board {
+    --mib-text: #ffffff;
+    --mib-muted: #d7e1ff;
+    --mib-dim: #a8b8dd;
+    --mib-border: rgba(180, 205, 255, 0.42);
+    --mib-soft-border: rgba(180, 205, 255, 0.24);
+}
+
+.mib-chip,
+.mib-status-chip {
+    color: #ffffff;
+}
+`.trim(),
+
+    purpleGlow: `
+.mib-board {
+    --mib-accent: #b98cff;
+    --mib-accent-2: #ff8fe8;
+    --mib-border: rgba(185, 140, 255, 0.38);
+    --mib-soft-border: rgba(185, 140, 255, 0.18);
+    box-shadow: 0 0 22px rgba(185, 140, 255, 0.18), 0 14px 34px rgba(0,0,0,0.38);
+}
+
+.mib-tab-active,
+.mib-pin-btn.mib-pinned {
+    box-shadow: 0 0 12px rgba(185, 140, 255, 0.22);
+}
+`.trim()
+};
+
 function LoadCustomCss() {
     try {
         gCustomCss = localStorage.getItem(kCustomCssKey) || "";
@@ -555,6 +649,22 @@ function ApplyCustomCss() {
     }
 
     style.textContent = gCustomCss;
+}
+
+function InsertCustomCssPreset(name) {
+    const preset = kCssPresets[name];
+    if (!preset) return;
+
+    const textarea = $("#mib_custom_css_input");
+    const current = textarea.val() || "";
+    const next = current.trim()
+        ? `${current.trim()}\n\n/* ${name} */\n${preset}`
+        : `/* ${name} */\n${preset}`;
+
+    textarea.val(next);
+    gCustomCss = next;
+    SaveCustomCss();
+    ApplyCustomCss();
 }
 
 function ApplyFontSize() {
@@ -2400,6 +2510,12 @@ $("#mib_font_size option[value='normal']").text(T("fontNormal"));
 $("#mib_font_size option[value='large']").text(T("fontLarge"));
 $("#mib_font_size option[value='xlarge']").text(T("fontXLarge"));
     $("#mib_thoughts_enabled").closest("label").find("span").text(T("thoughtsEnabled"));
+
+    $('[data-mib-css-preset="compactThin"]').text(T("cssPresetCompactThin"));
+$('[data-mib-css-preset="biggerText"]').text(T("cssPresetBiggerText"));
+$('[data-mib-css-preset="transparent"]').text(T("cssPresetTransparent"));
+$('[data-mib-css-preset="highContrast"]').text(T("cssPresetHighContrast"));
+$('[data-mib-css-preset="purpleGlow"]').text(T("cssPresetPurpleGlow"));
     
 }
 
@@ -2521,6 +2637,10 @@ $("#mib_font_size").on("change", function () {
     ApplyFontSize();
 });
 
+$(".mib-css-preset").on("click", function () {
+    InsertCustomCssPreset($(this).data("mibCssPreset"));
+});
+    
 $("#mib_thoughts_enabled").on("change", function () {
     gThoughtsEnabled = $(this).is(":checked");
     SaveSettings();
