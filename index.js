@@ -111,7 +111,14 @@ const kLangMap = {
         love: "Любовь",
         aversion: "Неприязнь",
         distrust: "Недоверие",
-        hatred: "Ненависть"
+        hatred: "Ненависть",
+        debugXml: "XML",
+copyXml: "Копировать",
+applyXml: "Применить XML",
+closeXml: "Закрыть",
+xmlApplied: "XML применён",
+xmlInvalid: "XML не распознан. Проверь <mom_infoblock>.",
+xmlNoMessage: "Не удалось найти сообщение для правки."
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -165,7 +172,14 @@ const kLangMap = {
         love: "Love",
         aversion: "Aversion",
         distrust: "Distrust",
-        hatred: "Hatred"
+        hatred: "Hatred",
+        debugXml: "XML",
+copyXml: "Copy",
+applyXml: "Apply XML",
+closeXml: "Close",
+xmlApplied: "XML applied",
+xmlInvalid: "XML was not recognized. Check <mom_infoblock>.",
+xmlNoMessage: "Could not find message to edit."
     }
 };
 
@@ -975,11 +989,16 @@ function RenderPanel(state = gState) {
             : RenderSceneTab(state);
 
     return `
-        <div class="mib-board mib-theme-${EscapeHtml(gTheme)}" data-mib-board>
-            <div class="mib-title-row">
-                <div class="mib-title">Mom Infoblock</div>
-                <div class="mib-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
-            </div>
+<div class="mib-title-row">
+    <div>
+        <div class="mib-title">Mom Infoblock</div>
+    </div>
+
+    <div class="mib-title-actions">
+        <div class="mib-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
+        <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+    </div>
+</div>
             ${RenderTabs()}
             <div class="mib-tab-body">
                 ${body}
@@ -1019,6 +1038,132 @@ function WirePanel(root) {
         RenderFloatingOrDock();
     });
 });
+
+    root.querySelectorAll(".mib-debug-btn").forEach(button => {
+    button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        ToggleXmlInspector(root);
+    });
+});
+}
+
+function GetInspectorHost(root) {
+    return root.closest(".mib-board-host, #mib_floating_host, #mib_dock_host") || root;
+}
+
+function FindMessageByHost(host) {
+    const mesId = host?.dataset?.mesId;
+    if (!mesId) return null;
+
+    const stContext = GetContextSafe();
+    const index = Number(mesId);
+
+    if (Number.isNaN(index)) return null;
+
+    return {
+        index,
+        message: stContext.chat?.[index] || null
+    };
+}
+
+function ReplaceMomInfoblockInMessage(messageText, nextXml) {
+    const text = String(messageText || "");
+    const xml = String(nextXml || "").trim();
+
+    if (!/<mom_infoblock\b[\s\S]*?<\/mom_infoblock>/i.test(xml)) {
+        return null;
+    }
+
+    if (/<mom_infoblock\b[\s\S]*?<\/mom_infoblock>/i.test(text)) {
+        return text.replace(/<mom_infoblock\b[\s\S]*?<\/mom_infoblock>/i, xml);
+    }
+
+    return `${text.trim()}\n\n${xml}`;
+}
+
+function ToggleXmlInspector(root) {
+    const host = GetInspectorHost(root);
+    if (!host) return;
+
+    const existing = host.querySelector(".mib-xml-inspector");
+
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    const rawXml = host.dataset.rawXml || gLastRawXml || "";
+
+    const inspector = document.createElement("div");
+    inspector.className = "mib-xml-inspector";
+    inspector.innerHTML = `
+        <div class="mib-xml-actions">
+            <button type="button" class="mib-xml-apply">${EscapeHtml(T("applyXml"))}</button>
+            <button type="button" class="mib-xml-copy">${EscapeHtml(T("copyXml"))}</button>
+            <button type="button" class="mib-xml-close">${EscapeHtml(T("closeXml"))}</button>
+        </div>
+        <textarea class="mib-xml-editor" spellcheck="false"></textarea>
+        <div class="mib-xml-status"></div>
+    `;
+
+    const textarea = inspector.querySelector(".mib-xml-editor");
+    const status = inspector.querySelector(".mib-xml-status");
+
+    textarea.value = rawXml;
+
+    inspector.querySelector(".mib-xml-close")?.addEventListener("click", () => {
+        inspector.remove();
+    });
+
+    inspector.querySelector(".mib-xml-copy")?.addEventListener("click", async () => {
+        try {
+            await navigator.clipboard.writeText(textarea.value || "");
+            status.textContent = T("copyXml");
+        } catch (error) {
+            console.warn("[MIB] Copy XML failed:", error);
+        }
+    });
+
+    inspector.querySelector(".mib-xml-apply")?.addEventListener("click", () => {
+        const nextXml = textarea.value || "";
+        const parsed = ParseMomInfoblock(nextXml);
+
+        if (!parsed) {
+            status.textContent = T("xmlInvalid");
+            status.classList.add("mib-xml-status-error");
+            return;
+        }
+
+        const found = FindMessageByHost(host);
+
+        if (!found?.message) {
+            status.textContent = T("xmlNoMessage");
+            status.classList.add("mib-xml-status-error");
+            return;
+        }
+
+        const nextMessageText = ReplaceMomInfoblockInMessage(found.message.mes, nextXml);
+
+        if (!nextMessageText) {
+            status.textContent = T("xmlInvalid");
+            status.classList.add("mib-xml-status-error");
+            return;
+        }
+
+        found.message.mes = nextMessageText;
+        host.dataset.rawXml = nextXml;
+
+        status.textContent = T("xmlApplied");
+        status.classList.remove("mib-xml-status-error");
+
+        RebuildStateFromCurrentChat();
+        ReprocessChat();
+        RenderFloatingOrDock();
+        InjectPrompt();
+    });
+
+    host.appendChild(inspector);
 }
 
 function SyncNotesTextareas(source) {
@@ -1385,10 +1530,12 @@ CleanupEmptyMessageNodes(mesTextEl);
         return;
     }
 
-    const host = GetOrCreateMessageHost(mesTextEl);
-    host.dataset.rawXml = parsed.rawXml || "";
-    host.innerHTML = RenderPanel(state);
-    WirePanel(host);
+const host = GetOrCreateMessageHost(mesTextEl);
+const mesNode = mesTextEl.closest(".mes");
+
+host.dataset.rawXml = parsed.rawXml || "";
+host.dataset.mesId = mesNode?.getAttribute("mesid") || "";
+host.innerHTML = RenderPanel(state);
 }
 
 function ProcessMessage(messageDiv, msgIndex) {
