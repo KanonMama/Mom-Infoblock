@@ -1211,3 +1211,15 @@
 .mib-empty {
     font-size: calc(10px * var(--mib-font-scale));
 }
+
+.mib-css-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.mib-css-presets .menu_button {
+    font-size: 11px;
+    padding: 4px 8px;
+}
