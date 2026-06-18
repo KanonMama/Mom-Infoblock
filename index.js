@@ -940,25 +940,6 @@ function RenderRelationCard(r, state) {
         </div>`;
 }
 
-function RenderSceneViewSwitch() {
-    return `
-        <div class="mib-view-switch">
-            <button
-                type="button"
-                class="mib-view-btn ${gSceneViewMode === "full" ? "mib-view-active" : ""}"
-                data-mib-scene-view="full"
-            >
-                ${EscapeHtml(T("sceneFull"))}
-            </button>
-            <button
-                type="button"
-                class="mib-view-btn ${gSceneViewMode === "compact" ? "mib-view-active" : ""}"
-                data-mib-scene-view="compact"
-            >
-                ${EscapeHtml(T("sceneCompact"))}
-            </button>
-        </div>`;
-}
 
 function RelationHasDelta(rel) {
     return (
@@ -1166,10 +1147,11 @@ function RenderPanel(state = gState) {
                     <div class="mib-title">Mom Infoblock</div>
                 </div>
 
-<div class="mib-title-actions">
-    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
-    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-</div>
+                <div class="mib-title-actions">
+                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
+                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+                </div>
+            </div>
 
             ${RenderTabs()}
 
