@@ -132,8 +132,6 @@ relationChanged: "Только изменившиеся",
 relationAll: "Все",
 noRelationChanges: "Изменений нет",
         applyLatestXml: "Применить к последнему",
-xmlLatestNotFound: "Не найдено последнее сообщение с <mom_infoblock>.",
-        applyLatestXml: "Применить к последнему",
 xmlLatestNotFound: "Не найдено последнее сообщение с <mom_infoblock>."
     },
     en: {
@@ -1237,26 +1235,6 @@ function GetInspectorHost(root) {
     return root.closest(".mib-board-host, #mib_floating_host, #mib_dock_host") || root;
 }
 
-function FindLatestInfoblockMessage() {
-    const stContext = GetContextSafe();
-    const chat = stContext.chat;
-
-    if (!Array.isArray(chat)) return null;
-
-    for (let index = chat.length - 1; index >= 0; index--) {
-        const message = chat[index];
-
-        if (!message || message.is_user) continue;
-        if (!/<mom_infoblock\b[\s\S]*?<\/mom_infoblock>/i.test(message.mes || "")) continue;
-
-        return {
-            index,
-            message
-        };
-    }
-
-    return null;
-}
 
 function FindMessageByHost(host) {
     const mesId = host?.dataset?.mesId;
