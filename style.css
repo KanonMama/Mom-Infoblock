@@ -1160,3 +1160,54 @@
     font-size: 12px;
     line-height: 1.45;
 }
+
+:root {
+    --mib-font-scale: 1;
+}
+
+:root[data-mib-font-size="small"] {
+    --mib-font-scale: 0.92;
+}
+
+:root[data-mib-font-size="normal"] {
+    --mib-font-scale: 1;
+}
+
+:root[data-mib-font-size="large"] {
+    --mib-font-scale: 1.12;
+}
+
+:root[data-mib-font-size="xlarge"] {
+    --mib-font-scale: 1.24;
+}
+
+.mib-board,
+#mib_floating_host,
+#mib_dock_host {
+    font-size: calc(13px * var(--mib-font-scale));
+}
+
+.mib-title,
+.mib-section-title,
+.mib-compact-brand {
+    font-size: calc(10px * var(--mib-font-scale));
+}
+
+.mib-tab,
+.mib-char-name,
+.mib-rel-name,
+.mib-location,
+.mib-thought,
+.mib-chronicle-list,
+.mib-thread-list {
+    font-size: calc(13px * var(--mib-font-scale));
+}
+
+.mib-chip,
+.mib-status-chip,
+.mib-mini-stat,
+.mib-meta span,
+.mib-compact-location,
+.mib-empty {
+    font-size: calc(10px * var(--mib-font-scale));
+}
