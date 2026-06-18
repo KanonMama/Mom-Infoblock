@@ -751,3 +751,98 @@
         min-height: 96px;
     }
 }
+
+.mib-title-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.mib-debug-btn {
+    appearance: none;
+    min-width: 36px;
+    height: 26px;
+    border-radius: 8px;
+    border: 1px solid var(--mib-soft-border);
+    background: rgba(255,255,255,0.04);
+    color: var(--mib-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 0 7px;
+    flex-shrink: 0;
+}
+
+.mib-debug-btn:hover {
+    color: var(--mib-text);
+    border-color: var(--mib-border);
+    background: rgba(255,255,255,0.075);
+}
+
+.mib-xml-inspector {
+    margin: 8px 0 12px;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--mib-soft-border);
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.04), transparent 45%),
+        rgba(0,0,0,0.28);
+    color: var(--mib-text);
+}
+
+.mib-xml-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 8px;
+}
+
+.mib-xml-actions button {
+    appearance: none;
+    border-radius: 8px;
+    border: 1px solid var(--mib-soft-border);
+    background: rgba(255,255,255,0.045);
+    color: var(--mib-muted);
+    padding: 5px 9px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.mib-xml-actions button:hover {
+    color: var(--mib-text);
+    border-color: var(--mib-border);
+    background: rgba(255,255,255,0.08);
+}
+
+.mib-xml-editor {
+    width: 100%;
+    min-height: 220px;
+    resize: vertical;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border: 1px solid var(--mib-soft-border);
+    background: rgba(0,0,0,0.34);
+    color: var(--mib-text);
+    padding: 10px 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    white-space: pre;
+}
+
+.mib-xml-editor:focus {
+    outline: none;
+    border-color: rgba(143, 180, 255, 0.38);
+    box-shadow: 0 0 0 2px rgba(143, 180, 255, 0.08);
+}
+
+.mib-xml-status {
+    margin-top: 7px;
+    color: var(--mib-muted);
+    font-size: 11px;
+}
+
+.mib-xml-status-error {
+    color: var(--mib-bad);
+}
