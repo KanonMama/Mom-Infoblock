@@ -211,11 +211,16 @@ Rules:
 - Private NPC thoughts: max 1 sentence and max 30 words per NPC
 - Chronicle events: add only important new events from this response
 - Chronicle events: max 3 <event> entries per response, max 18 words each
-- Chronicle threads: add or keep unresolved plot hooks only, max 5 <thread> entries
+- Chronicle threads: include only currently unresolved plot hooks, max 5 <thread> entries, do not rephrase old threads
 - Do not repeat old chronicle events unless they changed meaning
 - Do not write guesses as facts in chronicle
 - Omit <chronicle> if nothing important changed
 - Omit <nsfw /> if the scene is not intimate
+- Never write chronicle events, thread lists, summaries, recaps, or bullet-point scene summaries in visible narrative
+- Chronicle content must appear only inside <chronicle>
+- Never duplicate <event> or <thread> content outside XML
+- Do not write visible lines like "Что произошло", "Открытые вопросы", "Сводка", or question lists after the scene
+- Visible narrative must contain only roleplay prose/dialogue, not system summaries
 
 <thk> strict format:
 Full NPC Name: thought`;
@@ -264,11 +269,16 @@ Rules:
 - Private NPC thoughts: max 1 sentence and max 20 words per NPC
 - Chronicle events: add only important new events from this response
 - Chronicle events: max 3 <event> entries per response, max 18 words each
-- Chronicle threads: add or keep unresolved plot hooks only, max 5 <thread> entries
+- Chronicle threads: include only currently unresolved plot hooks, max 5 <thread> entries, do not rephrase old threads
 - Do not repeat old chronicle events unless they changed meaning
 - Do not write guesses as facts in chronicle
 - Omit <chronicle> if nothing important changed
 - Omit <nsfw /> if the scene is not intimate
+- Never write chronicle events, thread lists, summaries, recaps, or bullet-point scene summaries in visible narrative
+- Chronicle content must appear only inside <chronicle>
+- Never duplicate <event> or <thread> content outside XML
+- Do not write visible lines like "What happened", "Open questions", "Summary", or question lists after the scene
+- Visible narrative must contain only roleplay prose/dialogue, not system summaries
 
 <thk> strict format:
 Full NPC Name: thought`;
@@ -1001,14 +1011,57 @@ function RemoveRawXmlFromText(messageTextEl) {
     }
 }
 
-function RemoveThoughtLeaks(messageTextEl, parsed) {
-    if (!gHideThoughtLeaks || !messageTextEl || !parsed?.thoughts?.length) return;
+function NormalizeLeakText(value) {
+    return String(value ?? "")
+        .toLowerCase()
+        .replace(/[«»„“”"']/g, "")
+        .replace(/[—–]/g, "-")
+        .replace(/[!?.,:;]+/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
 
-    const thoughtTexts = parsed.thoughts
-        .map(t => NormalizeText(t.text))
-        .filter(t => t.length >= 12);
+function StripBulletPrefix(line) {
+    return String(line || "")
+        .replace(/^\s*[-–—*•]+\s*/u, "")
+        .replace(/^\s*\d+[.)]\s*/u, "")
+        .trim();
+}
 
-    if (!thoughtTexts.length) return;
+function LooksLikeChronicleLeakLine(line, parsed) {
+    const raw = StripBulletPrefix(line);
+    if (!raw) return false;
+
+    const normalized = NormalizeLeakText(raw);
+
+    const chronicleItems = [
+        ...(parsed?.chronicle?.events || []),
+        ...(parsed?.chronicle?.threads || [])
+    ]
+        .map(NormalizeLeakText)
+        .filter(x => x.length >= 10);
+
+    if (!chronicleItems.length) return false;
+
+    return chronicleItems.some(item => {
+        if (normalized === item) return true;
+        if (normalized.includes(item) || item.includes(normalized)) {
+            const minLen = Math.min(normalized.length, item.length);
+            const maxLen = Math.max(normalized.length, item.length);
+            return minLen >= 12 && minLen / maxLen >= 0.72;
+        }
+        return false;
+    });
+}
+
+function RemoveChronicleLeaks(messageTextEl, parsed) {
+    if (!messageTextEl || !parsed?.chronicle) return;
+
+    const hasChronicle =
+        parsed.chronicle.events?.length ||
+        parsed.chronicle.threads?.length;
+
+    if (!hasChronicle) return;
 
     const walker = document.createTreeWalker(
         messageTextEl,
@@ -1016,12 +1069,15 @@ function RemoveThoughtLeaks(messageTextEl, parsed) {
         {
             acceptNode(node) {
                 if (!node.parentElement) return NodeFilter.FILTER_REJECT;
-                if (node.parentElement.closest(".mib-board-host, .mib-board")) return NodeFilter.FILTER_REJECT;
+                if (node.parentElement.closest(".mib-board-host, .mib-board")) {
+                    return NodeFilter.FILTER_REJECT;
+                }
 
-                const normalized = NormalizeText(node.textContent || "");
-                if (!normalized) return NodeFilter.FILTER_SKIP;
+                const raw = node.textContent || "";
+                if (!raw.trim()) return NodeFilter.FILTER_SKIP;
 
-                return thoughtTexts.some(t => normalized.includes(t))
+                const lines = raw.split(/\r?\n/);
+                return lines.some(line => LooksLikeChronicleLeakLine(line, parsed))
                     ? NodeFilter.FILTER_ACCEPT
                     : NodeFilter.FILTER_SKIP;
             }
@@ -1039,21 +1095,141 @@ function RemoveThoughtLeaks(messageTextEl, parsed) {
     for (const node of targets) {
         const lines = String(node.textContent || "").split(/\r?\n/);
         node.textContent = lines
-            .filter(line => {
-                const normalized = NormalizeText(line);
-                return !thoughtTexts.some(t => normalized.includes(t));
-            })
-            .join("\n");
+            .filter(line => !LooksLikeChronicleLeakLine(line, parsed))
+            .join("\n")
+            .replace(/\n{3,}/g, "\n\n");
+    }
+}
+
+function ParseVisibleThoughtLine(line) {
+    const clean = String(line || "").trim();
+    if (!clean) return null;
+
+    const match = clean.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
+    if (!match) return null;
+
+    return {
+        name: match[1].trim(),
+        text: match[2].trim()
+    };
+}
+
+function NamesSoftMatch(a, b) {
+    const x = NormalizeLeakText(a);
+    const y = NormalizeLeakText(b);
+
+    if (!x || !y) return false;
+    if (x === y) return true;
+
+    if (x.includes(y) || y.includes(x)) {
+        const minLen = Math.min(x.length, y.length);
+        const maxLen = Math.max(x.length, y.length);
+        return minLen >= 3 && minLen / maxLen >= 0.62;
+    }
+
+    return false;
+}
+
+function LooksLikeThoughtLeakLine(line, parsed) {
+    const raw = StripBulletPrefix(line);
+    if (!raw) return false;
+
+    const parsedLine = ParseVisibleThoughtLine(raw);
+    const normalizedLine = NormalizeLeakText(raw);
+
+    const thoughts = (parsed?.thoughts || [])
+        .map(t => ({
+            name: String(t.name || "").trim(),
+            text: String(t.text || "").trim(),
+            full: `${String(t.name || "").trim()}: ${String(t.text || "").trim()}`
+        }))
+        .filter(t => t.name && t.text);
+
+    if (!thoughts.length) return false;
+
+    return thoughts.some(thought => {
+        const thoughtText = NormalizeLeakText(thought.text);
+        const thoughtFull = NormalizeLeakText(thought.full);
+
+        if (thoughtText.length < 10) return false;
+
+        if (parsedLine) {
+            const ownerMatches = NamesSoftMatch(parsedLine.name, thought.name);
+            const lineText = NormalizeLeakText(parsedLine.text);
+
+            if (ownerMatches) {
+                if (lineText === thoughtText) return true;
+                if (lineText.includes(thoughtText) || thoughtText.includes(lineText)) {
+                    const minLen = Math.min(lineText.length, thoughtText.length);
+                    const maxLen = Math.max(lineText.length, thoughtText.length);
+                    return minLen >= 12 && minLen / maxLen >= 0.62;
+                }
+            }
+        }
+
+        if (normalizedLine === thoughtFull || normalizedLine === thoughtText) return true;
+
+        if (normalizedLine.includes(thoughtText) || thoughtText.includes(normalizedLine)) {
+            const minLen = Math.min(normalizedLine.length, thoughtText.length);
+            const maxLen = Math.max(normalizedLine.length, thoughtText.length);
+            return minLen >= 14 && minLen / maxLen >= 0.62;
+        }
+
+        return false;
+    });
+}
+
+function RemoveThoughtLeaks(messageTextEl, parsed) {
+    if (!gHideThoughtLeaks || !messageTextEl || !parsed?.thoughts?.length) return;
+
+    const walker = document.createTreeWalker(
+        messageTextEl,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode(node) {
+                if (!node.parentElement) return NodeFilter.FILTER_REJECT;
+                if (node.parentElement.closest(".mib-board-host, .mib-board")) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                const raw = node.textContent || "";
+                if (!raw.trim()) return NodeFilter.FILTER_SKIP;
+
+                const lines = raw.split(/\r?\n/);
+                return lines.some(line => LooksLikeThoughtLeakLine(line, parsed))
+                    ? NodeFilter.FILTER_ACCEPT
+                    : NodeFilter.FILTER_SKIP;
+            }
+        }
+    );
+
+    const targets = [];
+    let current = walker.nextNode();
+
+    while (current) {
+        targets.push(current);
+        current = walker.nextNode();
+    }
+
+    for (const node of targets) {
+        const lines = String(node.textContent || "").split(/\r?\n/);
+
+        node.textContent = lines
+            .filter(line => !LooksLikeThoughtLeakLine(line, parsed))
+            .join("\n")
+            .replace(/\n{3,}/g, "\n\n");
     }
 }
 
 function RenderBoardIntoMessage(mesTextEl, state, parsed) {
     if (!mesTextEl || !parsed) return;
 
-    CleanupRawXmlDom(mesTextEl);
-    RemoveRawXmlFromText(mesTextEl);
-    CleanupRawXmlDom(mesTextEl);
-    RemoveThoughtLeaks(mesTextEl, parsed);
+CleanupRawXmlDom(mesTextEl);
+RemoveRawXmlFromText(mesTextEl);
+CleanupRawXmlDom(mesTextEl);
+RemoveChronicleLeaks(mesTextEl, parsed);
+RemoveThoughtLeaks(mesTextEl, parsed);
+CleanupRawXmlDom(mesTextEl);
 
     if (!ShouldRenderInline()) {
         const host = mesTextEl.querySelector(".mib-board-host");
@@ -1143,6 +1319,11 @@ function ReprocessChat() {
         CleanupRawXmlDom(mesTextEl);
         RemoveRawXmlFromText(mesTextEl);
         CleanupRawXmlDom(mesTextEl);
+
+        if (parsed) {
+    RemoveChronicleLeaks(mesTextEl, parsed);
+    RemoveThoughtLeaks(mesTextEl, parsed);
+}
 
         if (!parsed) {
             const host = mesTextEl.querySelector(".mib-board-host");
@@ -1244,23 +1425,31 @@ function SaveFloatingLayout(host) {
 }
 
 function MakeFloatingDraggable(host) {
-    const header = host.querySelector(".mib-floating-header");
-    if (!header || host.dataset.dragReady === "true") return;
+    if (!host) return;
 
-    host.dataset.dragReady = "true";
+    if (host._mibDragCleanup) {
+        host._mibDragCleanup();
+        host._mibDragCleanup = null;
+    }
+
+    const header = host.querySelector(".mib-floating-header");
+    if (!header) return;
 
     let dragging = false;
     let startX = 0;
     let startY = 0;
     let startLeft = 0;
     let startTop = 0;
+    let activePointerId = null;
 
-    header.addEventListener("pointerdown", event => {
+    const onPointerDown = (event) => {
         if (event.target.closest("button")) return;
+        if (event.button !== undefined && event.button !== 0) return;
 
         const rect = host.getBoundingClientRect();
 
         dragging = true;
+        activePointerId = event.pointerId;
         startX = event.clientX;
         startY = event.clientY;
         startLeft = rect.left;
@@ -1271,25 +1460,71 @@ function MakeFloatingDraggable(host) {
         host.style.right = "auto";
         host.style.bottom = "auto";
 
-        event.preventDefault();
-    });
+        document.body.classList.add("mib-floating-dragging");
 
-    window.addEventListener("pointermove", event => {
+        try {
+            header.setPointerCapture?.(event.pointerId);
+        } catch {}
+
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", onPointerUp);
+        window.addEventListener("pointercancel", onPointerUp);
+
+        event.preventDefault();
+    };
+
+    const onPointerMove = (event) => {
         if (!dragging) return;
+        if (activePointerId !== null && event.pointerId !== activePointerId) return;
 
         const rect = host.getBoundingClientRect();
-        const left = Clamp(startLeft + event.clientX - startX, 0, window.innerWidth - rect.width);
-        const top = Clamp(startTop + event.clientY - startY, 0, window.innerHeight - 80);
+
+        const left = Clamp(
+            startLeft + event.clientX - startX,
+            0,
+            Math.max(0, window.innerWidth - rect.width)
+        );
+
+        const top = Clamp(
+            startTop + event.clientY - startY,
+            0,
+            Math.max(0, window.innerHeight - 80)
+        );
 
         host.style.left = `${left}px`;
         host.style.top = `${top}px`;
-    });
+        host.style.right = "auto";
+        host.style.bottom = "auto";
+    };
 
-    window.addEventListener("pointerup", () => {
+    const onPointerUp = (event) => {
         if (!dragging) return;
+
         dragging = false;
+        activePointerId = null;
+
+        document.body.classList.remove("mib-floating-dragging");
+
+        try {
+            header.releasePointerCapture?.(event.pointerId);
+        } catch {}
+
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", onPointerUp);
+
         SaveFloatingLayout(host);
-    });
+    };
+
+    header.addEventListener("pointerdown", onPointerDown);
+
+    host._mibDragCleanup = () => {
+        header.removeEventListener("pointerdown", onPointerDown);
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", onPointerUp);
+        document.body.classList.remove("mib-floating-dragging");
+    };
 }
 
 function RemoveDock() {
