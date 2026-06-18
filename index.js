@@ -916,60 +916,6 @@ function RenderRelationCard(r, state) {
         </div>`;
 }
 
-function FindThoughtForNpc(thoughts = [], npcName = "") {
-    if (!npcName) return null;
-
-    return thoughts.find(thought => NamesSoftMatch(thought.name, npcName)) || null;
-}
-
-function RenderMiniStatChip(label, value, delta, kind) {
-    const n = Clamp(value, -100, 100);
-    const d = parseInt(delta, 10) || 0;
-    const cls = n >= 0 ? "mib-mini-pos" : "mib-mini-neg";
-    const deltaHtml = d
-        ? `<span class="mib-mini-delta ${d > 0 ? "mib-delta-pos" : "mib-delta-neg"}">${EscapeHtml(SignedText(d))}</span>`
-        : "";
-
-    return `
-        <span class="mib-mini-stat ${cls} mib-mini-${EscapeHtml(kind)}">
-            <span class="mib-mini-label">${EscapeHtml(label)}</span>
-            <span class="mib-mini-value">${n}</span>
-            ${deltaHtml}
-        </span>`;
-}
-
-function RenderRelationCard(r, state) {
-    const thought = FindThoughtForNpc(state.thoughts, r.source);
-
-    return `
-        <div class="mib-rel mib-rel-accordion mib-open">
-            <button type="button" class="mib-rel-toggle" aria-expanded="true">
-                <div class="mib-rel-toggle-main">
-                    <span class="mib-rel-name">${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
-                    <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
-                </div>
-
-                <div class="mib-rel-mini">
-                    ${RenderMiniStatChip("A", r.a, r.ac, "affection")}
-                    ${RenderMiniStatChip("T", r.tr, r.tc, "trust")}
-                    ${RenderMiniStatChip("L", r.l, r.lc, "love")}
-                    <span class="mib-rel-arrow" aria-hidden="true"></span>
-                </div>
-            </button>
-
-            <div class="mib-rel-body">
-                ${RenderMetric("a", r.a, r.ac, T("affection"), T("aversion"))}
-                ${RenderMetric("tr", r.tr, r.tc, T("trust"), T("distrust"))}
-                ${RenderMetric("l", r.l, r.lc, T("love"), T("hatred"))}
-
-                ${thought ? `
-                    <div class="mib-thought mib-rel-thought">
-                        <b>${EscapeHtml(thought.name)}:</b> ${EscapeHtml(thought.text)}
-                    </div>
-                ` : ""}
-            </div>
-        </div>`;
-}
 
 function RenderSceneTab(state) {
 const sortedChars = SortCharsByPriority(state.chars);
