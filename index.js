@@ -156,6 +156,9 @@ cssPresetTransparent: "Прозрачнее",
 cssPresetHighContrast: "Контрастнее",
 cssPresetPurpleGlow: "Фиолетовое свечение",
 insertPreset: "Вставить пресет",
+        dossier: "Досье",
+dossierEmpty: "Описание персонажа не найдено.",
+dossierClose: "Закрыть",
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -243,6 +246,9 @@ cssPresetTransparent: "More transparent",
 cssPresetHighContrast: "High contrast",
 cssPresetPurpleGlow: "Purple glow",
 insertPreset: "Insert preset",
+        dossier: "Dossier",
+dossierEmpty: "Character description not found.",
+dossierClose: "Close",
     }
 };
 
@@ -1303,10 +1309,11 @@ const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter ===
             <div class="mib-compact-topbar">
                 <div class="mib-compact-brand">Mom Infoblock</div>
 
-                <div class="mib-title-actions">
-                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="full" title="${EscapeHtml(T("sceneFull"))}">▣</button>
-                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-                </div>
+<div class="mib-title-actions">
+    <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
+    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+</div>
             </div>
 
             <div class="mib-compact-list">
@@ -1335,10 +1342,11 @@ function RenderPanel(state = gState) {
                     <div class="mib-title">Mom Infoblock</div>
                 </div>
 
-                <div class="mib-title-actions">
-                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
-                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-                </div>
+<div class="mib-title-actions">
+    <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
+    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+</div>
             </div>
 
             ${RenderTabs()}
@@ -1391,6 +1399,14 @@ root.querySelectorAll(".mib-rel-toggle").forEach(toggle => {
 
         const isOpen = card.classList.toggle("mib-open");
         toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+});
+
+    root.querySelectorAll(".mib-dossier-btn").forEach(button => {
+    button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        ToggleDossier(root);
     });
 });
 
@@ -1469,6 +1485,61 @@ function ReplaceMomInfoblockInMessage(messageText, nextXml) {
     }
 
     return `${text.trim()}\n\n${xml}`;
+}
+
+function GetCurrentCharacterDossier() {
+    const stContext = GetContextSafe();
+    const character = stContext.characters?.[stContext.characterId];
+
+    if (!character) {
+        return {
+            name: "",
+            description: ""
+        };
+    }
+
+    return {
+        name: character.name || stContext.name2 || "",
+        description: character.description || ""
+    };
+}
+
+function ToggleDossier(root) {
+    const board = root.querySelector?.("[data-mib-board]") || root.closest?.("[data-mib-board]") || root;
+    if (!board) return;
+
+    const existing = board.querySelector(".mib-dossier-panel");
+
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    const dossier = GetCurrentCharacterDossier();
+
+    const panel = document.createElement("div");
+    panel.className = "mib-dossier-panel";
+    panel.innerHTML = `
+        <div class="mib-dossier-head">
+            <div>
+                <div class="mib-dossier-kicker">${EscapeHtml(T("dossier"))}</div>
+                <div class="mib-dossier-name">${EscapeHtml(dossier.name || "???")}</div>
+            </div>
+            <button type="button" class="mib-dossier-close">${EscapeHtml(T("dossierClose"))}</button>
+        </div>
+
+        <div class="mib-dossier-body">
+            ${dossier.description
+                ? EscapeHtml(dossier.description).replace(/\n/g, "<br>")
+                : `<span class="mib-empty">${EscapeHtml(T("dossierEmpty"))}</span>`}
+        </div>
+    `;
+
+    panel.querySelector(".mib-dossier-close")?.addEventListener("click", () => {
+        panel.remove();
+    });
+
+    board.appendChild(panel);
 }
 
 function ToggleXmlInspector(root) {
