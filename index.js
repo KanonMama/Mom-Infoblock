@@ -1221,6 +1221,62 @@ function RemoveThoughtLeaks(messageTextEl, parsed) {
     }
 }
 
+function CleanupEmptyMessageNodes(messageTextEl) {
+    if (!messageTextEl) return;
+
+    const isEmptyElement = (node) => {
+        if (!node || node.nodeType !== Node.ELEMENT_NODE) return false;
+        if (node.closest(".mib-board-host, .mib-board")) return false;
+
+        const tag = node.tagName?.toLowerCase();
+        if (tag === "br") return true;
+
+        const text = String(node.textContent || "")
+            .replace(/\u00a0/g, " ")
+            .trim();
+
+        const hasMedia = node.querySelector("img, video, audio, iframe, svg, canvas");
+        const hasBoard = node.querySelector(".mib-board-host, .mib-board");
+
+        if (hasMedia || hasBoard) return false;
+
+        const meaningfulChildren = [...node.childNodes].some(child => {
+            if (child.nodeType === Node.TEXT_NODE) {
+                return String(child.textContent || "").replace(/\u00a0/g, " ").trim();
+            }
+
+            if (child.nodeType === Node.ELEMENT_NODE) {
+                const childTag = child.tagName?.toLowerCase();
+                if (childTag === "br") return false;
+                if (child.classList?.contains("mib-board-host")) return false;
+                return !isEmptyElement(child);
+            }
+
+            return false;
+        });
+
+        return !text && !meaningfulChildren;
+    };
+
+    let changed = true;
+
+    while (changed) {
+        changed = false;
+
+        [...messageTextEl.querySelectorAll("p, div, span, br")].forEach(node => {
+            if (node.classList?.contains("mib-board-host")) return;
+            if (node.closest(".mib-board-host, .mib-board")) return;
+
+            if (isEmptyElement(node)) {
+                node.remove();
+                changed = true;
+            }
+        });
+    }
+
+    messageTextEl.normalize();
+}
+
 function RenderBoardIntoMessage(mesTextEl, state, parsed) {
     if (!mesTextEl || !parsed) return;
 
@@ -1230,6 +1286,7 @@ CleanupRawXmlDom(mesTextEl);
 RemoveChronicleLeaks(mesTextEl, parsed);
 RemoveThoughtLeaks(mesTextEl, parsed);
 CleanupRawXmlDom(mesTextEl);
+CleanupEmptyMessageNodes(mesTextEl);
 
     if (!ShouldRenderInline()) {
         const host = mesTextEl.querySelector(".mib-board-host");
@@ -1320,16 +1377,18 @@ function ReprocessChat() {
         RemoveRawXmlFromText(mesTextEl);
         CleanupRawXmlDom(mesTextEl);
 
-        if (parsed) {
+if (parsed) {
     RemoveChronicleLeaks(mesTextEl, parsed);
     RemoveThoughtLeaks(mesTextEl, parsed);
+    CleanupEmptyMessageNodes(mesTextEl);
 }
 
-        if (!parsed) {
-            const host = mesTextEl.querySelector(".mib-board-host");
-            if (host) host.remove();
-            return;
-        }
+if (!parsed) {
+    const host = mesTextEl.querySelector(".mib-board-host");
+    if (host) host.remove();
+    CleanupEmptyMessageNodes(mesTextEl);
+    return;
+}
 
         rollingState = ApplyParsedToState(parsed, rollingState);
         RenderBoardIntoMessage(mesTextEl, rollingState, parsed);
