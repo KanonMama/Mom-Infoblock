@@ -1004,3 +1004,36 @@
     padding: 0;
     overflow: hidden;
 }
+
+.mib-view-switch {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 4px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.028);
+    border: 1px solid var(--mib-soft-border);
+}
+
+.mib-view-btn {
+    appearance: none;
+    flex: 1;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--mib-muted);
+    padding: 6px 9px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.mib-view-btn:hover {
+    color: var(--mib-text);
+    background: rgba(255,255,255,0.045);
+}
+
+.mib-view-active {
+    color: var(--mib-text);
+    background: rgba(143, 180, 255, 0.12);
+    border-color: rgba(143, 180, 255, 0.24);
+}
