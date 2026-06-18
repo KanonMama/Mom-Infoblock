@@ -23,6 +23,7 @@ const kActiveTabKey = `${kStoragePrefix}ActiveTab`;
 const kFloatingLayoutKey = `${kStoragePrefix}FloatingLayout`;
 const kDockCollapsedKey = `${kStoragePrefix}DockCollapsed`;
 const kPinnedNpcsKey = `${kStoragePrefix}PinnedNpcs`;
+const kSceneViewModeKey = `${kStoragePrefix}SceneViewMode`;
 
 let gEnabled = false;
 let gLang = "ru";
@@ -38,6 +39,7 @@ let gActiveTab = "scene";
 let gLastRawXml = "";
 let gNotes = "";
 let gPinnedNpcs = [];
+let gSceneViewMode = "full";
 
 const kDefaultState = {
     scene: {
@@ -118,7 +120,9 @@ applyXml: "Применить XML",
 closeXml: "Закрыть",
 xmlApplied: "XML применён",
 xmlInvalid: "XML не распознан. Проверь <mom_infoblock>.",
-xmlNoMessage: "Не удалось найти сообщение для правки."
+xmlNoMessage: "Не удалось найти сообщение для правки.",
+        sceneFull: "Полный",
+sceneCompact: "Компакт"
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -179,7 +183,9 @@ applyXml: "Apply XML",
 closeXml: "Close",
 xmlApplied: "XML applied",
 xmlInvalid: "XML was not recognized. Check <mom_infoblock>.",
-xmlNoMessage: "Could not find message to edit."
+xmlNoMessage: "Could not find message to edit.",
+        sceneFull: "Full",
+sceneCompact: "Compact"
     }
 };
 
@@ -408,6 +414,7 @@ function LoadSettings() {
     gChronicleEnabled = localStorage.getItem(kChronicleEnabledKey) !== "false";
     gChronicleLimit = parseInt(localStorage.getItem(kChronicleLimitKey), 10) || 10;
     gActiveTab = localStorage.getItem(kActiveTabKey) || "scene";
+    gSceneViewMode = localStorage.getItem(kSceneViewModeKey) || "full";
 }
 
 function SaveSettings() {
@@ -422,6 +429,7 @@ function SaveSettings() {
     localStorage.setItem(kChronicleEnabledKey, String(gChronicleEnabled));
     localStorage.setItem(kChronicleLimitKey, String(gChronicleLimit));
     localStorage.setItem(kActiveTabKey, gActiveTab);
+    localStorage.setItem(kSceneViewModeKey, gSceneViewMode);
 }
 
 function LoadState() {
@@ -885,10 +893,12 @@ function RenderMiniStatChip(label, value, delta, kind) {
 
 function RenderRelationCard(r, state) {
     const thought = FindThoughtForNpc(state.thoughts, r.source);
+    const isCompact = gSceneViewMode === "compact";
+    const openClass = isCompact ? "" : "mib-open";
 
     return `
-        <div class="mib-rel mib-rel-accordion mib-open">
-            <button type="button" class="mib-rel-toggle" aria-expanded="true">
+        <div class="mib-rel mib-rel-accordion ${openClass}">
+       <button type="button" class="mib-rel-toggle" aria-expanded="${isCompact ? "false" : "true"}">
                 <div class="mib-rel-toggle-main">
                     <span class="mib-rel-name">${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
                     <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
@@ -916,6 +926,25 @@ function RenderRelationCard(r, state) {
         </div>`;
 }
 
+function RenderSceneViewSwitch() {
+    return `
+        <div class="mib-view-switch">
+            <button
+                type="button"
+                class="mib-view-btn ${gSceneViewMode === "full" ? "mib-view-active" : ""}"
+                data-mib-scene-view="full"
+            >
+                ${EscapeHtml(T("sceneFull"))}
+            </button>
+            <button
+                type="button"
+                class="mib-view-btn ${gSceneViewMode === "compact" ? "mib-view-active" : ""}"
+                data-mib-scene-view="compact"
+            >
+                ${EscapeHtml(T("sceneCompact"))}
+            </button>
+        </div>`;
+}
 
 function RenderSceneTab(state) {
 const sortedChars = SortCharsByPriority(state.chars);
@@ -968,9 +997,10 @@ const thoughtsHtml = extraThoughts.length
             </div>`
         : "";
 
-    return `
-        <div class="mib-scene-grid">
-            <div class="mib-header">
+return `
+    <div class="mib-scene-grid">
+        ${RenderSceneViewSwitch()}
+        <div class="mib-header">
                 <div class="mib-location">📍 ${EscapeHtml(state.scene.loc)}</div>
                 <div class="mib-meta">
                     <span>⏰ ${EscapeHtml(state.scene.time)}</span>
@@ -1101,6 +1131,17 @@ root.querySelectorAll(".mib-rel-toggle").forEach(toggle => {
 
         const isOpen = card.classList.toggle("mib-open");
         toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+});
+
+root.querySelectorAll("[data-mib-scene-view]").forEach(button => {
+    button.addEventListener("click", event => {
+        event.preventDefault();
+
+        gSceneViewMode = button.dataset.mibSceneView || "full";
+        localStorage.setItem(kSceneViewModeKey, gSceneViewMode);
+
+        RerenderAllPanels();
     });
 });
     
