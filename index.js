@@ -1775,47 +1775,6 @@ root.querySelectorAll(".mib-style-btn").forEach(button => {
         ToggleDossier(root);
     });
 });
-
-    const menu = document.createElement("div");
-    menu.className = "mib-style-menu";
-    menu.innerHTML = `
-        <div class="mib-style-menu-row">
-            <label>
-                <span>${EscapeHtml(T("theme"))}</span>
-                <select class="mib-style-theme-select">
-                    <option value="nocturne" ${gTheme === "nocturne" ? "selected" : ""}>Nocturne</option>
-                    <option value="terminal" ${gTheme === "terminal" ? "selected" : ""}>Terminal</option>
-                    <option value="casefile" ${gTheme === "casefile" ? "selected" : ""}>Case File</option>
-                    <option value="oraclemoon" ${gTheme === "oraclemoon" ? "selected" : ""}>Oracle Moon</option>
-                </select>
-            </label>
-        </div>
-
-        <div class="mib-style-menu-row">
-            <label>
-                <span>${EscapeHtml(T("barStyle"))}</span>
-                <select class="mib-style-bar-select">
-                    ${RenderStyleSelectOptions(kBarStyleOptions, gBarStyle)}
-                </select>
-            </label>
-        </div>
-    `;
-
-    menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event => {
-        gTheme = event.target.value || "nocturne";
-        SaveSettings();
-        RerenderAllPanels();
-    });
-
-    menu.querySelector(".mib-style-bar-select")?.addEventListener("change", event => {
-        gBarStyle = event.target.value || "classic";
-        SaveSettings();
-        RerenderAllPanels();
-    });
-
-    const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar");
-    titleRow?.after(menu);
-}
     
 root.querySelectorAll("[data-mib-panel-mode]").forEach(button => {
     button.addEventListener("click", event => {
