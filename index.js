@@ -24,6 +24,7 @@ const kFloatingLayoutKey = `${kStoragePrefix}FloatingLayout`;
 const kDockCollapsedKey = `${kStoragePrefix}DockCollapsed`;
 const kPinnedNpcsKey = `${kStoragePrefix}PinnedNpcs`;
 const kSceneViewModeKey = `${kStoragePrefix}SceneViewMode`;
+const kRelationFilterKey = `${kStoragePrefix}RelationFilter`;
 
 let gEnabled = false;
 let gLang = "ru";
@@ -40,6 +41,7 @@ let gLastRawXml = "";
 let gNotes = "";
 let gPinnedNpcs = [];
 let gSceneViewMode = "full";
+let gRelationFilter = "top3";
 
 const kDefaultState = {
     scene: {
@@ -122,7 +124,13 @@ xmlApplied: "XML применён",
 xmlInvalid: "XML не распознан. Проверь <mom_infoblock>.",
 xmlNoMessage: "Не удалось найти сообщение для правки.",
         sceneFull: "Полный",
-sceneCompact: "Компакт"
+sceneCompact: "Компакт",
+        relationFilter: "Фильтр отношений",
+relationTop3: "Топ 3",
+relationTop1: "Топ 1",
+relationChanged: "Только изменившиеся",
+relationAll: "Все",
+noRelationChanges: "Изменений нет"
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -185,7 +193,13 @@ xmlApplied: "XML applied",
 xmlInvalid: "XML was not recognized. Check <mom_infoblock>.",
 xmlNoMessage: "Could not find message to edit.",
         sceneFull: "Full",
-sceneCompact: "Compact"
+sceneCompact: "Compact",
+        relationFilter: "Relationship Filter",
+relationTop3: "Top 3",
+relationTop1: "Top 1",
+relationChanged: "Changed only",
+relationAll: "All",
+noRelationChanges: "No changes"
     }
 };
 
@@ -415,6 +429,7 @@ function LoadSettings() {
     gChronicleLimit = parseInt(localStorage.getItem(kChronicleLimitKey), 10) || 10;
     gActiveTab = localStorage.getItem(kActiveTabKey) || "scene";
     gSceneViewMode = localStorage.getItem(kSceneViewModeKey) || "full";
+    gRelationFilter = localStorage.getItem(kRelationFilterKey) || "top3";
 }
 
 function SaveSettings() {
@@ -430,6 +445,7 @@ function SaveSettings() {
     localStorage.setItem(kChronicleLimitKey, String(gChronicleLimit));
     localStorage.setItem(kActiveTabKey, gActiveTab);
     localStorage.setItem(kSceneViewModeKey, gSceneViewMode);
+    localStorage.setItem(kRelationFilterKey, gRelationFilter);
 }
 
 function LoadState() {
@@ -944,6 +960,40 @@ function RenderSceneViewSwitch() {
         </div>`;
 }
 
+function RelationHasDelta(rel) {
+    return (
+        (parseInt(rel.ac, 10) || 0) !== 0 ||
+        (parseInt(rel.tc, 10) || 0) !== 0 ||
+        (parseInt(rel.lc, 10) || 0) !== 0
+    );
+}
+
+function GetFilteredRelations(rels = []) {
+    const sorted = SortRelationsByPriority(rels);
+
+    if (gRelationFilter === "top1") {
+        return sorted.slice(0, 1);
+    }
+
+    if (gRelationFilter === "changed") {
+        const changed = sorted.filter(RelationHasDelta);
+        return changed.length ? changed : sorted.slice(0, 3);
+    }
+
+    if (gRelationFilter === "all") {
+        return sorted;
+    }
+
+    return sorted.slice(0, 3);
+}
+
+function RenderRelationFilterNote(rels = []) {
+    if (gRelationFilter !== "changed") return "";
+    if (rels.some(RelationHasDelta)) return "";
+
+    return `<div class="mib-filter-note">${EscapeHtml(T("noRelationChanges"))}</div>`;
+}
+
 function RenderSceneTab(state) {
 const sortedChars = SortCharsByPriority(state.chars);
 
@@ -969,9 +1019,10 @@ ${c.mood ? `<span class="mib-chip mib-mood">${EscapeHtml(c.mood)}</span>` : ""}
         : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
 
 const sortedRels = SortRelationsByPriority(state.rels);
+const filteredRels = GetFilteredRelations(state.rels);
 
-const relsHtml = sortedRels.length
-    ? sortedRels.map(r => RenderRelationCard(r, state)).join("")
+const relsHtml = filteredRels.length
+    ? `${RenderRelationFilterNote(sortedRels)}${filteredRels.map(r => RenderRelationCard(r, state)).join("")}`
     : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
 
 const extraThoughts = (state.thoughts || []).filter(thought => {
@@ -1059,7 +1110,7 @@ function RenderNotesTab() {
 }
 
 function RenderCompactPanel(state = gState) {
-    const rels = SortRelationsByPriority(state.rels || []).slice(0, 5);
+const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter === "all" ? 8 : 5);
 
     const relsHtml = rels.length
         ? rels.map(r => `
@@ -2070,7 +2121,8 @@ function BuildExportPackage() {
             showNsfw: gShowNsfw,
             chronicleEnabled: gChronicleEnabled,
             chronicleLimit: gChronicleLimit,
-            activeTab: gActiveTab
+            activeTab: gActiveTab,
+            relationFilter: gRelationFilter
         },
         state: gState,
         notes: gNotes,
@@ -2124,6 +2176,7 @@ function ApplyImportedPackage(data) {
             gChronicleEnabled = data.settings.chronicleEnabled !== false;
             gChronicleLimit = parseInt(data.settings.chronicleLimit, 10) || gChronicleLimit;
             gActiveTab = data.settings.activeTab || gActiveTab;
+            gRelationFilter = data.settings.relationFilter || gRelationFilter;
         }
 
         if (data.ui?.floatingLayout) {
@@ -2175,7 +2228,11 @@ function UpdateSettingsText() {
     $('label[for="mib_show_nsfw"]').text(T("showNsfw"));
     $('label[for="mib_chronicle_enabled"]').text(T("chronicleEnabled"));
     $('label[for="mib_chronicle_limit"]').html(`<b>${T("chronicleLimit")}</b>`);
-
+$('label[for="mib_relation_filter"]').html(`<b>${T("relationFilter")}</b>`);
+$("#mib_relation_filter option[value='top3']").text(T("relationTop3"));
+$("#mib_relation_filter option[value='top1']").text(T("relationTop1"));
+$("#mib_relation_filter option[value='changed']").text(T("relationChanged"));
+$("#mib_relation_filter option[value='all']").text(T("relationAll"));
     $("#mib_display_mode option[value='inline']").text(T("displayInline"));
     $("#mib_display_mode option[value='floating']").text(T("displayFloating"));
     $("#mib_display_mode option[value='dock']").text(T("displayDock"));
@@ -2189,6 +2246,7 @@ function UpdateSettingsText() {
     $("#mib_reprocess_chat").text(T("reprocess"));
     $("#mib_export_data").text(T("exportData"));
     $("#mib_import_data").text(T("importData"));
+    
 }
 
 function SyncSettingsControls() {
@@ -2202,6 +2260,7 @@ function SyncSettingsControls() {
     $("#mib_show_nsfw").prop("checked", gShowNsfw);
     $("#mib_chronicle_enabled").prop("checked", gChronicleEnabled);
     $("#mib_chronicle_limit").val(String(gChronicleLimit));
+    $("#mib_relation_filter").val(gRelationFilter);
 }
 
 function UpdateStatusDisplay() {
@@ -2298,6 +2357,12 @@ function WireSettings() {
         RerenderAllPanels();
     });
 
+$("#mib_relation_filter").on("change", function () {
+    gRelationFilter = $(this).val() || "top3";
+    SaveSettings();
+    RerenderAllPanels();
+});
+    
     $("#mib_reset_state").on("click", function () {
         if (!confirm(T("resetConfirm"))) return;
 
