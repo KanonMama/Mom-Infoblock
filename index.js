@@ -211,7 +211,7 @@ Rules:
 - Private NPC thoughts: max 1 sentence and max 30 words per NPC
 - Chronicle events: add only important new events from this response
 - Chronicle events: max 3 <event> entries per response, max 18 words each
-- Chronicle threads: include only currently unresolved plot hooks, max 5 <thread> entries, do not rephrase old threads
+- Chronicle threads: include only currently unresolved plot hooks, max 4 <thread> entries, do not rephrase old threads
 - Do not repeat old chronicle events unless they changed meaning
 - Do not write guesses as facts in chronicle
 - Omit <chronicle> if nothing important changed
@@ -269,7 +269,7 @@ Rules:
 - Private NPC thoughts: max 1 sentence and max 20 words per NPC
 - Chronicle events: add only important new events from this response
 - Chronicle events: max 3 <event> entries per response, max 18 words each
-- Chronicle threads: include only currently unresolved plot hooks, max 5 <thread> entries, do not rephrase old threads
+- Chronicle threads: include only currently unresolved plot hooks, max 4 <thread> entries, do not rephrase old threads
 - Do not repeat old chronicle events unless they changed meaning
 - Do not write guesses as facts in chronicle
 - Omit <chronicle> if nothing important changed
@@ -731,11 +731,11 @@ function ApplyParsedToState(parsed, baseState = gState) {
             gChronicleLimit
         );
 
-        next.chronicle.threads = MergeUniqueList(
-            next.chronicle.threads,
-            parsed.chronicle?.threads || [],
-            12
-        );
+next.chronicle.threads = MergeUniqueList(
+    next.chronicle.threads,
+    parsed.chronicle?.threads || [],
+    6
+);
     }
 
     if (parsed.rawXml) {
