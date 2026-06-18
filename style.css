@@ -475,6 +475,11 @@
     background: transparent;
 }
 
+.mib-floating-dragging,
+.mib-floating-dragging * {
+    user-select: none !important;
+}
+
 /* Side Dock */
 
 #mib_dock_host {
