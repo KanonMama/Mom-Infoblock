@@ -278,9 +278,16 @@ Rules:
 - Fill all values in Russian
 - No extra XML tags or commentary
 - Add one <c /> for each NPC currently present
+- Use the exact same full NPC name in <chars name="">, <rel source="">, and <thk>
+- Never shorten NPC names in <rel> or <thk>
 - Do not include {{user}} as NPC
 - tags: 1-4 short tags separated by |
+- tags must be short labels, not phrases or sentences
+- Never write explanations, actions, or long descriptions in tags
+- Use tags for scene presence when relevant: focus | рядом | наблюдает | на периферии | вышел
 - mood: 1-3 words, visible current emotional state only
+- Leave mood empty if unclear
+- Do not duplicate mood inside tags
 - Add one <rel /> per relevant present NPC describing feelings toward {{user}} only
 - Add <rel /> only for the 1-3 most relevant present NPCs
 - a, tr, l: from -100 to 100
@@ -289,11 +296,19 @@ Rules:
 - Negative trust = distrust/suspicion/fear
 - Negative love = hatred/destructive obsession/anti-attachment
 - status: 1-3 words only, relationship phase/status only
+- status must not describe events, thoughts, explanations, or causes
+- Never write full sentences in status
+- Good status examples: заинтересована | доверяет | тянется | защитная привязанность | сложное влечение
+- Bad status examples: её слова пробили защиту | впервые не знает что сказать | привязанность перешла в новую фазу
 - Put all NPC private thoughts into one <thk> block
 - One NPC per line in <thk>
+- Never include {{user}} thoughts in <thk>
 - Private thoughts must appear only inside <thk>
 - Never output private NPC thoughts in visible narrative text
 - Private NPC thoughts: max 1 sentence and max 30 words per NPC
+- Do not explain feelings in <thk>; write only the immediate private thought
+- Never write <thk> thoughts as visible lines before the XML
+- No "Имя: мысль" thought list in visible narrative
 - Chronicle events: add only important new events from this response
 - Chronicle events: max 3 <event> entries per response, max 18 words each
 - Chronicle threads: include only currently unresolved plot hooks, max 4 <thread> entries, do not rephrase old threads
@@ -308,7 +323,11 @@ Rules:
 - Visible narrative must contain only roleplay prose/dialogue, not system summaries
 
 <thk> strict format:
-Full NPC Name: thought`;
+- Use the exact full NPC name exactly as in <chars>
+- Always write the name before the thought
+- Never shorten names
+- No markdown, quotes, asterisks, or brackets
+- Format only: Полное Имя: мысль`;
 
 const kSystemPromptEn = `Mom Infoblock:
 Append exactly one XML block at the end of every assistant response. Fill all values in English. Keep it concise, accurate, and updated every message.
@@ -336,9 +355,16 @@ Rules:
 - Fill all values in English
 - No extra XML tags or commentary
 - Add one <c /> for each NPC currently present
+- Use the exact same full NPC name in <chars name="">, <rel source="">, and <thk>
+- Never shorten NPC names in <rel> or <thk>
 - Do not include {{user}} as NPC
 - tags: 1-4 short tags separated by |
+- tags must be short labels, not phrases or sentences
+- Never write explanations, actions, or long descriptions in tags
+- Use tags for scene presence when relevant: focus | near | watching | background | left
 - mood: 1-3 words, visible current emotional state only
+- Leave mood empty if unclear
+- Do not duplicate mood inside tags
 - Add one <rel /> per relevant present NPC describing feelings toward {{user}} only
 - Add <rel /> only for the 1-3 most relevant present NPCs
 - a, tr, l: from -100 to 100
@@ -347,11 +373,19 @@ Rules:
 - Negative trust = distrust/suspicion/fear
 - Negative love = hatred/destructive obsession/anti-attachment
 - status: 1-3 words only, relationship phase/status only
+- status must not describe events, thoughts, explanations, or causes
+- Never write full sentences in status
+- Good status examples: interested | trusts you | drawn in | protective attachment | complicated attraction
+- Bad status examples: her words pierced his defenses | does not know what to say | attachment moved into a new phase
 - Put all NPC private thoughts into one <thk> block
 - One NPC per line in <thk>
+- Never include {{user}} thoughts in <thk>
 - Private thoughts must appear only inside <thk>
 - Never output private NPC thoughts in visible narrative text
 - Private NPC thoughts: max 1 sentence and max 20 words per NPC
+- Do not explain feelings in <thk>; write only the immediate private thought
+- Never write <thk> thoughts as visible lines before the XML
+- No "Name: thought" thought list in visible narrative
 - Chronicle events: add only important new events from this response
 - Chronicle events: max 3 <event> entries per response, max 18 words each
 - Chronicle threads: include only currently unresolved plot hooks, max 4 <thread> entries, do not rephrase old threads
@@ -366,7 +400,11 @@ Rules:
 - Visible narrative must contain only roleplay prose/dialogue, not system summaries
 
 <thk> strict format:
-Full NPC Name: thought`;
+- Use the exact full NPC name exactly as in <chars>
+- Always write the name before the thought
+- Never shorten names
+- No markdown, quotes, asterisks, or brackets
+- Format only: Full NPC Name: thought`;
 
 function T(key) {
     return kLangMap[gLang]?.[key] ?? key;
@@ -408,6 +446,101 @@ function NormalizeText(value) {
 
 function NormalizeName(value) {
     return NormalizeText(value);
+}
+
+function StripNameDecorators(value) {
+    return String(value ?? "")
+        .replace(/[*_~`"“”„]/g, "")
+        .replace(/[(){}\[\]]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function GetNameAliases(name) {
+    const raw = String(name ?? "").trim();
+    if (!raw) return [];
+
+    const clean = StripNameDecorators(raw);
+    const lower = clean.toLowerCase();
+    const parts = clean.split(/\s+/).filter(Boolean);
+
+    const aliases = new Set();
+    aliases.add(lower);
+
+    if (parts.length > 1) {
+        aliases.add(parts[0].toLowerCase());
+        aliases.add(parts[parts.length - 1].toLowerCase());
+        aliases.add(parts.slice(-2).join(" ").toLowerCase());
+    }
+
+    const noPunct = lower.replace(/[^\p{L}\p{N}\s-]/gu, "").trim();
+    if (noPunct) aliases.add(noPunct);
+
+    return [...aliases].filter(Boolean);
+}
+
+function NamesLikelyMatch(a, b) {
+    const aAliases = GetNameAliases(a);
+    const bAliases = GetNameAliases(b);
+
+    for (const x of aAliases) {
+        for (const y of bAliases) {
+            if (!x || !y) continue;
+            if (x === y) return true;
+
+            const minLen = Math.min(x.length, y.length);
+            const maxLen = Math.max(x.length, y.length);
+
+            if (minLen >= 4 && (x.includes(y) || y.includes(x))) {
+                if (minLen / maxLen >= 0.65) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+function ThoughtOwnerMatchesNpc(thoughtName, npcName, allNpcNames = []) {
+    const thought = StripNameDecorators(thoughtName).toLowerCase().trim();
+    const npc = StripNameDecorators(npcName).toLowerCase().trim();
+
+    if (!thought || !npc) return false;
+    if (thought === npc) return true;
+
+    const thoughtParts = thought.split(/\s+/).filter(Boolean);
+    const npcParts = npc.split(/\s+/).filter(Boolean);
+
+    if (!thoughtParts.length || !npcParts.length) return false;
+
+    const thoughtFirst = thoughtParts[0];
+    const thoughtLast = thoughtParts[thoughtParts.length - 1];
+    const npcFirst = npcParts[0];
+    const npcLast = npcParts[npcParts.length - 1];
+
+    if (thought === npcFirst || thought === npcLast) {
+        if (thought === npcLast) {
+            const sameLastCount = allNpcNames.filter(name => {
+                const parts = StripNameDecorators(name).toLowerCase().trim().split(/\s+/).filter(Boolean);
+                return parts.length && parts[parts.length - 1] === npcLast;
+            }).length;
+
+            return sameLastCount <= 1;
+        }
+
+        return true;
+    }
+
+    if (thought.includes(npc) || npc.includes(thought)) {
+        const minLen = Math.min(thought.length, npc.length);
+        const maxLen = Math.max(thought.length, npc.length);
+        return minLen >= 4 && (minLen / maxLen >= 0.65);
+    }
+
+    if (thoughtFirst === npcFirst && thoughtLast === npcLast) return true;
+
+    return false;
 }
 
 function GetContextSafe() {
@@ -868,18 +1001,87 @@ function RepairXml(xml) {
 }
 
 function ParseThoughtLine(line) {
-    const clean = String(line || "").trim();
+    let clean = String(line || "").trim();
     if (!clean) return null;
+
+    clean = clean
+        .replace(/^\s*[*_~`]+/, "")
+        .replace(/[*_~`]+\s*$/, "")
+        .trim();
 
     const match = clean.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
     if (!match) return null;
 
-    const name = LimitText(match[1], 80);
-    const text = LimitText(match[2], 220);
+    const name = StripNameDecorators(match[1]);
+    const text = String(match[2] || "")
+        .replace(/^\s*[*_~`]+/, "")
+        .replace(/[*_~`]+\s*$/, "")
+        .trim();
 
     if (!name || !text || IsUserLikeName(name)) return null;
 
-    return { name, text };
+    return {
+        name: LimitText(name, 80),
+        text: LimitText(text, 220)
+    };
+}
+
+function NormalizeThoughtOwners(parsed) {
+    if (!parsed?.thoughts?.length) return;
+
+    const singleRelName = parsed.rels?.length === 1 ? parsed.rels[0].source : "";
+    const singleCharName = parsed.chars?.length === 1 ? parsed.chars[0].name : "";
+
+    parsed.thoughts = parsed.thoughts
+        .map(thought => {
+            let thoughtName = thought.name;
+
+            const isUnassigned =
+                NormalizeName(thoughtName) === "__unassigned__" ||
+                NormalizeName(thoughtName) === "npc";
+
+            if (isUnassigned) {
+                if (singleRelName || singleCharName) {
+                    thoughtName = singleRelName || singleCharName;
+                } else {
+                    return {
+                        ...thought,
+                        name: "__UNASSIGNED__"
+                    };
+                }
+            }
+
+            const allNpcNames = [
+                ...parsed.rels.map(rel => rel.source),
+                ...parsed.chars.map(char => char.name)
+            ];
+
+            const relMatches = parsed.rels.filter(rel => ThoughtOwnerMatchesNpc(thoughtName, rel.source, allNpcNames));
+            const charMatches = parsed.chars.filter(char => ThoughtOwnerMatchesNpc(thoughtName, char.name, allNpcNames));
+
+            const canonicalName =
+                relMatches.length === 1 ? relMatches[0].source :
+                charMatches.length === 1 ? charMatches[0].name :
+                thoughtName;
+
+            return {
+                ...thought,
+                name: canonicalName
+            };
+        })
+        .filter(thought => !IsUserLikeName(thought.name));
+
+    if (parsed.chars.length > 0 || parsed.rels.length > 0) {
+        parsed.thoughts = parsed.thoughts.filter(thought => {
+            const n = NormalizeName(thought.name);
+            if (n === "npc" || n === "__unassigned__") return false;
+
+            const byChar = parsed.chars.some(char => NamesLikelyMatch(char.name, thought.name));
+            const byRel = parsed.rels.some(rel => NamesLikelyMatch(rel.source, thought.name));
+
+            return byChar || byRel;
+        });
+    }
 }
 
 function ParseMomInfoblock(text) {
@@ -987,6 +1189,23 @@ if (thk && gThoughtsEnabled) {
         };
     }
 
+if (parsed.rels.length && parsed.chars.length) {
+    parsed.rels = parsed.rels.map(rel => {
+        const matches = parsed.chars.filter(char => NamesLikelyMatch(char.name, rel.source));
+
+        if (matches.length === 1) {
+            return {
+                ...rel,
+                source: matches[0].name
+            };
+        }
+
+        return rel;
+    });
+}
+
+NormalizeThoughtOwners(parsed);
+    
     return parsed;
 }
 
@@ -1077,10 +1296,12 @@ function RenderTabs() {
         </div>`;
 }
 
-function FindThoughtForNpc(thoughts = [], npcName = "") {
+function FindThoughtForNpc(thoughts = [], npcName = "", rels = []) {
     if (!npcName) return null;
 
-    return thoughts.find(thought => NamesSoftMatch(thought.name, npcName)) || null;
+    const allNpcNames = (rels || []).map(rel => rel.source);
+
+    return thoughts.find(thought => ThoughtOwnerMatchesNpc(thought.name, npcName, allNpcNames)) || null;
 }
 
 function RenderMiniStatChip(label, value, delta, kind) {
@@ -1100,7 +1321,7 @@ function RenderMiniStatChip(label, value, delta, kind) {
 }
 
 function RenderRelationCard(r, state) {
-const thought = gThoughtsEnabled ? FindThoughtForNpc(state.thoughts, r.source) : null;
+const thought = gThoughtsEnabled ? FindThoughtForNpc(state.thoughts, r.source, state.rels) : null;
 
     return `
         <div class="mib-rel mib-rel-accordion mib-open">
@@ -1198,9 +1419,11 @@ const relsHtml = filteredRels.length
     ? `${RenderRelationFilterNote(sortedRels)}${filteredRels.map(r => RenderRelationCard(r, state)).join("")}`
     : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
 
+const allNpcNames = sortedRels.map(rel => rel.source);
+
 const extraThoughts = gThoughtsEnabled
     ? (state.thoughts || []).filter(thought => {
-        return !sortedRels.some(rel => NamesSoftMatch(thought.name, rel.source));
+        return !sortedRels.some(rel => ThoughtOwnerMatchesNpc(thought.name, rel.source, allNpcNames));
     })
     : [];
 
@@ -1836,6 +2059,7 @@ function ParseVisibleThoughtLine(line) {
 }
 
 function NamesSoftMatch(a, b) {
+    if (NamesLikelyMatch(a, b)) return true;
     const x = NormalizeLeakText(a);
     const y = NormalizeLeakText(b);
 
