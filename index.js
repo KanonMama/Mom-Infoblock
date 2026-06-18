@@ -2227,7 +2227,8 @@ function BuildExportPackage() {
             chronicleEnabled: gChronicleEnabled,
             chronicleLimit: gChronicleLimit,
             activeTab: gActiveTab,
-            relationFilter: gRelationFilter
+            relationFilter: gRelationFilter,
+            customCss: gCustomCss
         },
         state: gState,
         notes: gNotes,
@@ -2282,6 +2283,7 @@ function ApplyImportedPackage(data) {
             gChronicleLimit = parseInt(data.settings.chronicleLimit, 10) || gChronicleLimit;
             gActiveTab = data.settings.activeTab || gActiveTab;
             gRelationFilter = data.settings.relationFilter || gRelationFilter;
+            gCustomCss = data.settings.customCss || gCustomCss;
         }
 
         if (data.ui?.floatingLayout) {
@@ -2295,6 +2297,8 @@ function ApplyImportedPackage(data) {
         SaveSettings();
         SaveState();
         SaveNotes();
+        SaveCustomCss();
+ApplyCustomCss();
         return;
     }
 
@@ -2351,6 +2355,10 @@ $("#mib_relation_filter option[value='all']").text(T("relationAll"));
     $("#mib_reprocess_chat").text(T("reprocess"));
     $("#mib_export_data").text(T("exportData"));
     $("#mib_import_data").text(T("importData"));
+    $("#mib_toggle_custom_css").text(T("customCss"));
+$("#mib_save_custom_css").text(T("saveCustomCss"));
+$("#mib_clear_custom_css").text(T("clearCustomCss"));
+$("#mib_custom_css_input").attr("placeholder", T("customCssPlaceholder"));
     
 }
 
@@ -2366,6 +2374,7 @@ function SyncSettingsControls() {
     $("#mib_chronicle_enabled").prop("checked", gChronicleEnabled);
     $("#mib_chronicle_limit").val(String(gChronicleLimit));
     $("#mib_relation_filter").val(gRelationFilter);
+    $("#mib_custom_css_input").val(gCustomCss);
 }
 
 function UpdateStatusDisplay() {
@@ -2482,6 +2491,23 @@ $("#mib_relation_filter").on("change", function () {
         ReprocessChat();
     });
 
+    $("#mib_toggle_custom_css").on("click", function () {
+    $("#mib_custom_css_block").toggle();
+});
+
+$("#mib_save_custom_css").on("click", function () {
+    gCustomCss = $("#mib_custom_css_input").val() || "";
+    SaveCustomCss();
+    ApplyCustomCss();
+});
+
+$("#mib_clear_custom_css").on("click", function () {
+    gCustomCss = "";
+    $("#mib_custom_css_input").val("");
+    SaveCustomCss();
+    ApplyCustomCss();
+});
+    
     $("#mib_export_data").on("click", function () {
         ExportData();
     });
