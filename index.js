@@ -164,6 +164,18 @@ nearby: "рядом",
 watching: "наблюдает",
 background: "на периферии",
 leftScene: "вышел",
+        styleMenu: "Стиль",
+barStyle: "Стиль полос",
+barClassic: "Classic",
+barGlass: "Glass Needle",
+barNeon: "Neon Rails",
+barTerminal: "Terminal Segments",
+barHearts: "Heart Meter",
+barConstellation: "Constellation Stars",
+barVials: "Vials",
+barEvidence: "Evidence Tape",
+barRunic: "Runic Shards",
+barEnergon: "Energon",
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -259,6 +271,18 @@ nearby: "nearby",
 watching: "watching",
 background: "background",
 leftScene: "left",
+        styleMenu: "Style",
+barStyle: "Bar Style",
+barClassic: "Classic",
+barGlass: "Glass Needle",
+barNeon: "Neon Rails",
+barTerminal: "Terminal Segments",
+barHearts: "Heart Meter",
+barConstellation: "Constellation Stars",
+barVials: "Vials",
+barEvidence: "Evidence Tape",
+barRunic: "Runic Shards",
+barEnergon: "Energon",
     }
 };
 
@@ -684,6 +708,7 @@ function LoadSettings() {
     gRelationFilter = localStorage.getItem(kRelationFilterKey) || "top3";
     gFontSize = localStorage.getItem(kFontSizeKey) || "normal";
     gThoughtsEnabled = localStorage.getItem(kThoughtsEnabledKey) !== "false";
+    gBarStyle = localStorage.getItem(kBarStyleKey) || "classic";
 }
 
 function SaveSettings() {
@@ -702,6 +727,7 @@ function SaveSettings() {
     localStorage.setItem(kRelationFilterKey, gRelationFilter);
     localStorage.setItem(kFontSizeKey, gFontSize);
     localStorage.setItem(kThoughtsEnabledKey, String(gThoughtsEnabled));
+    localStorage.setItem(kBarStyleKey, gBarStyle);
 }
 
 function LoadState() {
@@ -1591,6 +1617,27 @@ function RenderNotesTab() {
         </div>`;
 }
 
+const kBarStyleOptions = [
+    ["classic", "barClassic"],
+    ["glass", "barGlass"],
+    ["neon", "barNeon"],
+    ["terminal", "barTerminal"],
+    ["hearts", "barHearts"],
+    ["constellation", "barConstellation"],
+    ["vials", "barVials"],
+    ["evidence", "barEvidence"],
+    ["runic", "barRunic"],
+    ["energon", "barEnergon"]
+];
+
+function RenderStyleSelectOptions(options, activeValue) {
+    return options.map(([value, labelKey]) => `
+        <option value="${EscapeHtml(value)}" ${activeValue === value ? "selected" : ""}>
+            ${EscapeHtml(T(labelKey))}
+        </option>
+    `).join("");
+}
+
 function RenderCompactPanel(state = gState) {
 const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter === "all" ? 8 : 5);
 
@@ -1612,13 +1659,14 @@ const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter ===
         : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
 
     return `
-        <div class="mib-board mib-board-compact mib-theme-${EscapeHtml(gTheme)}" data-mib-board>
+<div class="mib-board mib-board-compact mib-theme-${EscapeHtml(gTheme)} mib-bars-${EscapeHtml(gBarStyle)}" data-mib-board>
             <div class="mib-compact-topbar">
                 <div class="mib-compact-brand">Mom Infoblock</div>
 
 <div class="mib-title-actions">
+    <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
     <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
-<button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="full" title="${EscapeHtml(T("sceneFull"))}">↗</button>
+    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="full" title="${EscapeHtml(T("sceneFull"))}">↗</button>
     <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
 </div>
             </div>
@@ -1643,13 +1691,14 @@ function RenderPanel(state = gState) {
             : RenderSceneTab(state);
 
     return `
-        <div class="mib-board mib-theme-${EscapeHtml(gTheme)}" data-mib-board>
+<div class="mib-board mib-theme-${EscapeHtml(gTheme)} mib-bars-${EscapeHtml(gBarStyle)}" data-mib-board>
             <div class="mib-title-row">
                 <div>
                     <div class="mib-title">Mom Infoblock</div>
                 </div>
 
 <div class="mib-title-actions">
+<button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
     <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
 <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">↘</button>
     <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
@@ -1709,6 +1758,14 @@ root.querySelectorAll(".mib-rel-toggle").forEach(toggle => {
     });
 });
 
+root.querySelectorAll(".mib-style-btn").forEach(button => {
+    button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        ToggleStyleMenu(root);
+    });
+});
+    
     root.querySelectorAll(".mib-dossier-btn").forEach(button => {
     button.addEventListener("click", event => {
         event.preventDefault();
@@ -1717,6 +1774,58 @@ root.querySelectorAll(".mib-rel-toggle").forEach(toggle => {
     });
 });
 
+function ToggleStyleMenu(root) {
+    const board = root.querySelector?.("[data-mib-board]") || root.closest?.("[data-mib-board]") || root;
+    if (!board) return;
+
+    const existing = board.querySelector(".mib-style-menu");
+
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    const menu = document.createElement("div");
+    menu.className = "mib-style-menu";
+    menu.innerHTML = `
+        <div class="mib-style-menu-row">
+            <label>
+                <span>${EscapeHtml(T("theme"))}</span>
+                <select class="mib-style-theme-select">
+                    <option value="nocturne" ${gTheme === "nocturne" ? "selected" : ""}>Nocturne</option>
+                    <option value="terminal" ${gTheme === "terminal" ? "selected" : ""}>Terminal</option>
+                    <option value="casefile" ${gTheme === "casefile" ? "selected" : ""}>Case File</option>
+                    <option value="oraclemoon" ${gTheme === "oraclemoon" ? "selected" : ""}>Oracle Moon</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="mib-style-menu-row">
+            <label>
+                <span>${EscapeHtml(T("barStyle"))}</span>
+                <select class="mib-style-bar-select">
+                    ${RenderStyleSelectOptions(kBarStyleOptions, gBarStyle)}
+                </select>
+            </label>
+        </div>
+    `;
+
+    menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event => {
+        gTheme = event.target.value || "nocturne";
+        SaveSettings();
+        RerenderAllPanels();
+    });
+
+    menu.querySelector(".mib-style-bar-select")?.addEventListener("change", event => {
+        gBarStyle = event.target.value || "classic";
+        SaveSettings();
+        RerenderAllPanels();
+    });
+
+    const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar");
+    titleRow?.after(menu);
+}
+    
 root.querySelectorAll("[data-mib-panel-mode]").forEach(button => {
     button.addEventListener("click", event => {
         event.preventDefault();
@@ -2804,6 +2913,7 @@ function BuildExportPackage() {
             customCss: gCustomCss,
             fontSize: gFontSize,
 thoughtsEnabled: gThoughtsEnabled,
+            barStyle: gBarStyle,
         },
         state: gState,
         notes: gNotes,
@@ -2861,6 +2971,7 @@ function ApplyImportedPackage(data) {
             gCustomCss = data.settings.customCss || gCustomCss;
             gFontSize = data.settings.fontSize || gFontSize;
 gThoughtsEnabled = data.settings.thoughtsEnabled !== false;
+            gBarStyle = data.settings.barStyle || gBarStyle;
         }
 
         if (data.ui?.floatingLayout) {
