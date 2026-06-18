@@ -1311,7 +1311,7 @@ const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter ===
 
 <div class="mib-title-actions">
     <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
-    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
+<button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="full" title="${EscapeHtml(T("sceneFull"))}">↗</button>
     <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
 </div>
             </div>
@@ -1344,7 +1344,7 @@ function RenderPanel(state = gState) {
 
 <div class="mib-title-actions">
     <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
-    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
+<button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">↘</button>
     <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
 </div>
             </div>
