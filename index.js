@@ -2258,7 +2258,9 @@ function BuildExportPackage() {
             chronicleLimit: gChronicleLimit,
             activeTab: gActiveTab,
             relationFilter: gRelationFilter,
-            customCss: gCustomCss
+            customCss: gCustomCss,
+            fontSize: gFontSize,
+thoughtsEnabled: gThoughtsEnabled,
         },
         state: gState,
         notes: gNotes,
@@ -2314,6 +2316,8 @@ function ApplyImportedPackage(data) {
             gActiveTab = data.settings.activeTab || gActiveTab;
             gRelationFilter = data.settings.relationFilter || gRelationFilter;
             gCustomCss = data.settings.customCss || gCustomCss;
+            gFontSize = data.settings.fontSize || gFontSize;
+gThoughtsEnabled = data.settings.thoughtsEnabled !== false;
         }
 
         if (data.ui?.floatingLayout) {
@@ -2327,6 +2331,7 @@ function ApplyImportedPackage(data) {
         SaveSettings();
         SaveState();
         SaveNotes();
+        ApplyFontSize();
         SaveCustomCss();
 ApplyCustomCss();
         return;
@@ -2389,6 +2394,12 @@ $("#mib_relation_filter option[value='all']").text(T("relationAll"));
 $("#mib_save_custom_css").text(T("saveCustomCss"));
 $("#mib_clear_custom_css").text(T("clearCustomCss"));
 $("#mib_custom_css_input").attr("placeholder", T("customCssPlaceholder"));
+    $('label[for="mib_font_size"]').html(`<b>${T("fontSize")}</b>`);
+$("#mib_font_size option[value='small']").text(T("fontSmall"));
+$("#mib_font_size option[value='normal']").text(T("fontNormal"));
+$("#mib_font_size option[value='large']").text(T("fontLarge"));
+$("#mib_font_size option[value='xlarge']").text(T("fontXLarge"));
+    $("#mib_thoughts_enabled").closest("label").find("span").text(T("thoughtsEnabled"));
     
 }
 
@@ -2405,6 +2416,8 @@ function SyncSettingsControls() {
     $("#mib_chronicle_limit").val(String(gChronicleLimit));
     $("#mib_relation_filter").val(gRelationFilter);
     $("#mib_custom_css_input").val(gCustomCss);
+    $("#mib_font_size").val(gFontSize);
+$("#mib_thoughts_enabled").prop("checked", gThoughtsEnabled);
 }
 
 function UpdateStatusDisplay() {
@@ -2501,6 +2514,27 @@ function WireSettings() {
         RerenderAllPanels();
     });
 
+
+$("#mib_font_size").on("change", function () {
+    gFontSize = $(this).val() || "normal";
+    SaveSettings();
+    ApplyFontSize();
+});
+
+$("#mib_thoughts_enabled").on("change", function () {
+    gThoughtsEnabled = $(this).is(":checked");
+    SaveSettings();
+
+    if (!gThoughtsEnabled) {
+        gState.thoughts = [];
+        SaveState();
+    }
+
+    InjectPrompt();
+    ReprocessChat();
+    RenderFloatingOrDock();
+});
+    
 $("#mib_relation_filter").on("change", function () {
     gRelationFilter = $(this).val() || "top3";
     SaveSettings();
