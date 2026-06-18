@@ -999,3 +999,8 @@
 .mib-xml-status-error {
     color: var(--mib-bad);
 }
+
+.mib-rel.mib-rel-accordion {
+    padding: 0;
+    overflow: hidden;
+}
