@@ -26,6 +26,7 @@ const kPinnedNpcsKey = `${kStoragePrefix}PinnedNpcs`;
 const kSceneViewModeKey = `${kStoragePrefix}SceneViewMode`;
 const kRelationFilterKey = `${kStoragePrefix}RelationFilter`;
 const kFloatingCollapsedKey = `${kStoragePrefix}FloatingCollapsed`;
+const kCustomCssKey = `${kStoragePrefix}CustomCss`;
 
 let gEnabled = false;
 let gLang = "ru";
@@ -43,6 +44,7 @@ let gNotes = "";
 let gPinnedNpcs = [];
 let gSceneViewMode = "full";
 let gRelationFilter = "top3";
+let gCustomCss = "";
 
 const kDefaultState = {
     scene: {
@@ -133,7 +135,11 @@ relationChanged: "Только изменившиеся",
 relationAll: "Все",
 noRelationChanges: "Изменений нет",
         applyLatestXml: "Применить к последнему",
-xmlLatestNotFound: "Не найдено последнее сообщение с <mom_infoblock>."
+xmlLatestNotFound: "Не найдено последнее сообщение с <mom_infoblock>.",
+        customCss: "Custom CSS",
+customCssPlaceholder: "Пиши CSS для Mom Infoblock. Например: .mib-board { border-color: red; }",
+saveCustomCss: "Сохранить CSS",
+clearCustomCss: "Очистить CSS"
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -205,6 +211,10 @@ relationAll: "All",
 noRelationChanges: "No changes",
         applyLatestXml: "Apply to latest",
 xmlLatestNotFound: "No latest message with <mom_infoblock> found.",
+        customCss: "Custom CSS",
+customCssPlaceholder: "Write CSS for Mom Infoblock. Example: .mib-board { border-color: red; }",
+saveCustomCss: "Save CSS",
+clearCustomCss: "Clear CSS"
     }
 };
 
@@ -492,6 +502,39 @@ function SaveNotes() {
     } catch (error) {
         console.warn("[MIB] SaveNotes failed:", error);
     }
+}
+
+function LoadCustomCss() {
+    try {
+        gCustomCss = localStorage.getItem(kCustomCssKey) || "";
+    } catch {
+        gCustomCss = "";
+    }
+}
+
+function SaveCustomCss() {
+    try {
+        localStorage.setItem(kCustomCssKey, gCustomCss || "");
+    } catch (error) {
+        console.warn("[MIB] SaveCustomCss failed:", error);
+    }
+}
+
+function ApplyCustomCss() {
+    let style = document.getElementById("mib_custom_css");
+
+    if (!gCustomCss.trim()) {
+        style?.remove();
+        return;
+    }
+
+    if (!style) {
+        style = document.createElement("style");
+        style.id = "mib_custom_css";
+        document.head.appendChild(style);
+    }
+
+    style.textContent = gCustomCss;
 }
 
 function LoadPinnedNpcs() {
@@ -2489,6 +2532,8 @@ LoadSettings();
 LoadState();
 LoadNotes();
 LoadPinnedNpcs();
+LoadCustomCss();
+ApplyCustomCss();
 
     SyncSettingsControls();
     UpdateSettingsText();
