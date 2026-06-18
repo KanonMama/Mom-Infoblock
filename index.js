@@ -12,6 +12,7 @@ const kNotesPrefix = `${kStoragePrefix}Notes_`;
 const kEnabledKey = `${kStoragePrefix}Enabled`;
 const kLangKey = `${kStoragePrefix}Lang`;
 const kThemeKey = `${kStoragePrefix}Theme`;
+const kBarStyleKey = `${kStoragePrefix}BarStyle`;
 const kDisplayModeKey = `${kStoragePrefix}DisplayMode`;
 const kDockSideKey = `${kStoragePrefix}DockSide`;
 const kHideRawKey = `${kStoragePrefix}HideRaw`;
@@ -33,6 +34,7 @@ const kThoughtsEnabledKey = `${kStoragePrefix}ThoughtsEnabled`;
 let gEnabled = false;
 let gLang = "ru";
 let gTheme = "nocturne";
+let gBarStyle = "classic";
 let gDisplayMode = "inline";
 let gDockSide = "right";
 let gHideRaw = true;
@@ -1774,17 +1776,6 @@ root.querySelectorAll(".mib-style-btn").forEach(button => {
     });
 });
 
-function ToggleStyleMenu(root) {
-    const board = root.querySelector?.("[data-mib-board]") || root.closest?.("[data-mib-board]") || root;
-    if (!board) return;
-
-    const existing = board.querySelector(".mib-style-menu");
-
-    if (existing) {
-        existing.remove();
-        return;
-    }
-
     const menu = document.createElement("div");
     menu.className = "mib-style-menu";
     menu.innerHTML = `
@@ -1956,6 +1947,58 @@ function ToggleDossier(root) {
     });
 
     board.appendChild(panel);
+}
+
+function ToggleStyleMenu(root) {
+    const board = root.querySelector?.("[data-mib-board]") || root.closest?.("[data-mib-board]") || root;
+    if (!board) return;
+
+    const existing = board.querySelector(".mib-style-menu");
+
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    const menu = document.createElement("div");
+    menu.className = "mib-style-menu";
+    menu.innerHTML = `
+        <div class="mib-style-menu-row">
+            <label>
+                <span>${EscapeHtml(T("theme"))}</span>
+                <select class="mib-style-theme-select">
+                    <option value="nocturne" ${gTheme === "nocturne" ? "selected" : ""}>Nocturne</option>
+                    <option value="terminal" ${gTheme === "terminal" ? "selected" : ""}>Terminal</option>
+                    <option value="casefile" ${gTheme === "casefile" ? "selected" : ""}>Case File</option>
+                    <option value="oraclemoon" ${gTheme === "oraclemoon" ? "selected" : ""}>Oracle Moon</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="mib-style-menu-row">
+            <label>
+                <span>${EscapeHtml(T("barStyle"))}</span>
+                <select class="mib-style-bar-select">
+                    ${RenderStyleSelectOptions(kBarStyleOptions, gBarStyle)}
+                </select>
+            </label>
+        </div>
+    `;
+
+    menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event => {
+        gTheme = event.target.value || "nocturne";
+        SaveSettings();
+        RerenderAllPanels();
+    });
+
+    menu.querySelector(".mib-style-bar-select")?.addEventListener("change", event => {
+        gBarStyle = event.target.value || "classic";
+        SaveSettings();
+        RerenderAllPanels();
+    });
+
+    const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar");
+    titleRow?.after(menu);
 }
 
 function ToggleXmlInspector(root) {
