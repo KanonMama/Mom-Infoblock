@@ -893,12 +893,10 @@ function RenderMiniStatChip(label, value, delta, kind) {
 
 function RenderRelationCard(r, state) {
     const thought = FindThoughtForNpc(state.thoughts, r.source);
-    const isCompact = gSceneViewMode === "compact";
-    const openClass = isCompact ? "" : "mib-open";
 
     return `
-        <div class="mib-rel mib-rel-accordion ${openClass}">
-       <button type="button" class="mib-rel-toggle" aria-expanded="${isCompact ? "false" : "true"}">
+        <div class="mib-rel mib-rel-accordion mib-open">
+            <button type="button" class="mib-rel-toggle" aria-expanded="true">
                 <div class="mib-rel-toggle-main">
                     <span class="mib-rel-name">${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
                     <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
@@ -999,7 +997,6 @@ const thoughtsHtml = extraThoughts.length
 
 return `
     <div class="mib-scene-grid">
-        ${RenderSceneViewSwitch()}
         <div class="mib-header">
                 <div class="mib-location">📍 ${EscapeHtml(state.scene.loc)}</div>
                 <div class="mib-meta">
@@ -1061,7 +1058,50 @@ function RenderNotesTab() {
         </div>`;
 }
 
+function RenderCompactPanel(state = gState) {
+    const rels = SortRelationsByPriority(state.rels || []).slice(0, 5);
+
+    const relsHtml = rels.length
+        ? rels.map(r => `
+            <div class="mib-compact-rel">
+                <div class="mib-compact-rel-top">
+                    <span class="mib-compact-name">${EscapeHtml(r.source)}</span>
+                    <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
+                </div>
+
+                <div class="mib-compact-stats">
+                    ${RenderMiniStatChip("A", r.a, r.ac, "affection")}
+                    ${RenderMiniStatChip("T", r.tr, r.tc, "trust")}
+                    ${RenderMiniStatChip("L", r.l, r.lc, "love")}
+                </div>
+            </div>
+        `).join("")
+        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+
+    return `
+        <div class="mib-board mib-board-compact mib-theme-${EscapeHtml(gTheme)}" data-mib-board>
+            <div class="mib-compact-topbar">
+                <div class="mib-compact-brand">Mom Infoblock</div>
+
+                <div class="mib-title-actions">
+                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="full" title="${EscapeHtml(T("sceneFull"))}">▣</button>
+                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+                </div>
+            </div>
+
+            <div class="mib-compact-list">
+                ${relsHtml}
+            </div>
+
+            <div class="mib-compact-location">📍 ${EscapeHtml(state.scene.loc || "???")}</div>
+        </div>`;
+}
+
 function RenderPanel(state = gState) {
+    if (gSceneViewMode === "compact") {
+        return RenderCompactPanel(state);
+    }
+
     const body = gActiveTab === "chronicle"
         ? RenderChronicleTab(state)
         : gActiveTab === "notes"
@@ -1077,6 +1117,7 @@ function RenderPanel(state = gState) {
 
                 <div class="mib-title-actions">
                     <div class="mib-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
+                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
                     <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
                 </div>
             </div>
@@ -1134,11 +1175,12 @@ root.querySelectorAll(".mib-rel-toggle").forEach(toggle => {
     });
 });
 
-root.querySelectorAll("[data-mib-scene-view]").forEach(button => {
+root.querySelectorAll("[data-mib-panel-mode]").forEach(button => {
     button.addEventListener("click", event => {
         event.preventDefault();
+        event.stopPropagation();
 
-        gSceneViewMode = button.dataset.mibSceneView || "full";
+        gSceneViewMode = button.dataset.mibPanelMode || "full";
         localStorage.setItem(kSceneViewModeKey, gSceneViewMode);
 
         RerenderAllPanels();
