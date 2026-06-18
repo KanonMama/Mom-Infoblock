@@ -1,1 +1,102 @@
+<div class="mib-settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b>Mom Infoblock</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
 
+        <div class="inline-drawer-content">
+            <div class="mib-setting-row">
+                <input type="checkbox" id="mib_enabled" />
+                <label for="mib_enabled"><b>Enable Mom Infoblock</b></label>
+            </div>
+
+            <div class="mib-setting-row">
+                <label for="mib_lang"><b>Language</b></label>
+                <select id="mib_lang">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <div class="mib-setting-row">
+                <label for="mib_display_mode"><b>Display Mode</b></label>
+                <select id="mib_display_mode">
+                    <option value="inline">Inline</option>
+                    <option value="floating">Floating</option>
+                    <option value="dock">Side Dock</option>
+                    <option value="inline_dock">Inline + Side Dock</option>
+                </select>
+            </div>
+
+            <div class="mib-setting-row">
+                <label for="mib_dock_side"><b>Side Dock Position</b></label>
+                <select id="mib_dock_side">
+                    <option value="right">Right</option>
+                    <option value="left">Left</option>
+                </select>
+            </div>
+
+            <div class="mib-setting-row">
+                <label for="mib_theme"><b>Theme</b></label>
+                <select id="mib_theme">
+                    <option value="nocturne">Nocturne</option>
+                    <option value="terminal">Terminal</option>
+                    <option value="casefile">Case File</option>
+                    <option value="oraclemoon">Oracle Moon</option>
+                </select>
+            </div>
+
+            <div class="mib-setting-row">
+                <input type="checkbox" id="mib_hide_raw" />
+                <label for="mib_hide_raw">Hide raw XML from messages</label>
+            </div>
+
+            <div class="mib-setting-row">
+                <input type="checkbox" id="mib_hide_thought_leaks" />
+                <label for="mib_hide_thought_leaks">Hide leaked NPC thoughts from visible text</label>
+            </div>
+
+            <div class="mib-setting-row">
+                <input type="checkbox" id="mib_show_nsfw" />
+                <label for="mib_show_nsfw">Show NSFW section</label>
+            </div>
+
+            <div class="mib-setting-row">
+                <input type="checkbox" id="mib_chronicle_enabled" />
+                <label for="mib_chronicle_enabled">Enable Chronicle</label>
+            </div>
+
+            <div class="mib-setting-row">
+                <label for="mib_chronicle_limit"><b>Chronicle Event Limit</b></label>
+                <select id="mib_chronicle_limit">
+                    <option value="5">5 events</option>
+                    <option value="10">10 events</option>
+                    <option value="15">15 events</option>
+                    <option value="25">25 events</option>
+                </select>
+            </div>
+
+            <div id="mib_status" class="mib-status">
+                Extension is inactive.
+            </div>
+
+            <div id="mib_state_display" class="mib-state-display">
+                <b id="mib_state_label">Current State:</b>
+                <div id="mib_state_summary" class="mib-state-summary">No state loaded.</div>
+            </div>
+
+            <div class="mib-button-row">
+                <div class="menu_button" id="mib_reset_state">Reset State</div>
+                <div class="menu_button" id="mib_reprocess_chat">Reprocess Chat</div>
+            </div>
+
+            <div class="mib-button-row">
+                <div class="menu_button" id="mib_export_data">Export Data</div>
+                <div class="menu_button" id="mib_import_data">Import Data</div>
+            </div>
+
+            <input type="file" id="mib_import_file" accept=".json,application/json" style="display:none;" />
+        </div>
+    </div>
+</div>
