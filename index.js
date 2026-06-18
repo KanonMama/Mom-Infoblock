@@ -130,7 +130,11 @@ relationTop3: "Топ 3",
 relationTop1: "Топ 1",
 relationChanged: "Только изменившиеся",
 relationAll: "Все",
-noRelationChanges: "Изменений нет"
+noRelationChanges: "Изменений нет",
+        applyLatestXml: "Применить к последнему",
+xmlLatestNotFound: "Не найдено последнее сообщение с <mom_infoblock>.",
+        applyLatestXml: "Применить к последнему",
+xmlLatestNotFound: "Не найдено последнее сообщение с <mom_infoblock>."
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -199,7 +203,9 @@ relationTop3: "Top 3",
 relationTop1: "Top 1",
 relationChanged: "Changed only",
 relationAll: "All",
-noRelationChanges: "No changes"
+noRelationChanges: "No changes",
+        applyLatestXml: "Apply to latest",
+xmlLatestNotFound: "No latest message with <mom_infoblock> found.",
     }
 };
 
@@ -1231,6 +1237,27 @@ function GetInspectorHost(root) {
     return root.closest(".mib-board-host, #mib_floating_host, #mib_dock_host") || root;
 }
 
+function FindLatestInfoblockMessage() {
+    const stContext = GetContextSafe();
+    const chat = stContext.chat;
+
+    if (!Array.isArray(chat)) return null;
+
+    for (let index = chat.length - 1; index >= 0; index--) {
+        const message = chat[index];
+
+        if (!message || message.is_user) continue;
+        if (!/<mom_infoblock\b[\s\S]*?<\/mom_infoblock>/i.test(message.mes || "")) continue;
+
+        return {
+            index,
+            message
+        };
+    }
+
+    return null;
+}
+
 function FindMessageByHost(host) {
     const mesId = host?.dataset?.mesId;
     if (!mesId) return null;
@@ -1244,6 +1271,27 @@ function FindMessageByHost(host) {
         index,
         message: stContext.chat?.[index] || null
     };
+}
+
+function FindLatestInfoblockMessage() {
+    const stContext = GetContextSafe();
+    const chat = stContext.chat;
+
+    if (!Array.isArray(chat)) return null;
+
+    for (let index = chat.length - 1; index >= 0; index--) {
+        const message = chat[index];
+
+        if (!message || message.is_user) continue;
+        if (!/<mom_infoblock\b[\s\S]*?<\/mom_infoblock>/i.test(message.mes || "")) continue;
+
+        return {
+            index,
+            message
+        };
+    }
+
+    return null;
 }
 
 function ReplaceMomInfoblockInMessage(messageText, nextXml) {
@@ -1275,12 +1323,16 @@ function ToggleXmlInspector(root) {
     }
 
     const rawXml = host.dataset.rawXml || gLastRawXml || "";
+    const canEditExactMessage = Boolean(host.dataset.mesId);
 
     const inspector = document.createElement("div");
     inspector.className = "mib-xml-inspector";
     inspector.innerHTML = `
         <div class="mib-xml-actions">
-            <button type="button" class="mib-xml-apply">${EscapeHtml(T("applyXml"))}</button>
+            ${canEditExactMessage
+                ? `<button type="button" class="mib-xml-apply">${EscapeHtml(T("applyXml"))}</button>`
+                : `<button type="button" class="mib-xml-apply-latest">${EscapeHtml(T("applyLatestXml"))}</button>`
+            }
             <button type="button" class="mib-xml-copy">${EscapeHtml(T("copyXml"))}</button>
             <button type="button" class="mib-xml-close">${EscapeHtml(T("closeXml"))}</button>
         </div>
@@ -1293,6 +1345,44 @@ function ToggleXmlInspector(root) {
 
     textarea.value = rawXml;
 
+    const setStatus = (text, isError = false) => {
+        status.textContent = text;
+        status.classList.toggle("mib-xml-status-error", isError);
+    };
+
+    const applyXmlToFoundMessage = (found, nextXml) => {
+        const parsed = ParseMomInfoblock(nextXml);
+
+        if (!parsed) {
+            setStatus(T("xmlInvalid"), true);
+            return false;
+        }
+
+        if (!found?.message) {
+            setStatus(T("xmlNoMessage"), true);
+            return false;
+        }
+
+        const nextMessageText = ReplaceMomInfoblockInMessage(found.message.mes, nextXml);
+
+        if (!nextMessageText) {
+            setStatus(T("xmlInvalid"), true);
+            return false;
+        }
+
+        found.message.mes = nextMessageText;
+        host.dataset.rawXml = nextXml;
+
+        setStatus(T("xmlApplied"), false);
+
+        RebuildStateFromCurrentChat();
+        ReprocessChat();
+        RenderFloatingOrDock();
+        InjectPrompt();
+
+        return true;
+    };
+
     inspector.querySelector(".mib-xml-close")?.addEventListener("click", () => {
         inspector.remove();
     });
@@ -1300,7 +1390,7 @@ function ToggleXmlInspector(root) {
     inspector.querySelector(".mib-xml-copy")?.addEventListener("click", async () => {
         try {
             await navigator.clipboard.writeText(textarea.value || "");
-            status.textContent = T("copyXml");
+            setStatus(T("copyXml"), false);
         } catch (error) {
             console.warn("[MIB] Copy XML failed:", error);
         }
@@ -1308,43 +1398,24 @@ function ToggleXmlInspector(root) {
 
     inspector.querySelector(".mib-xml-apply")?.addEventListener("click", () => {
         const nextXml = textarea.value || "";
-        const parsed = ParseMomInfoblock(nextXml);
-
-        if (!parsed) {
-            status.textContent = T("xmlInvalid");
-            status.classList.add("mib-xml-status-error");
-            return;
-        }
-
         const found = FindMessageByHost(host);
 
-        if (!found?.message) {
-            status.textContent = T("xmlNoMessage");
-            status.classList.add("mib-xml-status-error");
-            return;
-        }
-
-        const nextMessageText = ReplaceMomInfoblockInMessage(found.message.mes, nextXml);
-
-        if (!nextMessageText) {
-            status.textContent = T("xmlInvalid");
-            status.classList.add("mib-xml-status-error");
-            return;
-        }
-
-        found.message.mes = nextMessageText;
-        host.dataset.rawXml = nextXml;
-
-        status.textContent = T("xmlApplied");
-        status.classList.remove("mib-xml-status-error");
-
-        RebuildStateFromCurrentChat();
-        ReprocessChat();
-        RenderFloatingOrDock();
-        InjectPrompt();
+        applyXmlToFoundMessage(found, nextXml);
     });
 
-   board.appendChild(inspector);
+    inspector.querySelector(".mib-xml-apply-latest")?.addEventListener("click", () => {
+        const nextXml = textarea.value || "";
+        const found = FindLatestInfoblockMessage();
+
+        if (!found?.message) {
+            setStatus(T("xmlLatestNotFound"), true);
+            return;
+        }
+
+        applyXmlToFoundMessage(found, nextXml);
+    });
+
+    board.appendChild(inspector);
 }
 
 function SyncNotesTextareas(source) {
