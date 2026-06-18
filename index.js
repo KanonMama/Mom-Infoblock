@@ -1,1 +1,1727 @@
+const kExtensionName = "Mom-Infoblock";
+const kExtensionFolderPath = `scripts/extensions/third-party/${kExtensionName}`;
+const kSettingsFile = `${kExtensionFolderPath}/settings.html`;
 
+const kVersion = "2.0.0";
+const kPromptInjectionId = "MIB_PromptInjection";
+
+const kStoragePrefix = "MIB_";
+const kStatePrefix = `${kStoragePrefix}State_`;
+const kNotesPrefix = `${kStoragePrefix}Notes_`;
+
+const kEnabledKey = `${kStoragePrefix}Enabled`;
+const kLangKey = `${kStoragePrefix}Lang`;
+const kThemeKey = `${kStoragePrefix}Theme`;
+const kDisplayModeKey = `${kStoragePrefix}DisplayMode`;
+const kDockSideKey = `${kStoragePrefix}DockSide`;
+const kHideRawKey = `${kStoragePrefix}HideRaw`;
+const kHideThoughtLeaksKey = `${kStoragePrefix}HideThoughtLeaks`;
+const kShowNsfwKey = `${kStoragePrefix}ShowNsfw`;
+const kChronicleEnabledKey = `${kStoragePrefix}ChronicleEnabled`;
+const kChronicleLimitKey = `${kStoragePrefix}ChronicleLimit`;
+const kActiveTabKey = `${kStoragePrefix}ActiveTab`;
+const kFloatingLayoutKey = `${kStoragePrefix}FloatingLayout`;
+const kDockCollapsedKey = `${kStoragePrefix}DockCollapsed`;
+
+let gEnabled = false;
+let gLang = "ru";
+let gTheme = "nocturne";
+let gDisplayMode = "inline";
+let gDockSide = "right";
+let gHideRaw = true;
+let gHideThoughtLeaks = true;
+let gShowNsfw = true;
+let gChronicleEnabled = true;
+let gChronicleLimit = 10;
+let gActiveTab = "scene";
+let gLastRawXml = "";
+let gNotes = "";
+
+const kDefaultState = {
+    scene: {
+        time: "???",
+        date: "???",
+        weather: "???",
+        loc: "???"
+    },
+    chars: [],
+    rels: [],
+    thoughts: [],
+    chronicle: {
+        events: [],
+        threads: []
+    },
+    nsfw: null
+};
+
+let gState = Clone(kDefaultState);
+
+const kLangMap = {
+    ru: {
+        enable: "Включить Mom Infoblock",
+        language: "Язык",
+        theme: "Тема",
+        displayMode: "Режим отображения",
+        displayInline: "В сообщениях",
+        displayFloating: "Плавающее окно",
+        displayDock: "Боковая панель",
+        displayInlineDock: "Сообщения + боковая панель",
+        dockSide: "Сторона панели",
+        dockLeft: "Слева",
+        dockRight: "Справа",
+        hideRaw: "Скрывать сырой XML из сообщений",
+        hideThoughtLeaks: "Скрывать утёкшие мысли NPC из текста",
+        showNsfw: "Показывать NSFW блок",
+        chronicleEnabled: "Включить хронику",
+        chronicleLimit: "Лимит событий хроники",
+        active: "Mom Infoblock активен",
+        inactive: "Mom Infoblock отключён",
+        currentState: "Текущее состояние:",
+        disabledPrompt: "Отключено — промт не инжектится.",
+        resetState: "Сбросить состояние",
+        reprocess: "Перепарсить чат",
+        exportData: "Экспорт данных",
+        importData: "Импорт данных",
+        importFail: "Импорт не удался. Невалидный JSON.",
+        resetConfirm: "Сбросить состояние Mom Infoblock для этого чата?",
+        sceneTab: "Сцена",
+        chronicleTab: "Хроника",
+        notesTab: "Блокнот",
+        chars: "Персонажи в сцене",
+        rels: "Отношения",
+        thoughts: "Мысли NPC",
+        chronicle: "Хроника",
+        openThreads: "Открытые нити",
+        notes: "Блокнот",
+        notesPlaceholder: "Твои заметки. Сохраняются локально для этого чата.",
+        nsfw: "Интимный контекст",
+        fetishes: "Фетиши",
+        positions: "Позиции",
+        noData: "Нет данных.",
+        noNotes: "Пока пусто.",
+        floatingTitle: "Mom Infoblock",
+        dockTitle: "Mom Infoblock",
+        openDock: "Открыть",
+        closeDock: "Свернуть",
+        noStatus: "не определено",
+        affection: "Симпатия",
+        trust: "Доверие",
+        love: "Любовь",
+        aversion: "Неприязнь",
+        distrust: "Недоверие",
+        hatred: "Ненависть"
+    },
+    en: {
+        enable: "Enable Mom Infoblock",
+        language: "Language",
+        theme: "Theme",
+        displayMode: "Display Mode",
+        displayInline: "Inline",
+        displayFloating: "Floating Window",
+        displayDock: "Side Dock",
+        displayInlineDock: "Inline + Side Dock",
+        dockSide: "Side Dock Position",
+        dockLeft: "Left",
+        dockRight: "Right",
+        hideRaw: "Hide raw XML from messages",
+        hideThoughtLeaks: "Hide leaked NPC thoughts from visible text",
+        showNsfw: "Show NSFW section",
+        chronicleEnabled: "Enable Chronicle",
+        chronicleLimit: "Chronicle Event Limit",
+        active: "Mom Infoblock is active",
+        inactive: "Mom Infoblock is inactive",
+        currentState: "Current State:",
+        disabledPrompt: "Disabled — not injecting prompts.",
+        resetState: "Reset State",
+        reprocess: "Reprocess Chat",
+        exportData: "Export Data",
+        importData: "Import Data",
+        importFail: "Import failed. Invalid JSON.",
+        resetConfirm: "Reset Mom Infoblock state for this chat?",
+        sceneTab: "Scene",
+        chronicleTab: "Chronicle",
+        notesTab: "Notes",
+        chars: "Characters in Scene",
+        rels: "Relationships",
+        thoughts: "NPC Thoughts",
+        chronicle: "Chronicle",
+        openThreads: "Open Threads",
+        notes: "Notes",
+        notesPlaceholder: "Your notes. Stored locally for this chat.",
+        nsfw: "Intimate Context",
+        fetishes: "Fetishes",
+        positions: "Positions",
+        noData: "No data.",
+        noNotes: "Empty for now.",
+        floatingTitle: "Mom Infoblock",
+        dockTitle: "Mom Infoblock",
+        openDock: "Open",
+        closeDock: "Collapse",
+        noStatus: "undefined",
+        affection: "Affection",
+        trust: "Trust",
+        love: "Love",
+        aversion: "Aversion",
+        distrust: "Distrust",
+        hatred: "Hatred"
+    }
+};
+
+const kSystemPromptRu = `Mom Infoblock:
+Append exactly one XML block at the end of every assistant response. Fill all values in Russian. Keep it concise, accurate, and updated every message.
+
+Format:
+<mom_infoblock time="" date="" weather="" loc="">
+<chars>
+<c icon="" name="" tags="" mood="" />
+</chars>
+<rels>
+<rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
+</rels>
+<chronicle>
+<event></event>
+<thread></thread>
+</chronicle>
+<thk></thk>
+</mom_infoblock>
+
+Optional only for explicitly intimate scenes:
+<nsfw f="" p="" />
+
+Rules:
+- Output exactly one <mom_infoblock> block in every message
+- Fill all values in Russian
+- No extra XML tags or commentary
+- Add one <c /> for each NPC currently present
+- Do not include {{user}} as NPC
+- tags: 1-4 short tags separated by |
+- mood: 1-3 words, visible current emotional state only
+- Add one <rel /> per relevant present NPC describing feelings toward {{user}} only
+- Add <rel /> only for the 1-3 most relevant present NPCs
+- a, tr, l: from -100 to 100
+- ac, tc, lc: per-message change, usually within -5..+5 unless major event
+- Negative affection = aversion/dislike
+- Negative trust = distrust/suspicion/fear
+- Negative love = hatred/destructive obsession/anti-attachment
+- status: 1-3 words only, relationship phase/status only
+- Put all NPC private thoughts into one <thk> block
+- One NPC per line in <thk>
+- Private thoughts must appear only inside <thk>
+- Never output private NPC thoughts in visible narrative text
+- Private NPC thoughts: max 1 sentence and max 30 words per NPC
+- Chronicle events: add only important new events from this response
+- Chronicle events: max 3 <event> entries per response, max 18 words each
+- Chronicle threads: add or keep unresolved plot hooks only, max 5 <thread> entries
+- Do not repeat old chronicle events unless they changed meaning
+- Do not write guesses as facts in chronicle
+- Omit <chronicle> if nothing important changed
+- Omit <nsfw /> if the scene is not intimate
+
+<thk> strict format:
+Full NPC Name: thought`;
+
+const kSystemPromptEn = `Mom Infoblock:
+Append exactly one XML block at the end of every assistant response. Fill all values in English. Keep it concise, accurate, and updated every message.
+
+Format:
+<mom_infoblock time="" date="" weather="" loc="">
+<chars>
+<c icon="" name="" tags="" mood="" />
+</chars>
+<rels>
+<rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
+</rels>
+<chronicle>
+<event></event>
+<thread></thread>
+</chronicle>
+<thk></thk>
+</mom_infoblock>
+
+Optional only for explicitly intimate scenes:
+<nsfw f="" p="" />
+
+Rules:
+- Output exactly one <mom_infoblock> block in every message
+- Fill all values in English
+- No extra XML tags or commentary
+- Add one <c /> for each NPC currently present
+- Do not include {{user}} as NPC
+- tags: 1-4 short tags separated by |
+- mood: 1-3 words, visible current emotional state only
+- Add one <rel /> per relevant present NPC describing feelings toward {{user}} only
+- Add <rel /> only for the 1-3 most relevant present NPCs
+- a, tr, l: from -100 to 100
+- ac, tc, lc: per-message change, usually within -5..+5 unless major event
+- Negative affection = aversion/dislike
+- Negative trust = distrust/suspicion/fear
+- Negative love = hatred/destructive obsession/anti-attachment
+- status: 1-3 words only, relationship phase/status only
+- Put all NPC private thoughts into one <thk> block
+- One NPC per line in <thk>
+- Private thoughts must appear only inside <thk>
+- Never output private NPC thoughts in visible narrative text
+- Private NPC thoughts: max 1 sentence and max 20 words per NPC
+- Chronicle events: add only important new events from this response
+- Chronicle events: max 3 <event> entries per response, max 18 words each
+- Chronicle threads: add or keep unresolved plot hooks only, max 5 <thread> entries
+- Do not repeat old chronicle events unless they changed meaning
+- Do not write guesses as facts in chronicle
+- Omit <chronicle> if nothing important changed
+- Omit <nsfw /> if the scene is not intimate
+
+<thk> strict format:
+Full NPC Name: thought`;
+
+function T(key) {
+    return kLangMap[gLang]?.[key] ?? key;
+}
+
+function Clone(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+function EscapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function Clamp(value, min, max) {
+    const n = parseInt(value, 10);
+    if (Number.isNaN(n)) return 0;
+    return Math.max(min, Math.min(max, n));
+}
+
+function LimitText(value, maxChars = 180) {
+    const clean = String(value ?? "").replace(/\s+/g, " ").trim();
+    if (clean.length <= maxChars) return clean;
+    return clean.slice(0, maxChars).replace(/\s+\S*$/, "").trim();
+}
+
+function NormalizeText(value) {
+    return String(value ?? "")
+        .toLowerCase()
+        .replace(/[«»„“”"']/g, "")
+        .replace(/[—–]/g, "-")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function NormalizeName(value) {
+    return NormalizeText(value);
+}
+
+function GetContextSafe() {
+    try {
+        return SillyTavern.getContext();
+    } catch {
+        return {};
+    }
+}
+
+function GetUserName() {
+    const stContext = GetContextSafe();
+
+    return (
+        stContext.name1 ||
+        stContext.chatMetadata?.persona ||
+        stContext.user?.name ||
+        "User"
+    );
+}
+
+function GetChatId() {
+    const stContext = GetContextSafe();
+
+    return (
+        stContext.chatMetadata?.chat_id ||
+        stContext.characters?.[stContext.characterId]?.chat ||
+        "default"
+    );
+}
+
+function GetStateKey() {
+    return kStatePrefix + GetChatId();
+}
+
+function GetNotesKey() {
+    return kNotesPrefix + GetChatId();
+}
+
+function IsUserLikeName(name) {
+    const n = NormalizeName(name);
+    const user = NormalizeName(GetUserName());
+
+    return !n ||
+        n === "{{user}}" ||
+        n === "user" ||
+        n === "you" ||
+        n === "ты" ||
+        n === "вы" ||
+        n === user;
+}
+
+function SignedText(value) {
+    const n = parseInt(value, 10) || 0;
+    return n >= 0 ? `+${n}` : `${n}`;
+}
+
+function LoadSettings() {
+    gEnabled = localStorage.getItem(kEnabledKey) === "true";
+    gLang = localStorage.getItem(kLangKey) || "ru";
+    gTheme = localStorage.getItem(kThemeKey) || "nocturne";
+    gDisplayMode = localStorage.getItem(kDisplayModeKey) || "inline";
+    gDockSide = localStorage.getItem(kDockSideKey) || "right";
+    gHideRaw = localStorage.getItem(kHideRawKey) !== "false";
+    gHideThoughtLeaks = localStorage.getItem(kHideThoughtLeaksKey) !== "false";
+    gShowNsfw = localStorage.getItem(kShowNsfwKey) !== "false";
+    gChronicleEnabled = localStorage.getItem(kChronicleEnabledKey) !== "false";
+    gChronicleLimit = parseInt(localStorage.getItem(kChronicleLimitKey), 10) || 10;
+    gActiveTab = localStorage.getItem(kActiveTabKey) || "scene";
+}
+
+function SaveSettings() {
+    localStorage.setItem(kEnabledKey, String(gEnabled));
+    localStorage.setItem(kLangKey, gLang);
+    localStorage.setItem(kThemeKey, gTheme);
+    localStorage.setItem(kDisplayModeKey, gDisplayMode);
+    localStorage.setItem(kDockSideKey, gDockSide);
+    localStorage.setItem(kHideRawKey, String(gHideRaw));
+    localStorage.setItem(kHideThoughtLeaksKey, String(gHideThoughtLeaks));
+    localStorage.setItem(kShowNsfwKey, String(gShowNsfw));
+    localStorage.setItem(kChronicleEnabledKey, String(gChronicleEnabled));
+    localStorage.setItem(kChronicleLimitKey, String(gChronicleLimit));
+    localStorage.setItem(kActiveTabKey, gActiveTab);
+}
+
+function LoadState() {
+    try {
+        const raw = localStorage.getItem(GetStateKey());
+        if (!raw) {
+            gState = Clone(kDefaultState);
+            return false;
+        }
+
+        gState = NormalizeImportedState(JSON.parse(raw));
+        return true;
+    } catch (error) {
+        console.warn("[MIB] LoadState failed:", error);
+        gState = Clone(kDefaultState);
+        return false;
+    }
+}
+
+function SaveState() {
+    try {
+        localStorage.setItem(GetStateKey(), JSON.stringify(gState));
+    } catch (error) {
+        console.warn("[MIB] SaveState failed:", error);
+    }
+}
+
+function LoadNotes() {
+    try {
+        gNotes = localStorage.getItem(GetNotesKey()) || "";
+    } catch {
+        gNotes = "";
+    }
+}
+
+function SaveNotes() {
+    try {
+        localStorage.setItem(GetNotesKey(), gNotes || "");
+    } catch (error) {
+        console.warn("[MIB] SaveNotes failed:", error);
+    }
+}
+
+function NormalizeImportedState(input) {
+    const source = input || {};
+    const state = Clone(kDefaultState);
+
+    if (source.scene) {
+        state.scene = {
+            ...state.scene,
+            ...source.scene
+        };
+    } else {
+        state.scene = {
+            time: source.time || state.scene.time,
+            date: source.date || state.scene.date,
+            weather: source.weather || state.scene.weather,
+            loc: source.loc || state.scene.loc
+        };
+    }
+
+    state.chars = Array.isArray(source.chars) ? source.chars : [];
+    state.rels = Array.isArray(source.rels) ? source.rels : [];
+    state.thoughts = Array.isArray(source.thoughts) ? source.thoughts : [];
+
+    if (source.chronicle) {
+        state.chronicle = {
+            events: Array.isArray(source.chronicle.events) ? source.chronicle.events : [],
+            threads: Array.isArray(source.chronicle.threads) ? source.chronicle.threads : []
+        };
+    }
+
+    state.nsfw = source.nsfw || null;
+
+    return state;
+}
+
+function BuildStateInjection() {
+    const lines = [];
+
+    lines.push("[MOM INFOBLOCK STATE]");
+    lines.push(`Time: ${gState.scene.time}`);
+    lines.push(`Date: ${gState.scene.date}`);
+    lines.push(`Weather: ${gState.scene.weather}`);
+    lines.push(`Location: ${gState.scene.loc}`);
+
+    if (gState.chars.length) {
+        lines.push("NPCs:");
+        for (const c of gState.chars) {
+            const tags = Array.isArray(c.tags) ? c.tags.join(", ") : "";
+            const mood = c.mood ? ` mood: ${c.mood}` : "";
+            lines.push(`- ${c.name}${tags ? ` [${tags}]` : ""}${mood}`);
+        }
+    }
+
+    if (gState.rels.length) {
+        lines.push("Relationships:");
+        for (const r of gState.rels) {
+            lines.push(`- ${r.source}: A ${r.a} (${SignedText(r.ac)}), T ${r.tr} (${SignedText(r.tc)}), L ${r.l} (${SignedText(r.lc)}), status: ${r.status}`);
+        }
+    }
+
+    if (gChronicleEnabled && gState.chronicle.events.length) {
+        lines.push("Chronicle events already known:");
+        for (const event of gState.chronicle.events.slice(-gChronicleLimit)) {
+            lines.push(`- ${event}`);
+        }
+    }
+
+    if (gChronicleEnabled && gState.chronicle.threads.length) {
+        lines.push("Open plot threads:");
+        for (const thread of gState.chronicle.threads.slice(0, 8)) {
+            lines.push(`- ${thread}`);
+        }
+    }
+
+    if (gNotes.trim()) {
+        lines.push("User notes:");
+        lines.push(gNotes.trim());
+    }
+
+    if (gState.thoughts.length) {
+        lines.push("Private NPC thoughts - internal memory only, never write these in visible narrative:");
+        for (const t of gState.thoughts) {
+            lines.push(`- ${t.name}: ${t.text}`);
+        }
+    }
+
+    lines.push("[/MOM INFOBLOCK STATE]");
+
+    return lines.join("\n");
+}
+
+function InjectPrompt() {
+    try {
+        const stContext = GetContextSafe();
+
+        if (!gEnabled) {
+            stContext.setExtensionPrompt?.(kPromptInjectionId, "", 1, 0);
+            return;
+        }
+
+        RebuildStateFromCurrentChat();
+
+        const systemPrompt = gLang === "en" ? kSystemPromptEn : kSystemPromptRu;
+        const chronicleHint = gChronicleEnabled
+            ? ""
+            : "\nChronicle module is disabled. Omit <chronicle>.";
+
+        const fullPrompt = `${systemPrompt}${chronicleHint}\n\n${BuildStateInjection()}`;
+
+        stContext.setExtensionPrompt?.(kPromptInjectionId, fullPrompt, 1, 0);
+    } catch (error) {
+        console.error("[MIB] InjectPrompt failed:", error);
+    }
+}
+
+function RepairXml(xml) {
+    return String(xml || "").replace(
+        /&(?!amp;|lt;|gt;|quot;|apos;|#\d+;|#x[0-9a-fA-F]+;)/g,
+        "&amp;"
+    );
+}
+
+function ParseThoughtLine(line) {
+    const clean = String(line || "").trim();
+    if (!clean) return null;
+
+    const match = clean.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
+    if (!match) return null;
+
+    const name = LimitText(match[1], 80);
+    const text = LimitText(match[2], 220);
+
+    if (!name || !text || IsUserLikeName(name)) return null;
+
+    return { name, text };
+}
+
+function ParseMomInfoblock(text) {
+    const rawText = String(text || "");
+    const blockMatch = rawText.match(/<mom_infoblock\b[\s\S]*?<\/mom_infoblock>/i);
+
+    if (!blockMatch) return null;
+
+    const rawXml = blockMatch[0];
+    const xmlForParsing = RepairXml(rawXml);
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlForParsing, "text/xml");
+
+    if (doc.querySelector("parsererror")) {
+        console.warn("[MIB] XML parser error");
+        return null;
+    }
+
+    const root = doc.querySelector("mom_infoblock");
+    if (!root) return null;
+
+    const parsed = {
+        scene: {
+            time: root.getAttribute("time") || "???",
+            date: root.getAttribute("date") || "???",
+            weather: root.getAttribute("weather") || "???",
+            loc: root.getAttribute("loc") || "???"
+        },
+        chars: [],
+        rels: [],
+        thoughts: [],
+        chronicle: {
+            events: [],
+            threads: []
+        },
+        nsfw: null,
+        rawXml
+    };
+
+    doc.querySelectorAll("chars > c").forEach(node => {
+        const name = node.getAttribute("name") || "";
+        if (IsUserLikeName(name)) return;
+
+        parsed.chars.push({
+            icon: node.getAttribute("icon") || "•",
+            name: LimitText(name, 80),
+            tags: String(node.getAttribute("tags") || "")
+                .split("|")
+                .map(x => LimitText(x, 24))
+                .filter(Boolean)
+                .slice(0, 4),
+            mood: LimitText(node.getAttribute("mood") || "", 40)
+        });
+    });
+
+    doc.querySelectorAll("rels > rel").forEach(node => {
+        const source = node.getAttribute("source") || "";
+        if (IsUserLikeName(source)) return;
+
+        parsed.rels.push({
+            source: LimitText(source, 80),
+            target: GetUserName(),
+            a: Clamp(node.getAttribute("a"), -100, 100),
+            ac: Clamp(node.getAttribute("ac"), -100, 100),
+            tr: Clamp(node.getAttribute("tr"), -100, 100),
+            tc: Clamp(node.getAttribute("tc"), -100, 100),
+            l: Clamp(node.getAttribute("l"), -100, 100),
+            lc: Clamp(node.getAttribute("lc"), -100, 100),
+            status: LimitText(node.getAttribute("status") || T("noStatus"), 48)
+        });
+    });
+
+    const chronicle = doc.querySelector("chronicle");
+
+    if (chronicle && gChronicleEnabled) {
+        chronicle.querySelectorAll("event").forEach(node => {
+            const event = LimitText(node.textContent || "", 160);
+            if (event) parsed.chronicle.events.push(event);
+        });
+
+        chronicle.querySelectorAll("thread").forEach(node => {
+            const thread = LimitText(node.textContent || "", 140);
+            if (thread) parsed.chronicle.threads.push(thread);
+        });
+    }
+
+    const thk = doc.querySelector("thk");
+
+    if (thk) {
+        parsed.thoughts = String(thk.textContent || "")
+            .replace(/\r/g, "\n")
+            .split("\n")
+            .map(ParseThoughtLine)
+            .filter(Boolean);
+    }
+
+    const tailText = rawText.slice(rawText.indexOf(rawXml) + rawXml.length);
+    const nsfwMatch = tailText.match(/<nsfw\s+f="(.*?)"\s+p="(.*?)"\s*\/?>/i);
+
+    if (nsfwMatch) {
+        parsed.nsfw = {
+            f: LimitText(nsfwMatch[1], 160),
+            p: LimitText(nsfwMatch[2], 160)
+        };
+    }
+
+    return parsed;
+}
+
+function MergeUniqueList(existing, incoming, limit) {
+    const result = [];
+
+    for (const item of [...existing, ...incoming]) {
+        const clean = LimitText(item, 180);
+        if (!clean) continue;
+
+        const normalized = NormalizeText(clean);
+        const alreadyExists = result.some(x => NormalizeText(x) === normalized);
+
+        if (!alreadyExists) {
+            result.push(clean);
+        }
+    }
+
+    return result.slice(Math.max(0, result.length - limit));
+}
+
+function ApplyParsedToState(parsed, baseState = gState) {
+    const next = Clone(baseState);
+
+    next.scene = {
+        ...next.scene,
+        ...parsed.scene
+    };
+
+    next.chars = Array.isArray(parsed.chars) ? parsed.chars : [];
+    next.rels = Array.isArray(parsed.rels) ? parsed.rels : [];
+    next.thoughts = Array.isArray(parsed.thoughts) ? parsed.thoughts : [];
+    next.nsfw = parsed.nsfw || null;
+
+    if (gChronicleEnabled) {
+        next.chronicle.events = MergeUniqueList(
+            next.chronicle.events,
+            parsed.chronicle?.events || [],
+            gChronicleLimit
+        );
+
+        next.chronicle.threads = MergeUniqueList(
+            next.chronicle.threads,
+            parsed.chronicle?.threads || [],
+            12
+        );
+    }
+
+    if (parsed.rawXml) {
+        gLastRawXml = parsed.rawXml;
+    }
+
+    return next;
+}
+
+function RenderMetric(label, value, delta, positiveLabel, negativeLabel) {
+    const n = Clamp(value, -100, 100);
+    const abs = Math.abs(n);
+    const sideClass = n >= 0 ? "mib-meter-pos" : "mib-meter-neg";
+    const title = n >= 0 ? positiveLabel : negativeLabel;
+
+    return `
+        <div class="mib-meter ${sideClass}">
+            <div class="mib-meter-top">
+                <span>${EscapeHtml(title)}</span>
+                <span>${n}/100 (${EscapeHtml(SignedText(delta))})</span>
+            </div>
+            <div class="mib-bar">
+                <div class="mib-bar-fill" style="width:${Math.max(abs, abs ? 4 : 0)}%"></div>
+            </div>
+        </div>`;
+}
+
+function RenderTabs() {
+    const tabs = [
+        ["scene", T("sceneTab")],
+        ["chronicle", T("chronicleTab")],
+        ["notes", T("notesTab")]
+    ];
+
+    return `
+        <div class="mib-tabs">
+            ${tabs.map(([key, label]) => `
+                <button type="button" class="mib-tab ${gActiveTab === key ? "mib-tab-active" : ""}" data-mib-tab="${key}">
+                    ${EscapeHtml(label)}
+                </button>
+            `).join("")}
+        </div>`;
+}
+
+function RenderSceneTab(state) {
+    const charsHtml = state.chars.length
+        ? state.chars.map(c => `
+            <div class="mib-char">
+                <div class="mib-char-main">
+                    <span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
+                    <span class="mib-char-name">${EscapeHtml(c.name)}</span>
+                    ${c.mood ? `<span class="mib-chip mib-mood">${EscapeHtml(c.mood)}</span>` : ""}
+                </div>
+                <div class="mib-tags">
+                    ${(c.tags || []).map(tag => `<span class="mib-chip">${EscapeHtml(tag)}</span>`).join("")}
+                </div>
+            </div>
+        `).join("")
+        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+
+    const relsHtml = state.rels.length
+        ? state.rels.map(r => `
+            <div class="mib-rel">
+                <div class="mib-rel-title">
+                    <span>${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
+                    <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
+                </div>
+                ${RenderMetric("a", r.a, r.ac, T("affection"), T("aversion"))}
+                ${RenderMetric("tr", r.tr, r.tc, T("trust"), T("distrust"))}
+                ${RenderMetric("l", r.l, r.lc, T("love"), T("hatred"))}
+            </div>
+        `).join("")
+        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+
+    const thoughtsHtml = state.thoughts.length
+        ? state.thoughts.map(t => `
+            <div class="mib-thought">
+                <b>${EscapeHtml(t.name)}:</b> ${EscapeHtml(t.text)}
+            </div>
+        `).join("")
+        : "";
+
+    const nsfwHtml = gShowNsfw && state.nsfw
+        ? `
+            <div class="mib-section mib-nsfw">
+                <div class="mib-section-title">${EscapeHtml(T("nsfw"))}</div>
+                <div><b>${EscapeHtml(T("fetishes"))}:</b> ${EscapeHtml(state.nsfw.f)}</div>
+                <div><b>${EscapeHtml(T("positions"))}:</b> ${EscapeHtml(state.nsfw.p)}</div>
+            </div>`
+        : "";
+
+    return `
+        <div class="mib-scene-grid">
+            <div class="mib-header">
+                <div class="mib-location">📍 ${EscapeHtml(state.scene.loc)}</div>
+                <div class="mib-meta">
+                    <span>⏰ ${EscapeHtml(state.scene.time)}</span>
+                    <span>📅 ${EscapeHtml(state.scene.date)}</span>
+                    <span>☁ ${EscapeHtml(state.scene.weather)}</span>
+                </div>
+            </div>
+
+            <div class="mib-section">
+                <div class="mib-section-title">${EscapeHtml(T("chars"))}</div>
+                ${charsHtml}
+            </div>
+
+            <div class="mib-section">
+                <div class="mib-section-title">${EscapeHtml(T("rels"))}</div>
+                ${relsHtml}
+            </div>
+
+            ${thoughtsHtml ? `
+                <div class="mib-section">
+                    <div class="mib-section-title">${EscapeHtml(T("thoughts"))}</div>
+                    ${thoughtsHtml}
+                </div>` : ""}
+
+            ${nsfwHtml}
+        </div>`;
+}
+
+function RenderChronicleTab(state) {
+    if (!gChronicleEnabled) {
+        return `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+    }
+
+    const events = state.chronicle.events || [];
+    const threads = state.chronicle.threads || [];
+
+    return `
+        <div class="mib-section">
+            <div class="mib-section-title">${EscapeHtml(T("chronicle"))}</div>
+            ${events.length
+                ? `<ol class="mib-chronicle-list">${events.map(event => `<li>${EscapeHtml(event)}</li>`).join("")}</ol>`
+                : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`}
+        </div>
+
+        <div class="mib-section">
+            <div class="mib-section-title">${EscapeHtml(T("openThreads"))}</div>
+            ${threads.length
+                ? `<ul class="mib-thread-list">${threads.map(thread => `<li>${EscapeHtml(thread)}</li>`).join("")}</ul>`
+                : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`}
+        </div>`;
+}
+
+function RenderNotesTab() {
+    return `
+        <div class="mib-section mib-notes-section">
+            <div class="mib-section-title">${EscapeHtml(T("notes"))}</div>
+            <textarea class="mib-notes-input" placeholder="${EscapeHtml(T("notesPlaceholder"))}">${EscapeHtml(gNotes)}</textarea>
+        </div>`;
+}
+
+function RenderPanel(state = gState) {
+    const body = gActiveTab === "chronicle"
+        ? RenderChronicleTab(state)
+        : gActiveTab === "notes"
+            ? RenderNotesTab()
+            : RenderSceneTab(state);
+
+    return `
+        <div class="mib-board mib-theme-${EscapeHtml(gTheme)}" data-mib-board>
+            <div class="mib-title-row">
+                <div class="mib-title">Mom Infoblock</div>
+                <div class="mib-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
+            </div>
+            ${RenderTabs()}
+            <div class="mib-tab-body">
+                ${body}
+            </div>
+        </div>`;
+}
+
+function WirePanel(root) {
+    if (!root) return;
+
+    root.querySelectorAll("[data-mib-tab]").forEach(button => {
+        button.addEventListener("click", () => {
+            gActiveTab = button.dataset.mibTab || "scene";
+            localStorage.setItem(kActiveTabKey, gActiveTab);
+            RerenderAllPanels();
+        });
+    });
+
+    root.querySelectorAll(".mib-notes-input").forEach(textarea => {
+        textarea.addEventListener("input", () => {
+            gNotes = textarea.value || "";
+            SaveNotes();
+            SyncNotesTextareas(textarea);
+        });
+    });
+}
+
+function SyncNotesTextareas(source) {
+    document.querySelectorAll(".mib-notes-input").forEach(textarea => {
+        if (textarea !== source) {
+            textarea.value = gNotes;
+        }
+    });
+}
+
+function ShouldRenderInline() {
+    return gDisplayMode === "inline" || gDisplayMode === "inline_dock";
+}
+
+function ShouldRenderFloating() {
+    return gDisplayMode === "floating";
+}
+
+function ShouldRenderDock() {
+    return gDisplayMode === "dock" || gDisplayMode === "inline_dock";
+}
+
+function GetOrCreateMessageHost(mesTextEl) {
+    let host = mesTextEl.querySelector(".mib-board-host");
+
+    if (!host) {
+        host = document.createElement("div");
+        host.className = "mib-board-host";
+        mesTextEl.appendChild(host);
+    }
+
+    return host;
+}
+
+function CleanupRawXmlDom(messageTextEl) {
+    if (!gHideRaw || !messageTextEl) return;
+
+    messageTextEl
+        .querySelectorAll("mom_infoblock, chars, rels, chronicle, event, thread, c, rel, thk, nsfw")
+        .forEach(node => {
+            if (node.closest(".mib-board-host, .mib-board")) return;
+            node.remove();
+        });
+}
+
+function RemoveRawXmlFromText(messageTextEl) {
+    if (!gHideRaw || !messageTextEl) return;
+
+    const walker = document.createTreeWalker(
+        messageTextEl,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode(node) {
+                if (!node.parentElement) return NodeFilter.FILTER_REJECT;
+                if (node.parentElement.closest(".mib-board-host, .mib-board")) return NodeFilter.FILTER_REJECT;
+
+                const text = node.textContent || "";
+
+                return text.includes("<mom_infoblock") ||
+                    text.includes("</mom_infoblock>") ||
+                    text.includes("<nsfw")
+                    ? NodeFilter.FILTER_ACCEPT
+                    : NodeFilter.FILTER_SKIP;
+            }
+        }
+    );
+
+    const targets = [];
+    let current = walker.nextNode();
+
+    while (current) {
+        targets.push(current);
+        current = walker.nextNode();
+    }
+
+    for (const node of targets) {
+        node.textContent = String(node.textContent || "")
+            .replace(/<mom_infoblock\b[\s\S]*?<\/mom_infoblock>/gi, "")
+            .replace(/<nsfw\b[\s\S]*?\/?>/gi, "")
+            .replace(/\n{3,}/g, "\n\n");
+    }
+}
+
+function RemoveThoughtLeaks(messageTextEl, parsed) {
+    if (!gHideThoughtLeaks || !messageTextEl || !parsed?.thoughts?.length) return;
+
+    const thoughtTexts = parsed.thoughts
+        .map(t => NormalizeText(t.text))
+        .filter(t => t.length >= 12);
+
+    if (!thoughtTexts.length) return;
+
+    const walker = document.createTreeWalker(
+        messageTextEl,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode(node) {
+                if (!node.parentElement) return NodeFilter.FILTER_REJECT;
+                if (node.parentElement.closest(".mib-board-host, .mib-board")) return NodeFilter.FILTER_REJECT;
+
+                const normalized = NormalizeText(node.textContent || "");
+                if (!normalized) return NodeFilter.FILTER_SKIP;
+
+                return thoughtTexts.some(t => normalized.includes(t))
+                    ? NodeFilter.FILTER_ACCEPT
+                    : NodeFilter.FILTER_SKIP;
+            }
+        }
+    );
+
+    const targets = [];
+    let current = walker.nextNode();
+
+    while (current) {
+        targets.push(current);
+        current = walker.nextNode();
+    }
+
+    for (const node of targets) {
+        const lines = String(node.textContent || "").split(/\r?\n/);
+        node.textContent = lines
+            .filter(line => {
+                const normalized = NormalizeText(line);
+                return !thoughtTexts.some(t => normalized.includes(t));
+            })
+            .join("\n");
+    }
+}
+
+function RenderBoardIntoMessage(mesTextEl, state, parsed) {
+    if (!mesTextEl || !parsed) return;
+
+    CleanupRawXmlDom(mesTextEl);
+    RemoveRawXmlFromText(mesTextEl);
+    CleanupRawXmlDom(mesTextEl);
+    RemoveThoughtLeaks(mesTextEl, parsed);
+
+    if (!ShouldRenderInline()) {
+        const host = mesTextEl.querySelector(".mib-board-host");
+        if (host) host.remove();
+        return;
+    }
+
+    const host = GetOrCreateMessageHost(mesTextEl);
+    host.dataset.rawXml = parsed.rawXml || "";
+    host.innerHTML = RenderPanel(state);
+    WirePanel(host);
+}
+
+function ProcessMessage(messageDiv, msgIndex) {
+    if (!gEnabled) return;
+
+    const stContext = GetContextSafe();
+    const msg = stContext.chat?.[msgIndex];
+
+    if (!msg || msg.is_user) return;
+
+    const parsed = ParseMomInfoblock(msg.mes || "");
+    if (!parsed) return;
+
+    const mesTextEl = messageDiv.querySelector(".mes_text");
+    if (!mesTextEl) return;
+
+    gState = ApplyParsedToState(parsed);
+    SaveState();
+
+    RenderBoardIntoMessage(mesTextEl, gState, parsed);
+    UpdateStatusDisplay();
+    RenderFloatingOrDock();
+}
+
+function RebuildStateFromCurrentChat() {
+    const stContext = GetContextSafe();
+    let rollingState = Clone(kDefaultState);
+    let lastRawXml = "";
+
+    if (!Array.isArray(stContext.chat)) {
+        gState = rollingState;
+        SaveState();
+        return;
+    }
+
+    for (const msg of stContext.chat) {
+        if (!msg || msg.is_user) continue;
+
+        const parsed = ParseMomInfoblock(msg.mes || "");
+        if (!parsed) continue;
+
+        rollingState = ApplyParsedToState(parsed, rollingState);
+
+        if (parsed.rawXml) {
+            lastRawXml = parsed.rawXml;
+        }
+    }
+
+    gState = rollingState;
+
+    if (lastRawXml) {
+        gLastRawXml = lastRawXml;
+    }
+
+    SaveState();
+}
+
+function ReprocessChat() {
+    const stContext = GetContextSafe();
+    let rollingState = Clone(kDefaultState);
+
+    if (!Array.isArray(stContext.chat)) return;
+
+    document.querySelectorAll(".mes").forEach(node => {
+        const msgId = Number(node.getAttribute("mesid"));
+        if (Number.isNaN(msgId)) return;
+
+        const msg = stContext.chat[msgId];
+        if (!msg || msg.is_user) return;
+
+        const mesTextEl = node.querySelector(".mes_text");
+        if (!mesTextEl) return;
+
+        const parsed = ParseMomInfoblock(msg.mes || "");
+
+        CleanupRawXmlDom(mesTextEl);
+        RemoveRawXmlFromText(mesTextEl);
+        CleanupRawXmlDom(mesTextEl);
+
+        if (!parsed) {
+            const host = mesTextEl.querySelector(".mib-board-host");
+            if (host) host.remove();
+            return;
+        }
+
+        rollingState = ApplyParsedToState(parsed, rollingState);
+        RenderBoardIntoMessage(mesTextEl, rollingState, parsed);
+    });
+
+    gState = rollingState;
+    SaveState();
+    UpdateStatusDisplay();
+    RenderFloatingOrDock();
+}
+
+function Debounce(fn, delay = 250) {
+    let timer = null;
+
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+}
+
+const ScheduleReprocessChat = Debounce(ReprocessChat, 250);
+
+function RemoveFloating() {
+    document.getElementById("mib_floating_host")?.remove();
+}
+
+function RenderFloating() {
+    if (!gEnabled || !ShouldRenderFloating()) {
+        RemoveFloating();
+        return;
+    }
+
+    let host = document.getElementById("mib_floating_host");
+
+    if (!host) {
+        host = document.createElement("div");
+        host.id = "mib_floating_host";
+        document.body.appendChild(host);
+        RestoreFloatingLayout(host);
+    }
+
+    host.className = `mib-theme-${gTheme}`;
+    host.innerHTML = `
+        <div class="mib-floating-shell">
+            <div class="mib-floating-header">
+                <div class="mib-floating-title">${EscapeHtml(T("floatingTitle"))}</div>
+                <button type="button" class="mib-floating-close">×</button>
+            </div>
+            <div class="mib-floating-body">
+                ${RenderPanel(gState)}
+            </div>
+        </div>`;
+
+    WirePanel(host);
+
+    host.querySelector(".mib-floating-close")?.addEventListener("click", () => {
+        SaveFloatingLayout(host);
+        host.remove();
+    });
+
+    MakeFloatingDraggable(host);
+}
+
+function RestoreFloatingLayout(host) {
+    try {
+        const raw = localStorage.getItem(kFloatingLayoutKey);
+        if (!raw) return;
+
+        const data = JSON.parse(raw);
+
+        host.style.left = `${Clamp(data.left, 0, window.innerWidth - 160)}px`;
+        host.style.top = `${Clamp(data.top, 0, window.innerHeight - 120)}px`;
+        host.style.width = `${Clamp(data.width, 280, window.innerWidth - 20)}px`;
+        host.style.height = `${Clamp(data.height, 220, window.innerHeight - 20)}px`;
+        host.style.right = "auto";
+        host.style.bottom = "auto";
+    } catch {
+        // Layout restore is optional.
+    }
+}
+
+function SaveFloatingLayout(host) {
+    if (!host) return;
+
+    const rect = host.getBoundingClientRect();
+
+    localStorage.setItem(kFloatingLayoutKey, JSON.stringify({
+        left: Math.round(rect.left),
+        top: Math.round(rect.top),
+        width: Math.round(rect.width),
+        height: Math.round(rect.height)
+    }));
+}
+
+function MakeFloatingDraggable(host) {
+    const header = host.querySelector(".mib-floating-header");
+    if (!header || host.dataset.dragReady === "true") return;
+
+    host.dataset.dragReady = "true";
+
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    header.addEventListener("pointerdown", event => {
+        if (event.target.closest("button")) return;
+
+        const rect = host.getBoundingClientRect();
+
+        dragging = true;
+        startX = event.clientX;
+        startY = event.clientY;
+        startLeft = rect.left;
+        startTop = rect.top;
+
+        host.style.left = `${rect.left}px`;
+        host.style.top = `${rect.top}px`;
+        host.style.right = "auto";
+        host.style.bottom = "auto";
+
+        event.preventDefault();
+    });
+
+    window.addEventListener("pointermove", event => {
+        if (!dragging) return;
+
+        const rect = host.getBoundingClientRect();
+        const left = Clamp(startLeft + event.clientX - startX, 0, window.innerWidth - rect.width);
+        const top = Clamp(startTop + event.clientY - startY, 0, window.innerHeight - 80);
+
+        host.style.left = `${left}px`;
+        host.style.top = `${top}px`;
+    });
+
+    window.addEventListener("pointerup", () => {
+        if (!dragging) return;
+        dragging = false;
+        SaveFloatingLayout(host);
+    });
+}
+
+function RemoveDock() {
+    document.getElementById("mib_dock_host")?.remove();
+}
+
+function IsDockCollapsed() {
+    return localStorage.getItem(kDockCollapsedKey) === "true";
+}
+
+function SetDockCollapsed(value) {
+    localStorage.setItem(kDockCollapsedKey, String(value));
+}
+
+function RenderDock() {
+    if (!gEnabled || !ShouldRenderDock()) {
+        RemoveDock();
+        return;
+    }
+
+    let host = document.getElementById("mib_dock_host");
+
+    if (!host) {
+        host = document.createElement("div");
+        host.id = "mib_dock_host";
+        document.body.appendChild(host);
+    }
+
+    const collapsed = IsDockCollapsed();
+
+    host.className = [
+        `mib-theme-${gTheme}`,
+        `mib-dock-${gDockSide}`,
+        collapsed ? "mib-dock-collapsed" : "mib-dock-open"
+    ].join(" ");
+
+    host.innerHTML = `
+        <button type="button" class="mib-dock-handle">
+            ${collapsed ? EscapeHtml(T("openDock")) : EscapeHtml(T("closeDock"))}
+        </button>
+        <div class="mib-dock-panel">
+            <div class="mib-dock-header">
+                <div class="mib-dock-title">${EscapeHtml(T("dockTitle"))}</div>
+            </div>
+            <div class="mib-dock-body">
+                ${RenderPanel(gState)}
+            </div>
+        </div>`;
+
+    host.querySelector(".mib-dock-handle")?.addEventListener("click", () => {
+        SetDockCollapsed(!IsDockCollapsed());
+        RenderDock();
+    });
+
+    WirePanel(host);
+}
+
+function RenderFloatingOrDock() {
+    if (ShouldRenderFloating()) {
+        RenderFloating();
+    } else {
+        RemoveFloating();
+    }
+
+    if (ShouldRenderDock()) {
+        RenderDock();
+    } else {
+        RemoveDock();
+    }
+}
+
+function RerenderAllPanels() {
+    document.querySelectorAll(".mib-board-host").forEach(host => {
+        host.innerHTML = RenderPanel(gState);
+        WirePanel(host);
+    });
+
+    RenderFloatingOrDock();
+}
+
+function BuildExportPackage() {
+    return {
+        schema: "Mom-Infoblock.Export",
+        version: kVersion,
+        exportedAt: new Date().toISOString(),
+        chatId: GetChatId(),
+        settings: {
+            lang: gLang,
+            theme: gTheme,
+            displayMode: gDisplayMode,
+            dockSide: gDockSide,
+            hideRaw: gHideRaw,
+            hideThoughtLeaks: gHideThoughtLeaks,
+            showNsfw: gShowNsfw,
+            chronicleEnabled: gChronicleEnabled,
+            chronicleLimit: gChronicleLimit,
+            activeTab: gActiveTab
+        },
+        state: gState,
+        notes: gNotes,
+        ui: {
+            floatingLayout: SafeJsonParse(localStorage.getItem(kFloatingLayoutKey)),
+            dockCollapsed: IsDockCollapsed()
+        }
+    };
+}
+
+function SafeJsonParse(raw) {
+    try {
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+function ExportData() {
+    try {
+        const data = JSON.stringify(BuildExportPackage(), null, 2);
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `mom-infoblock-${GetChatId()}-${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("[MIB] Export failed:", error);
+    }
+}
+
+function ApplyImportedPackage(data) {
+    if (data?.schema === "Mom-Infoblock.Export") {
+        gState = NormalizeImportedState(data.state);
+        gNotes = String(data.notes || "");
+
+        if (data.settings) {
+            gLang = data.settings.lang || gLang;
+            gTheme = data.settings.theme || gTheme;
+            gDisplayMode = data.settings.displayMode || gDisplayMode;
+            gDockSide = data.settings.dockSide || gDockSide;
+            gHideRaw = data.settings.hideRaw !== false;
+            gHideThoughtLeaks = data.settings.hideThoughtLeaks !== false;
+            gShowNsfw = data.settings.showNsfw !== false;
+            gChronicleEnabled = data.settings.chronicleEnabled !== false;
+            gChronicleLimit = parseInt(data.settings.chronicleLimit, 10) || gChronicleLimit;
+            gActiveTab = data.settings.activeTab || gActiveTab;
+        }
+
+        if (data.ui?.floatingLayout) {
+            localStorage.setItem(kFloatingLayoutKey, JSON.stringify(data.ui.floatingLayout));
+        }
+
+        if (typeof data.ui?.dockCollapsed === "boolean") {
+            SetDockCollapsed(data.ui.dockCollapsed);
+        }
+
+        SaveSettings();
+        SaveState();
+        SaveNotes();
+        return;
+    }
+
+    // Legacy fallback: old plain state export.
+    gState = NormalizeImportedState(data);
+    SaveState();
+}
+
+async function ImportDataFromFile(file) {
+    if (!file) return;
+
+    try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+
+        ApplyImportedPackage(data);
+        SyncSettingsControls();
+        UpdateSettingsText();
+        UpdateStatusDisplay();
+        ReprocessChat();
+        RenderFloatingOrDock();
+    } catch (error) {
+        console.error("[MIB] Import failed:", error);
+        alert(T("importFail"));
+    }
+}
+
+function UpdateSettingsText() {
+    $('label[for="mib_enabled"]').html(`<b>${T("enable")}</b>`);
+    $('label[for="mib_lang"]').html(`<b>${T("language")}</b>`);
+    $('label[for="mib_theme"]').html(`<b>${T("theme")}</b>`);
+    $('label[for="mib_display_mode"]').html(`<b>${T("displayMode")}</b>`);
+    $('label[for="mib_dock_side"]').html(`<b>${T("dockSide")}</b>`);
+    $('label[for="mib_hide_raw"]').text(T("hideRaw"));
+    $('label[for="mib_hide_thought_leaks"]').text(T("hideThoughtLeaks"));
+    $('label[for="mib_show_nsfw"]').text(T("showNsfw"));
+    $('label[for="mib_chronicle_enabled"]').text(T("chronicleEnabled"));
+    $('label[for="mib_chronicle_limit"]').html(`<b>${T("chronicleLimit")}</b>`);
+
+    $("#mib_display_mode option[value='inline']").text(T("displayInline"));
+    $("#mib_display_mode option[value='floating']").text(T("displayFloating"));
+    $("#mib_display_mode option[value='dock']").text(T("displayDock"));
+    $("#mib_display_mode option[value='inline_dock']").text(T("displayInlineDock"));
+
+    $("#mib_dock_side option[value='left']").text(T("dockLeft"));
+    $("#mib_dock_side option[value='right']").text(T("dockRight"));
+
+    $("#mib_state_label").text(T("currentState"));
+    $("#mib_reset_state").text(T("resetState"));
+    $("#mib_reprocess_chat").text(T("reprocess"));
+    $("#mib_export_data").text(T("exportData"));
+    $("#mib_import_data").text(T("importData"));
+}
+
+function SyncSettingsControls() {
+    $("#mib_enabled").prop("checked", gEnabled);
+    $("#mib_lang").val(gLang);
+    $("#mib_theme").val(gTheme);
+    $("#mib_display_mode").val(gDisplayMode);
+    $("#mib_dock_side").val(gDockSide);
+    $("#mib_hide_raw").prop("checked", gHideRaw);
+    $("#mib_hide_thought_leaks").prop("checked", gHideThoughtLeaks);
+    $("#mib_show_nsfw").prop("checked", gShowNsfw);
+    $("#mib_chronicle_enabled").prop("checked", gChronicleEnabled);
+    $("#mib_chronicle_limit").val(String(gChronicleLimit));
+}
+
+function UpdateStatusDisplay() {
+    const $status = $("#mib_status");
+    const $summary = $("#mib_state_summary");
+
+    if (gEnabled) {
+        $status.html(`<span style="color:#7fb68a">${EscapeHtml(T("active"))}</span>`);
+        $summary.html(
+            `${EscapeHtml(gState.scene.time)} | ${EscapeHtml(gState.scene.date)}<br>` +
+            `${EscapeHtml(gState.scene.weather)}<br>` +
+            `📍 ${EscapeHtml(gState.scene.loc)}<br>` +
+            `${EscapeHtml(T("chars"))}: ${gState.chars.map(c => EscapeHtml(c.name)).join(", ") || "—"}`
+        );
+    } else {
+        $status.html(`<span style="color:#888">${EscapeHtml(T("inactive"))}</span>`);
+        $summary.text(T("disabledPrompt"));
+    }
+}
+
+function WireSettings() {
+    $("#mib_enabled").on("change", function () {
+        gEnabled = $(this).is(":checked");
+        SaveSettings();
+        UpdateStatusDisplay();
+        InjectPrompt();
+
+        if (gEnabled) {
+            ReprocessChat();
+            RenderFloatingOrDock();
+        } else {
+            document.querySelectorAll(".mib-board-host").forEach(el => el.remove());
+            RemoveFloating();
+            RemoveDock();
+        }
+    });
+
+    $("#mib_lang").on("change", function () {
+        gLang = $(this).val() || "ru";
+        SaveSettings();
+        UpdateSettingsText();
+        UpdateStatusDisplay();
+        InjectPrompt();
+        RerenderAllPanels();
+    });
+
+    $("#mib_theme").on("change", function () {
+        gTheme = $(this).val() || "nocturne";
+        SaveSettings();
+        RerenderAllPanels();
+    });
+
+    $("#mib_display_mode").on("change", function () {
+        gDisplayMode = $(this).val() || "inline";
+        SaveSettings();
+        ReprocessChat();
+        RenderFloatingOrDock();
+    });
+
+    $("#mib_dock_side").on("change", function () {
+        gDockSide = $(this).val() || "right";
+        SaveSettings();
+        RenderDock();
+    });
+
+    $("#mib_hide_raw").on("change", function () {
+        gHideRaw = $(this).is(":checked");
+        SaveSettings();
+        ReprocessChat();
+    });
+
+    $("#mib_hide_thought_leaks").on("change", function () {
+        gHideThoughtLeaks = $(this).is(":checked");
+        SaveSettings();
+        ReprocessChat();
+    });
+
+    $("#mib_show_nsfw").on("change", function () {
+        gShowNsfw = $(this).is(":checked");
+        SaveSettings();
+        RerenderAllPanels();
+    });
+
+    $("#mib_chronicle_enabled").on("change", function () {
+        gChronicleEnabled = $(this).is(":checked");
+        SaveSettings();
+        InjectPrompt();
+        RerenderAllPanels();
+    });
+
+    $("#mib_chronicle_limit").on("change", function () {
+        gChronicleLimit = parseInt($(this).val(), 10) || 10;
+        SaveSettings();
+        RerenderAllPanels();
+    });
+
+    $("#mib_reset_state").on("click", function () {
+        if (!confirm(T("resetConfirm"))) return;
+
+        gState = Clone(kDefaultState);
+        SaveState();
+        UpdateStatusDisplay();
+        ReprocessChat();
+        RenderFloatingOrDock();
+    });
+
+    $("#mib_reprocess_chat").on("click", function () {
+        ReprocessChat();
+    });
+
+    $("#mib_export_data").on("click", function () {
+        ExportData();
+    });
+
+    $("#mib_import_data").on("click", function () {
+        $("#mib_import_file").trigger("click");
+    });
+
+    $("#mib_import_file").on("change", function (event) {
+        const file = event.target.files?.[0];
+        if (file) {
+            ImportDataFromFile(file);
+        }
+        event.target.value = "";
+    });
+}
+
+function OnChatChanged() {
+    LoadState();
+    LoadNotes();
+    UpdateStatusDisplay();
+
+    if (gEnabled) {
+        ScheduleReprocessChat();
+        RenderFloatingOrDock();
+    }
+}
+
+jQuery(async () => {
+    const stContext = GetContextSafe();
+
+    try {
+        const settingsHtml = await $.get(kSettingsFile);
+        const $extensions = $("#extensions_settings");
+        const $existing = $extensions.find(".mib-settings");
+
+        if ($existing.length) {
+            $existing.replaceWith(settingsHtml);
+        } else {
+            $extensions.append(settingsHtml);
+        }
+    } catch (error) {
+        console.warn("[MIB] settings.html not loaded:", error);
+    }
+
+    LoadSettings();
+    LoadState();
+    LoadNotes();
+
+    SyncSettingsControls();
+    UpdateSettingsText();
+    UpdateStatusDisplay();
+    WireSettings();
+
+    if (stContext.eventTypes?.GENERATION_STARTED) {
+        stContext.eventSource.on(stContext.eventTypes.GENERATION_STARTED, InjectPrompt);
+    }
+
+    if (stContext.eventTypes?.CHAT_CHANGED) {
+        stContext.eventSource.on(stContext.eventTypes.CHAT_CHANGED, OnChatChanged);
+    }
+
+    if (stContext.eventTypes?.MESSAGE_RECEIVED) {
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_RECEIVED, () => {
+            ScheduleReprocessChat();
+        });
+    }
+
+    if (stContext.eventTypes?.MESSAGE_EDITED) {
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
+            ScheduleReprocessChat();
+        });
+    }
+
+    if (stContext.eventTypes?.MESSAGE_SWIPED) {
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, () => {
+            document.querySelectorAll(".mib-board-host").forEach(el => el.remove());
+            ScheduleReprocessChat();
+        });
+    }
+
+    if (stContext.eventTypes?.MESSAGE_DELETED) {
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_DELETED, () => {
+            RebuildStateFromCurrentChat();
+            document.querySelectorAll(".mib-board-host").forEach(el => el.remove());
+            setTimeout(ReprocessChat, 120);
+            setTimeout(RenderFloatingOrDock, 250);
+        });
+    }
+
+    setTimeout(ReprocessChat, 150);
+    setTimeout(RenderFloatingOrDock, 250);
+
+    InjectPrompt();
+
+    console.log("[MIB] Mom Infoblock ready");
+});
