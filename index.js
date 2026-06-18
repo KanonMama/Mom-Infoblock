@@ -2215,9 +2215,10 @@ jQuery(async () => {
         console.warn("[MIB] settings.html not loaded:", error);
     }
 
-    LoadSettings();
-    LoadState();
-    LoadNotes();
+LoadSettings();
+LoadState();
+LoadNotes();
+LoadPinnedNpcs();
 
     SyncSettingsControls();
     UpdateSettingsText();
