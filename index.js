@@ -22,6 +22,7 @@ const kChronicleLimitKey = `${kStoragePrefix}ChronicleLimit`;
 const kActiveTabKey = `${kStoragePrefix}ActiveTab`;
 const kFloatingLayoutKey = `${kStoragePrefix}FloatingLayout`;
 const kDockCollapsedKey = `${kStoragePrefix}DockCollapsed`;
+const kPinnedNpcsKey = `${kStoragePrefix}PinnedNpcs`;
 
 let gEnabled = false;
 let gLang = "ru";
@@ -36,6 +37,7 @@ let gChronicleLimit = 10;
 let gActiveTab = "scene";
 let gLastRawXml = "";
 let gNotes = "";
+let gPinnedNpcs = [];
 
 const kDefaultState = {
     scene: {
@@ -449,6 +451,71 @@ function SaveNotes() {
     }
 }
 
+function LoadPinnedNpcs() {
+    try {
+        const raw = localStorage.getItem(kPinnedNpcsKey);
+        gPinnedNpcs = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(gPinnedNpcs)) gPinnedNpcs = [];
+    } catch {
+        gPinnedNpcs = [];
+    }
+}
+
+function SavePinnedNpcs() {
+    try {
+        localStorage.setItem(kPinnedNpcsKey, JSON.stringify(gPinnedNpcs));
+    } catch (error) {
+        console.warn("[MIB] SavePinnedNpcs failed:", error);
+    }
+}
+
+function IsPinnedNpc(name) {
+    const normalized = NormalizeName(name);
+    return gPinnedNpcs.some(pinned => NormalizeName(pinned) === normalized);
+}
+
+function TogglePinnedNpc(name) {
+    if (!name) return;
+
+    const normalized = NormalizeName(name);
+    const index = gPinnedNpcs.findIndex(pinned => NormalizeName(pinned) === normalized);
+
+    if (index >= 0) {
+        gPinnedNpcs.splice(index, 1);
+    } else {
+        gPinnedNpcs.push(name);
+    }
+
+    SavePinnedNpcs();
+}
+
+function SortCharsByPriority(chars = []) {
+    return [...chars].sort((a, b) => {
+        const ap = IsPinnedNpc(a.name) ? 0 : 1;
+        const bp = IsPinnedNpc(b.name) ? 0 : 1;
+
+        if (ap !== bp) return ap - bp;
+
+        return String(a.name || "").localeCompare(String(b.name || ""), undefined, {
+            sensitivity: "base"
+        });
+    });
+}
+
+function SortRelationsByPriority(rels = []) {
+    return [...rels].sort((a, b) => {
+        const ap = IsPinnedNpc(a.source) ? 0 : 1;
+        const bp = IsPinnedNpc(b.source) ? 0 : 1;
+
+        if (ap !== bp) return ap - bp;
+
+        const av = Math.abs(parseInt(a.a) || 0) + Math.abs(parseInt(a.tr) || 0) + Math.abs(parseInt(a.l) || 0);
+        const bv = Math.abs(parseInt(b.a) || 0) + Math.abs(parseInt(b.tr) || 0) + Math.abs(parseInt(b.l) || 0);
+
+        return bv - av;
+    });
+}
+
 function NormalizeImportedState(input) {
     const source = input || {};
     const state = Clone(kDefaultState);
@@ -781,13 +848,21 @@ function RenderTabs() {
 }
 
 function RenderSceneTab(state) {
-    const charsHtml = state.chars.length
-        ? state.chars.map(c => `
+const sortedChars = SortCharsByPriority(state.chars);
+
+const charsHtml = sortedChars.length
+    ? sortedChars.map(c => `
             <div class="mib-char">
                 <div class="mib-char-main">
-                    <span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
-                    <span class="mib-char-name">${EscapeHtml(c.name)}</span>
-                    ${c.mood ? `<span class="mib-chip mib-mood">${EscapeHtml(c.mood)}</span>` : ""}
+<span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
+<span class="mib-char-name">${EscapeHtml(c.name)}</span>
+<button
+    type="button"
+    class="mib-pin-btn ${IsPinnedNpc(c.name) ? "mib-pinned" : ""}"
+    data-mib-pin="${EscapeHtml(c.name)}"
+    title="${EscapeHtml(IsPinnedNpc(c.name) ? "Unpin NPC" : "Pin NPC")}"
+></button>
+${c.mood ? `<span class="mib-chip mib-mood">${EscapeHtml(c.mood)}</span>` : ""}
                 </div>
                 <div class="mib-tags">
                     ${(c.tags || []).map(tag => `<span class="mib-chip">${EscapeHtml(tag)}</span>`).join("")}
@@ -796,8 +871,10 @@ function RenderSceneTab(state) {
         `).join("")
         : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
 
-    const relsHtml = state.rels.length
-        ? state.rels.map(r => `
+const sortedRels = SortRelationsByPriority(state.rels);
+
+const relsHtml = sortedRels.length
+    ? sortedRels.map(r => `
             <div class="mib-rel">
                 <div class="mib-rel-title">
                     <span>${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
@@ -928,6 +1005,20 @@ function WirePanel(root) {
             SyncNotesTextareas(textarea);
         });
     });
+
+    root.querySelectorAll(".mib-pin-btn").forEach(button => {
+    button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const name = button.dataset.mibPin || "";
+        if (!name) return;
+
+        TogglePinnedNpc(name);
+        ReprocessChat();
+        RenderFloatingOrDock();
+    });
+});
 }
 
 function SyncNotesTextareas(source) {
@@ -1942,6 +2033,7 @@ function WireSettings() {
 function OnChatChanged() {
     LoadState();
     LoadNotes();
+    LoadPinnedNpcs();
     UpdateStatusDisplay();
 
     if (gEnabled) {
