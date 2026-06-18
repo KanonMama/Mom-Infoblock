@@ -1141,3 +1141,22 @@
     border-color: rgba(143, 180, 255, 0.42);
     background: rgba(28, 38, 56, 0.96);
 }
+
+.mib-custom-css-block {
+    margin: 8px 0 12px;
+}
+
+.mib-custom-css-input {
+    width: 100%;
+    min-height: 180px;
+    resize: vertical;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border: 1px solid rgba(140, 165, 220, 0.18);
+    background: rgba(0,0,0,0.20);
+    color: inherit;
+    padding: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+}
