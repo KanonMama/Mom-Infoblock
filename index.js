@@ -25,6 +25,7 @@ const kDockCollapsedKey = `${kStoragePrefix}DockCollapsed`;
 const kPinnedNpcsKey = `${kStoragePrefix}PinnedNpcs`;
 const kSceneViewModeKey = `${kStoragePrefix}SceneViewMode`;
 const kRelationFilterKey = `${kStoragePrefix}RelationFilter`;
+const kFloatingCollapsedKey = `${kStoragePrefix}FloatingCollapsed`;
 
 let gEnabled = false;
 let gLang = "ru";
@@ -1880,6 +1881,14 @@ function Debounce(fn, delay = 250) {
 
 const ScheduleReprocessChat = Debounce(ReprocessChat, 250);
 
+function IsFloatingCollapsed() {
+    return localStorage.getItem(kFloatingCollapsedKey) === "true";
+}
+
+function SetFloatingCollapsed(value) {
+    localStorage.setItem(kFloatingCollapsedKey, String(value));
+}
+
 function RemoveFloating() {
     document.getElementById("mib_floating_host")?.remove();
 }
@@ -1899,13 +1908,35 @@ function RenderFloating() {
         RestoreFloatingLayout(host);
     }
 
-    host.className = `mib-theme-${gTheme}`;
+    const collapsed = IsFloatingCollapsed();
+
+    host.className = [
+        `mib-theme-${gTheme}`,
+        collapsed ? "mib-floating-collapsed" : "mib-floating-open"
+    ].join(" ");
+
     host.dataset.rawXml = gLastRawXml || "";
+
+    if (collapsed) {
+        host.innerHTML = `
+            <button type="button" class="mib-floating-launcher">
+                <span>Mom</span>
+            </button>
+        `;
+
+        host.querySelector(".mib-floating-launcher")?.addEventListener("click", () => {
+            SetFloatingCollapsed(false);
+            RenderFloating();
+        });
+
+        return;
+    }
+
     host.innerHTML = `
         <div class="mib-floating-shell">
             <div class="mib-floating-header">
                 <div class="mib-floating-title">${EscapeHtml(T("floatingTitle"))}</div>
-                <button type="button" class="mib-floating-close">×</button>
+                <button type="button" class="mib-floating-close" title="Collapse">×</button>
             </div>
             <div class="mib-floating-body">
                 ${RenderPanel(gState)}
@@ -1916,12 +1947,12 @@ function RenderFloating() {
 
     host.querySelector(".mib-floating-close")?.addEventListener("click", () => {
         SaveFloatingLayout(host);
-        host.remove();
+        SetFloatingCollapsed(true);
+        RenderFloating();
     });
 
     MakeFloatingDraggable(host);
 }
-
 function RestoreFloatingLayout(host) {
     try {
         const raw = localStorage.getItem(kFloatingLayoutKey);
