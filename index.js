@@ -1115,12 +1115,10 @@ function RenderPanel(state = gState) {
                     <div class="mib-title">Mom Infoblock</div>
                 </div>
 
-                <div class="mib-title-actions">
-                    <div class="mib-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
-                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
-                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-                </div>
-            </div>
+<div class="mib-title-actions">
+    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">▤</button>
+    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+</div>
 
             ${RenderTabs()}
 
