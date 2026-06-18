@@ -989,17 +989,20 @@ function RenderPanel(state = gState) {
             : RenderSceneTab(state);
 
     return `
-<div class="mib-title-row">
-    <div>
-        <div class="mib-title">Mom Infoblock</div>
-    </div>
+        <div class="mib-board mib-theme-${EscapeHtml(gTheme)}" data-mib-board>
+            <div class="mib-title-row">
+                <div>
+                    <div class="mib-title">Mom Infoblock</div>
+                </div>
 
-    <div class="mib-title-actions">
-        <div class="mib-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
-        <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-    </div>
-</div>
+                <div class="mib-title-actions">
+                    <div class="mib-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
+                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+                </div>
+            </div>
+
             ${RenderTabs()}
+
             <div class="mib-tab-body">
                 ${body}
             </div>
@@ -1084,9 +1087,11 @@ function ReplaceMomInfoblockInMessage(messageText, nextXml) {
 
 function ToggleXmlInspector(root) {
     const host = GetInspectorHost(root);
-    if (!host) return;
+    const board = root.querySelector?.("[data-mib-board]") || root.closest?.("[data-mib-board]") || root;
 
-    const existing = host.querySelector(".mib-xml-inspector");
+    if (!host || !board) return;
+
+    const existing = board.querySelector(".mib-xml-inspector");
 
     if (existing) {
         existing.remove();
@@ -1163,7 +1168,7 @@ function ToggleXmlInspector(root) {
         InjectPrompt();
     });
 
-    host.appendChild(inspector);
+   board.appendChild(inspector);
 }
 
 function SyncNotesTextareas(source) {
@@ -1536,6 +1541,7 @@ const mesNode = mesTextEl.closest(".mes");
 host.dataset.rawXml = parsed.rawXml || "";
 host.dataset.mesId = mesNode?.getAttribute("mesid") || "";
 host.innerHTML = RenderPanel(state);
+WirePanel(host);
 }
 
 function ProcessMessage(messageDiv, msgIndex) {
@@ -1669,6 +1675,7 @@ function RenderFloating() {
     }
 
     host.className = `mib-theme-${gTheme}`;
+    host.dataset.rawXml = gLastRawXml || "";
     host.innerHTML = `
         <div class="mib-floating-shell">
             <div class="mib-floating-header">
@@ -1850,13 +1857,15 @@ function RenderDock() {
         document.body.appendChild(host);
     }
 
-    const collapsed = IsDockCollapsed();
+   const collapsed = IsDockCollapsed();
 
-    host.className = [
-        `mib-theme-${gTheme}`,
-        `mib-dock-${gDockSide}`,
-        collapsed ? "mib-dock-collapsed" : "mib-dock-open"
-    ].join(" ");
+host.dataset.rawXml = gLastRawXml || "";
+
+host.className = [
+    `mib-theme-${gTheme}`,
+    `mib-dock-${gDockSide}`,
+    collapsed ? "mib-dock-collapsed" : "mib-dock-open"
+].join(" ");
 
     host.innerHTML = `
         <button type="button" class="mib-dock-handle">
