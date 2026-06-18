@@ -159,6 +159,11 @@ insertPreset: "Вставить пресет",
         dossier: "Досье",
 dossierEmpty: "Описание персонажа не найдено.",
 dossierClose: "Закрыть",
+        focus: "в фокусе",
+nearby: "рядом",
+watching: "наблюдает",
+background: "на периферии",
+leftScene: "вышел",
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -249,6 +254,11 @@ insertPreset: "Insert preset",
         dossier: "Dossier",
 dossierEmpty: "Character description not found.",
 dossierClose: "Close",
+        focus: "focus",
+nearby: "nearby",
+watching: "watching",
+background: "background",
+leftScene: "left",
     }
 };
 
@@ -284,7 +294,9 @@ Rules:
 - tags: 1-4 short tags separated by |
 - tags must be short labels, not phrases or sentences
 - Never write explanations, actions, or long descriptions in tags
-- Use tags for scene presence when relevant: focus | рядом | наблюдает | на периферии | вышел
+- Use scene presence tags only when clearly relevant: focus | рядом | наблюдает | на периферии | вышел
+- Use at most one scene presence tag per NPC
+- Do not invent new presence tags
 - mood: 1-3 words, visible current emotional state only
 - Leave mood empty if unclear
 - Do not duplicate mood inside tags
@@ -361,7 +373,9 @@ Rules:
 - tags: 1-4 short tags separated by |
 - tags must be short labels, not phrases or sentences
 - Never write explanations, actions, or long descriptions in tags
-- Use tags for scene presence when relevant: focus | near | watching | background | left
+- Use scene presence tags only when clearly relevant: focus | near | watching | background | left
+- Use at most one scene presence tag per NPC
+- Do not invent new presence tags
 - mood: 1-3 words, visible current emotional state only
 - Leave mood empty if unclear
 - Do not duplicate mood inside tags
@@ -541,6 +555,62 @@ function ThoughtOwnerMatchesNpc(thoughtName, npcName, allNpcNames = []) {
     if (thoughtFirst === npcFirst && thoughtLast === npcLast) return true;
 
     return false;
+}
+
+function ParsePresenceState(tags = []) {
+    const normalized = tags.map(tag => NormalizeName(tag));
+
+    if (normalized.some(tag => ["focus"].includes(tag))) {
+        return { key: "focus", cls: "mib-presence-focus" };
+    }
+
+    if (normalized.some(tag => ["рядом", "near"].includes(tag))) {
+        return { key: "nearby", cls: "mib-presence-near" };
+    }
+
+    if (normalized.some(tag => ["наблюдает", "watching"].includes(tag))) {
+        return { key: "watching", cls: "mib-presence-watch" };
+    }
+
+    if (normalized.some(tag => ["на периферии", "background"].includes(tag))) {
+        return { key: "background", cls: "mib-presence-background" };
+    }
+
+    if (normalized.some(tag => ["вышел", "left"].includes(tag))) {
+        return { key: "leftScene", cls: "mib-presence-left" };
+    }
+
+    return null;
+}
+
+function IsPresenceTag(tag) {
+    const normalized = NormalizeName(tag);
+
+    return [
+        "focus",
+        "рядом",
+        "near",
+        "наблюдает",
+        "watching",
+        "на периферии",
+        "background",
+        "вышел",
+        "left"
+    ].includes(normalized);
+}
+
+function GetPresencePriority(char) {
+    const key = char?.presence?.key || "";
+
+    const priorities = {
+        focus: 0,
+        nearby: 1,
+        watching: 2,
+        background: 3,
+        leftScene: 4
+    };
+
+    return priorities[key] ?? 10;
 }
 
 function GetContextSafe() {
@@ -855,6 +925,11 @@ function SortCharsByPriority(chars = []) {
 
         if (ap !== bp) return ap - bp;
 
+        const apres = GetPresencePriority(a);
+        const bpres = GetPresencePriority(b);
+
+        if (apres !== bpres) return apres - bpres;
+
         return String(a.name || "").localeCompare(String(b.name || ""), undefined, {
             sensitivity: "base"
         });
@@ -1126,16 +1201,19 @@ function ParseMomInfoblock(text) {
         const name = node.getAttribute("name") || "";
         if (IsUserLikeName(name)) return;
 
-        parsed.chars.push({
-            icon: node.getAttribute("icon") || "•",
-            name: LimitText(name, 80),
-            tags: String(node.getAttribute("tags") || "")
-                .split("|")
-                .map(x => LimitText(x, 24))
-                .filter(Boolean)
-                .slice(0, 4),
-            mood: LimitText(node.getAttribute("mood") || "", 40)
-        });
+const tags = String(node.getAttribute("tags") || "")
+    .split("|")
+    .map(x => LimitText(x, 24))
+    .filter(Boolean)
+    .slice(0, 4);
+
+parsed.chars.push({
+    icon: node.getAttribute("icon") || "•",
+    name: LimitText(name, 80),
+    tags,
+    mood: LimitText(node.getAttribute("mood") || "", 40),
+    presence: ParsePresenceState(tags)
+});
     });
 
     doc.querySelectorAll("rels > rel").forEach(node => {
@@ -1392,25 +1470,31 @@ function RenderSceneTab(state) {
 const sortedChars = SortCharsByPriority(state.chars);
 
 const charsHtml = sortedChars.length
-    ? sortedChars.map(c => `
+    ? sortedChars.map(c => {
+        const visibleTags = (c.tags || []).filter(tag => !IsPresenceTag(tag));
+        const mood = String(c.mood || "").trim();
+
+        return `
             <div class="mib-char">
                 <div class="mib-char-main">
-<span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
-<span class="mib-char-name">${EscapeHtml(c.name)}</span>
-<button
-    type="button"
-    class="mib-pin-btn ${IsPinnedNpc(c.name) ? "mib-pinned" : ""}"
-    data-mib-pin="${EscapeHtml(c.name)}"
-    title="${EscapeHtml(IsPinnedNpc(c.name) ? "Unpin NPC" : "Pin NPC")}"
-></button>
-${c.mood ? `<span class="mib-chip mib-mood">${EscapeHtml(c.mood)}</span>` : ""}
+                    <span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
+                    <span class="mib-char-name">${EscapeHtml(c.name)}</span>
+                    <button
+                        type="button"
+                        class="mib-pin-btn ${IsPinnedNpc(c.name) ? "mib-pinned" : ""}"
+                        data-mib-pin="${EscapeHtml(c.name)}"
+                        title="${EscapeHtml(IsPinnedNpc(c.name) ? "Unpin NPC" : "Pin NPC")}"
+                    ></button>
+                    ${c.presence ? `<span class="mib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
+                    ${mood ? `<span class="mib-chip mib-mood">${EscapeHtml(mood)}</span>` : ""}
                 </div>
                 <div class="mib-tags">
-                    ${(c.tags || []).map(tag => `<span class="mib-chip">${EscapeHtml(tag)}</span>`).join("")}
+                    ${visibleTags.map(tag => `<span class="mib-chip">${EscapeHtml(tag)}</span>`).join("")}
                 </div>
             </div>
-        `).join("")
-        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+        `;
+    }).join("")
+    : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
 
 const sortedRels = SortRelationsByPriority(state.rels);
 const filteredRels = GetFilteredRelations(state.rels);
@@ -1965,6 +2049,50 @@ function NormalizeLeakText(value) {
         .trim();
 }
 
+function NormalizeThoughtText(value) {
+    return NormalizeLeakText(value)
+        .replace(/[,:;!?]/g, "")
+        .replace(/\.\.\./g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function LooksLikeStandaloneThoughtFragment(rawText, thoughtEntries = []) {
+    const raw = String(rawText || "").trim();
+    if (!raw) return false;
+
+    const normalized = NormalizeLeakText(raw);
+    const soft = NormalizeThoughtText(raw);
+
+    if (!normalized || soft.length < 18) return false;
+
+    const looksQuoted =
+        /^[«"„“].+[»"“”]$/.test(raw) ||
+        /^["'][^"']+["']$/.test(raw);
+
+    const looksShortFragment =
+        raw.length <= 120 &&
+        (
+            looksQuoted ||
+            /^\.{0,3}[^.!?]{18,120}\.{0,3}$/.test(raw)
+        );
+
+    if (!looksShortFragment) return false;
+
+    return thoughtEntries.some(thought => {
+        if (!thought?.softText) return false;
+
+        return (
+            soft.length >= 18 &&
+            (
+                thought.softText.includes(soft) ||
+                thought.normalizedText.includes(normalized) ||
+                thought.normalizedFull.includes(normalized)
+            )
+        );
+    });
+}
+
 function StripBulletPrefix(line) {
     return String(line || "")
         .replace(/^\s*[-–—*•]+\s*/u, "")
@@ -2083,27 +2211,35 @@ function LooksLikeThoughtLeakLine(line, parsed) {
     const normalizedLine = NormalizeLeakText(raw);
 
     const thoughts = (parsed?.thoughts || [])
-        .map(t => ({
-            name: String(t.name || "").trim(),
-            text: String(t.text || "").trim(),
-            full: `${String(t.name || "").trim()}: ${String(t.text || "").trim()}`
+        .map(thought => ({
+            name: String(thought.name || "").trim(),
+            text: String(thought.text || "").trim(),
+            full: `${String(thought.name || "").trim()}: ${String(thought.text || "").trim()}`,
+            softText: NormalizeThoughtText(thought.text || ""),
+            normalizedText: NormalizeLeakText(thought.text || ""),
+            normalizedFull: NormalizeLeakText(`${String(thought.name || "").trim()}: ${String(thought.text || "").trim()}`)
         }))
-        .filter(t => t.name && t.text);
+        .filter(thought => thought.name && thought.text);
 
     if (!thoughts.length) return false;
 
+    if (LooksLikeStandaloneThoughtFragment(raw, thoughts)) return true;
+
     return thoughts.some(thought => {
-        const thoughtText = NormalizeLeakText(thought.text);
-        const thoughtFull = NormalizeLeakText(thought.full);
+        const thoughtText = thought.softText;
+        const thoughtFull = thought.normalizedFull;
 
         if (thoughtText.length < 10) return false;
 
         if (parsedLine) {
-            const ownerMatches = NamesSoftMatch(parsedLine.name, thought.name);
-            const lineText = NormalizeLeakText(parsedLine.text);
+            const ownerMatches = NamesLikelyMatch(parsedLine.name, thought.name) ||
+                ThoughtOwnerMatchesNpc(parsedLine.name, thought.name, (parsed?.chars || []).map(char => char.name));
+
+            const lineText = NormalizeThoughtText(parsedLine.text);
 
             if (ownerMatches) {
                 if (lineText === thoughtText) return true;
+
                 if (lineText.includes(thoughtText) || thoughtText.includes(lineText)) {
                     const minLen = Math.min(lineText.length, thoughtText.length);
                     const maxLen = Math.max(lineText.length, thoughtText.length);
@@ -2112,11 +2248,13 @@ function LooksLikeThoughtLeakLine(line, parsed) {
             }
         }
 
-        if (normalizedLine === thoughtFull || normalizedLine === thoughtText) return true;
+        if (normalizedLine === thoughtFull || NormalizeThoughtText(raw) === thoughtText) return true;
 
-        if (normalizedLine.includes(thoughtText) || thoughtText.includes(normalizedLine)) {
-            const minLen = Math.min(normalizedLine.length, thoughtText.length);
-            const maxLen = Math.max(normalizedLine.length, thoughtText.length);
+        const softRaw = NormalizeThoughtText(raw);
+
+        if (softRaw.includes(thoughtText) || thoughtText.includes(softRaw)) {
+            const minLen = Math.min(softRaw.length, thoughtText.length);
+            const maxLen = Math.max(softRaw.length, thoughtText.length);
             return minLen >= 14 && minLen / maxLen >= 0.62;
         }
 
