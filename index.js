@@ -861,6 +861,116 @@ function RenderTabs() {
         </div>`;
 }
 
+function FindThoughtForNpc(thoughts = [], npcName = "") {
+    if (!npcName) return null;
+
+    return thoughts.find(thought => NamesSoftMatch(thought.name, npcName)) || null;
+}
+
+function RenderMiniStatChip(label, value, delta, kind) {
+    const n = Clamp(value, -100, 100);
+    const d = parseInt(delta, 10) || 0;
+    const cls = n >= 0 ? "mib-mini-pos" : "mib-mini-neg";
+    const deltaHtml = d
+        ? `<span class="mib-mini-delta ${d > 0 ? "mib-delta-pos" : "mib-delta-neg"}">${EscapeHtml(SignedText(d))}</span>`
+        : "";
+
+    return `
+        <span class="mib-mini-stat ${cls} mib-mini-${EscapeHtml(kind)}">
+            <span class="mib-mini-label">${EscapeHtml(label)}</span>
+            <span class="mib-mini-value">${n}</span>
+            ${deltaHtml}
+        </span>`;
+}
+
+function RenderRelationCard(r, state) {
+    const thought = FindThoughtForNpc(state.thoughts, r.source);
+
+    return `
+        <div class="mib-rel mib-rel-accordion mib-open">
+            <button type="button" class="mib-rel-toggle" aria-expanded="true">
+                <div class="mib-rel-toggle-main">
+                    <span class="mib-rel-name">${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
+                    <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
+                </div>
+
+                <div class="mib-rel-mini">
+                    ${RenderMiniStatChip("A", r.a, r.ac, "affection")}
+                    ${RenderMiniStatChip("T", r.tr, r.tc, "trust")}
+                    ${RenderMiniStatChip("L", r.l, r.lc, "love")}
+                    <span class="mib-rel-arrow" aria-hidden="true"></span>
+                </div>
+            </button>
+
+            <div class="mib-rel-body">
+                ${RenderMetric("a", r.a, r.ac, T("affection"), T("aversion"))}
+                ${RenderMetric("tr", r.tr, r.tc, T("trust"), T("distrust"))}
+                ${RenderMetric("l", r.l, r.lc, T("love"), T("hatred"))}
+
+                ${thought ? `
+                    <div class="mib-thought mib-rel-thought">
+                        <b>${EscapeHtml(thought.name)}:</b> ${EscapeHtml(thought.text)}
+                    </div>
+                ` : ""}
+            </div>
+        </div>`;
+}
+
+function FindThoughtForNpc(thoughts = [], npcName = "") {
+    if (!npcName) return null;
+
+    return thoughts.find(thought => NamesSoftMatch(thought.name, npcName)) || null;
+}
+
+function RenderMiniStatChip(label, value, delta, kind) {
+    const n = Clamp(value, -100, 100);
+    const d = parseInt(delta, 10) || 0;
+    const cls = n >= 0 ? "mib-mini-pos" : "mib-mini-neg";
+    const deltaHtml = d
+        ? `<span class="mib-mini-delta ${d > 0 ? "mib-delta-pos" : "mib-delta-neg"}">${EscapeHtml(SignedText(d))}</span>`
+        : "";
+
+    return `
+        <span class="mib-mini-stat ${cls} mib-mini-${EscapeHtml(kind)}">
+            <span class="mib-mini-label">${EscapeHtml(label)}</span>
+            <span class="mib-mini-value">${n}</span>
+            ${deltaHtml}
+        </span>`;
+}
+
+function RenderRelationCard(r, state) {
+    const thought = FindThoughtForNpc(state.thoughts, r.source);
+
+    return `
+        <div class="mib-rel mib-rel-accordion mib-open">
+            <button type="button" class="mib-rel-toggle" aria-expanded="true">
+                <div class="mib-rel-toggle-main">
+                    <span class="mib-rel-name">${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
+                    <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
+                </div>
+
+                <div class="mib-rel-mini">
+                    ${RenderMiniStatChip("A", r.a, r.ac, "affection")}
+                    ${RenderMiniStatChip("T", r.tr, r.tc, "trust")}
+                    ${RenderMiniStatChip("L", r.l, r.lc, "love")}
+                    <span class="mib-rel-arrow" aria-hidden="true"></span>
+                </div>
+            </button>
+
+            <div class="mib-rel-body">
+                ${RenderMetric("a", r.a, r.ac, T("affection"), T("aversion"))}
+                ${RenderMetric("tr", r.tr, r.tc, T("trust"), T("distrust"))}
+                ${RenderMetric("l", r.l, r.lc, T("love"), T("hatred"))}
+
+                ${thought ? `
+                    <div class="mib-thought mib-rel-thought">
+                        <b>${EscapeHtml(thought.name)}:</b> ${EscapeHtml(thought.text)}
+                    </div>
+                ` : ""}
+            </div>
+        </div>`;
+}
+
 function RenderSceneTab(state) {
 const sortedChars = SortCharsByPriority(state.chars);
 
@@ -888,26 +998,20 @@ ${c.mood ? `<span class="mib-chip mib-mood">${EscapeHtml(c.mood)}</span>` : ""}
 const sortedRels = SortRelationsByPriority(state.rels);
 
 const relsHtml = sortedRels.length
-    ? sortedRels.map(r => `
-            <div class="mib-rel">
-                <div class="mib-rel-title">
-                    <span>${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
-                    <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
-                </div>
-                ${RenderMetric("a", r.a, r.ac, T("affection"), T("aversion"))}
-                ${RenderMetric("tr", r.tr, r.tc, T("trust"), T("distrust"))}
-                ${RenderMetric("l", r.l, r.lc, T("love"), T("hatred"))}
-            </div>
-        `).join("")
-        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+    ? sortedRels.map(r => RenderRelationCard(r, state)).join("")
+    : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
 
-    const thoughtsHtml = state.thoughts.length
-        ? state.thoughts.map(t => `
-            <div class="mib-thought">
-                <b>${EscapeHtml(t.name)}:</b> ${EscapeHtml(t.text)}
-            </div>
-        `).join("")
-        : "";
+const extraThoughts = (state.thoughts || []).filter(thought => {
+    return !sortedRels.some(rel => NamesSoftMatch(thought.name, rel.source));
+});
+
+const thoughtsHtml = extraThoughts.length
+    ? extraThoughts.map(t => `
+        <div class="mib-thought">
+            <b>${EscapeHtml(t.name)}:</b> ${EscapeHtml(t.text)}
+        </div>
+    `).join("")
+    : "";
 
     const nsfwHtml = gShowNsfw && state.nsfw
         ? `
@@ -1042,6 +1146,18 @@ function WirePanel(root) {
     });
 });
 
+root.querySelectorAll(".mib-rel-toggle").forEach(toggle => {
+    toggle.addEventListener("click", event => {
+        event.preventDefault();
+
+        const card = toggle.closest(".mib-rel-accordion");
+        if (!card) return;
+
+        const isOpen = card.classList.toggle("mib-open");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+});
+    
     root.querySelectorAll(".mib-debug-btn").forEach(button => {
     button.addEventListener("click", event => {
         event.preventDefault();
