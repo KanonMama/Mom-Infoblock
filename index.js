@@ -1344,11 +1344,11 @@ const thought = gThoughtsEnabled ? FindThoughtForNpc(state.thoughts, r.source, s
                 ${RenderMetric("tr", r.tr, r.tc, T("trust"), T("distrust"))}
                 ${RenderMetric("l", r.l, r.lc, T("love"), T("hatred"))}
 
-                ${thought ? `
-                    <div class="mib-thought mib-rel-thought">
-                        <b>${EscapeHtml(thought.name)}:</b> ${EscapeHtml(thought.text)}
-                    </div>
-                ` : ""}
+${thought ? `
+    <div class="mib-thought mib-rel-thought">
+        ${EscapeHtml(thought.text)}
+    </div>
+` : ""}
             </div>
         </div>`;
 }
