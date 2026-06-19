@@ -106,15 +106,22 @@ The Notes tab is a local per-chat notepad.
 
 **Important:**
 
-*Notes are stored locally in the browser.
-Notes are saved per chat.
-Notes are not written into the XML.
-If notes are not empty, they are injected into the extension prompt as user notes.
-Empty notes do not consume context.
-Long notes will consume context because the model receives them as memory.
-So yes: the notepad is local storage, but filled notes still cost prompt space.*
+The **Notes** tab is a local per-chat notepad.
+By default, notes are stored only in your browser and do **not** get sent to the model.
+This means you can use the notepad for personal reminders, scene planning, references, or random scratch notes without wasting tokens.
+If you want, you can enable a separate setting:
+`Inject notes into prompt`
+When this option is enabled, non-empty notes are added to the extension prompt as user memory.
 
-Use it for useful reminders, not a whole cursed novel.
+So the behavior is:
+- notes are always stored locally;
+- notes do not consume tokens by default;
+- notes only affect context if **Inject notes into prompt** is turned on;
+- longer injected notes will use more prompt space.
+- 
+In short:
+- **Notes off prompt** = private local notepad;
+- **Notes in prompt** = manual memory injection.
 
 ---
 
