@@ -3236,9 +3236,9 @@ function RenderFloating() {
         collapsed ? "mib-floating-collapsed" : "mib-floating-open"
     ].join(" ");
 
-    host.className = [
-    "mib-mobile-panel-host",
+host.className = [
     `mib-theme-${gTheme}`,
+    `mib-mobile-panel-${gDockSide === "left" ? "left" : "right"}`,
     open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
 ].join(" ");
 
