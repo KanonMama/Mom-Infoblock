@@ -7463,3 +7463,46 @@
         background: rgba(0, 0, 255, 0.25) !important;
     }
 }
+
+@media (max-width: 760px) {
+    .mib-mobile-board {
+        min-height: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    .mib-mobile-head {
+        margin-bottom: 8px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--mib-soft-border);
+    }
+
+    .mib-mobile-title {
+        color: var(--mib-text);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .mib-mobile-subtitle {
+        margin-top: 3px;
+        color: var(--mib-dim);
+        font-size: 10px;
+    }
+
+    .mib-mobile-content {
+        display: block;
+    }
+
+    .mib-mobile-board .mib-tabs {
+        margin-bottom: 8px;
+    }
+
+    .mib-mobile-board .mib-header,
+    .mib-mobile-board .mib-section {
+        margin-bottom: 8px;
+    }
+}
