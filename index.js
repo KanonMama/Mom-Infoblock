@@ -3390,8 +3390,6 @@ function RenderMobileDockPanel() {
         open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
     ].join(" ");
 
-    host.dataset.rawXml = gLastRawXml || "";
-
     host.innerHTML = `
         <button type="button" class="mib-mobile-panel-toggle">
             ${EscapeHtml(open ? T("closeDock") : T("openDock"))}
@@ -3399,7 +3397,16 @@ function RenderMobileDockPanel() {
 
         <div class="mib-mobile-panel-shell">
             <div class="mib-mobile-panel-body">
-                ${open ? RenderPanel(gState) : ""}
+                ${open ? `
+                    <div style="padding:12px; color:white; background:rgba(255,0,0,0.25); min-height:300px;">
+                        <div style="font-weight:bold; margin-bottom:8px;">MOBILE PANEL TEST</div>
+                        <div>theme: ${EscapeHtml(gTheme)}</div>
+                        <div>mode: ${EscapeHtml(gDisplayMode)}</div>
+                        <div>chars: ${gState.chars?.length || 0}</div>
+                        <div>rels: ${gState.rels?.length || 0}</div>
+                        <div>notes len: ${(gNotes || "").length}</div>
+                    </div>
+                ` : ""}
             </div>
         </div>
     `;
@@ -3408,17 +3415,6 @@ function RenderMobileDockPanel() {
         SetMobilePanelOpen(!open);
         RenderMobileDockPanel();
     });
-
-    if (open) {
-        WirePanel(host);
-    }
-
-    if (open) {
-    requestAnimationFrame(() => {
-        const body = host.querySelector(".mib-mobile-panel-body");
-        if (body) body.scrollTop = 0;
-    });
-}
 }
 
 function RemoveDock() {
