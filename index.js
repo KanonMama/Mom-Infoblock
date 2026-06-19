@@ -51,6 +51,7 @@ let gRelationFilter = "top3";
 let gCustomCss = "";
 let gFontSize = "normal";
 let gThoughtsEnabled = true;
+let gStyleMenuOpen = false;
 
 const kDefaultState = {
     scene: {
@@ -2206,10 +2207,11 @@ function ToggleDossier(root) {
 
     const existing = board.querySelector(".mib-dossier-panel");
 
-    if (existing) {
-        existing.remove();
-        return;
-    }
+if (existing) {
+    existing.remove();
+    gStyleMenuOpen = false;
+    return;
+}
 
     const dossier = GetCurrentCharacterDossier();
 
@@ -2292,6 +2294,7 @@ menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event 
     });
 
     const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar");
+    gStyleMenuOpen = true;
     titleRow?.after(menu);
 }
 
@@ -3224,9 +3227,21 @@ function RerenderAllPanels() {
     document.querySelectorAll(".mib-board-host").forEach(host => {
         host.innerHTML = RenderPanel(gState);
         WirePanel(host);
+
+        if (gStyleMenuOpen) {
+            ToggleStyleMenu(host);
+        }
     });
 
     RenderFloatingOrDock();
+
+    if (gStyleMenuOpen) {
+        document.querySelectorAll("#mib_floating_host, #mib_dock_host").forEach(host => {
+            if (host.querySelector(".mib-style-btn") && !host.querySelector(".mib-style-menu")) {
+                ToggleStyleMenu(host);
+            }
+        });
+    }
 }
 
 function BuildExportPackage() {
