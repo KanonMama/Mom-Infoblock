@@ -2103,3 +2103,57 @@
 
 .mib-bars-hearts .mib-bar-fill.mib-bar-love-pos { color: #d77cff !important; }
 .mib-bars-hearts .mib-bar-fill.mib-bar-love-neg { color: #ff4f8f !important; }
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-affection-pos {
+    color: #5ef0a0 !important;
+    background-color: #5ef0a0 !important;
+}
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-affection-neg {
+    color: #ff7e8f !important;
+    background-color: #ff7e8f !important;
+}
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-trust-pos {
+    color: #6ecbff !important;
+    background-color: #6ecbff !important;
+}
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-trust-neg {
+    color: #ffb76a !important;
+    background-color: #ffb76a !important;
+}
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-love-pos {
+    color: #d77cff !important;
+    background-color: #d77cff !important;
+}
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-love-neg {
+    color: #ff4f8f !important;
+    background-color: #ff4f8f !important;
+}
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-affection-pos {
+    color: #39d96f !important;
+}
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-affection-neg {
+    color: #d86f4d !important;
+}
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-trust-pos {
+    color: #54dcae !important;
+}
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-trust-neg {
+    color: #d89a45 !important;
+}
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-love-pos {
+    color: #9bd85a !important;
+}
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-love-neg {
+    color: #d8783d !important;
+}
