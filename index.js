@@ -1373,6 +1373,16 @@ function RenderMetric(label, value, delta, positiveLabel, negativeLabel) {
     const sideClass = n >= 0 ? "mib-meter-pos" : "mib-meter-neg";
     const title = n >= 0 ? positiveLabel : negativeLabel;
 
+    let barClass = "";
+
+    if (label === "a") {
+        barClass = n >= 0 ? "mib-bar-affection-pos" : "mib-bar-affection-neg";
+    } else if (label === "tr") {
+        barClass = n >= 0 ? "mib-bar-trust-pos" : "mib-bar-trust-neg";
+    } else {
+        barClass = n >= 0 ? "mib-bar-love-pos" : "mib-bar-love-neg";
+    }
+
     return `
         <div class="mib-meter ${sideClass}">
             <div class="mib-meter-top">
@@ -1380,7 +1390,7 @@ function RenderMetric(label, value, delta, positiveLabel, negativeLabel) {
                 <span>${n}/100 (${EscapeHtml(SignedText(delta))})</span>
             </div>
             <div class="mib-bar">
-                <div class="mib-bar-fill" style="width:${Math.max(abs, abs ? 4 : 0)}%"></div>
+                <div class="mib-bar-fill ${barClass}" style="width:${Math.max(abs, abs ? 4 : 0)}%"></div>
             </div>
         </div>`;
 }
