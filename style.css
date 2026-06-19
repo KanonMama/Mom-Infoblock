@@ -2157,3 +2157,79 @@
 .mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-love-neg {
     color: #d8783d !important;
 }
+
+.mib-bars-terminal .mib-bar-fill.mib-bar-affection-pos {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #39d96f 0,
+            #39d96f 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+    color: #39d96f !important;
+}
+
+.mib-bars-terminal .mib-bar-fill.mib-bar-affection-neg {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #d86f4d 0,
+            #d86f4d 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+    color: #d86f4d !important;
+}
+
+.mib-bars-terminal .mib-bar-fill.mib-bar-trust-pos {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #54dcae 0,
+            #54dcae 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+    color: #54dcae !important;
+}
+
+.mib-bars-terminal .mib-bar-fill.mib-bar-trust-neg {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #d89a45 0,
+            #d89a45 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+    color: #d89a45 !important;
+}
+
+.mib-bars-terminal .mib-bar-fill.mib-bar-love-pos {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #9bd85a 0,
+            #9bd85a 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+    color: #9bd85a !important;
+}
+
+.mib-bars-terminal .mib-bar-fill.mib-bar-love-neg {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #d8783d 0,
+            #d8783d 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+    color: #d8783d !important;
+}
+
+.mib-bars-terminal .mib-bar-fill::before {
+    opacity: 0.16 !important;
+}
