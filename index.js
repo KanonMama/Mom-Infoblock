@@ -3166,6 +3166,12 @@ function RenderFloating() {
         collapsed ? "mib-floating-collapsed" : "mib-floating-open"
     ].join(" ");
 
+    host.className = [
+    "mib-mobile-panel-host",
+    `mib-theme-${gTheme}`,
+    open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
+].join(" ");
+
     host.dataset.rawXml = gLastRawXml || "";
 
     if (collapsed) {
