@@ -1635,3 +1635,126 @@
 .mib-bars-terminal .mib-meter-pos .mib-bar-fill {
     color: inherit;
 }
+
+.mib-theme-terminal .mib-bar-affection-pos,
+.mib-theme-terminal .mib-bar-trust-pos,
+.mib-theme-terminal .mib-bar-love-pos {
+    color: #7dff9a;
+}
+
+.mib-theme-terminal .mib-bar-affection-pos {
+    background: linear-gradient(90deg, #39d96f, #1fa751 58%, #126634);
+}
+
+.mib-theme-terminal .mib-bar-trust-pos {
+    background: linear-gradient(90deg, #54dcae, #2aa37c 58%, #17614b);
+}
+
+.mib-theme-terminal .mib-bar-love-pos {
+    background: linear-gradient(90deg, #9bd85a, #72a83a 58%, #486a21);
+}
+
+.mib-theme-terminal .mib-bar-affection-neg {
+    color: #d86f4d;
+    background: linear-gradient(90deg, #d86f4d, #9e4a2f 58%, #5f2918);
+}
+
+.mib-theme-terminal .mib-bar-trust-neg {
+    color: #d89a45;
+    background: linear-gradient(90deg, #d89a45, #a56c26 58%, #603d13);
+}
+
+.mib-theme-terminal .mib-bar-love-neg {
+    color: #d8783d;
+    background: linear-gradient(90deg, #d8783d, #9b5321 58%, #5a2f10);
+}
+
+.mib-theme-casefile .mib-bar-affection-pos {
+    color: #d7b34a;
+    background: linear-gradient(90deg, #d7b34a, #aa8425 58%, #5f4913);
+}
+
+.mib-theme-casefile .mib-bar-affection-neg {
+    color: #c64e43;
+    background: linear-gradient(90deg, #c64e43, #8d3129 58%, #4d1814);
+}
+
+.mib-theme-casefile .mib-bar-trust-pos {
+    color: #8ba9bd;
+    background: linear-gradient(90deg, #8ba9bd, #607d91 58%, #334752);
+}
+
+.mib-theme-casefile .mib-bar-trust-neg {
+    color: #d18b3f;
+    background: linear-gradient(90deg, #d18b3f, #9a6023 58%, #583312);
+}
+
+.mib-theme-casefile .mib-bar-love-pos {
+    color: #b58abf;
+    background: linear-gradient(90deg, #b58abf, #845b90 58%, #4b3253);
+}
+
+.mib-theme-casefile .mib-bar-love-neg {
+    color: #b9465f;
+    background: linear-gradient(90deg, #b9465f, #842f45 58%, #4b1828);
+}
+
+.mib-theme-oraclemoon .mib-bar-affection-pos {
+    color: #6dbb86;
+    background: linear-gradient(90deg, #6dbb86, #4d8c61 58%, #2d5439);
+}
+
+.mib-theme-oraclemoon .mib-bar-affection-neg {
+    color: #b96180;
+    background: linear-gradient(90deg, #b96180, #8a4560 58%, #4f2737);
+}
+
+.mib-theme-oraclemoon .mib-bar-trust-pos {
+    color: #668fbd;
+    background: linear-gradient(90deg, #668fbd, #4a6f99 58%, #2c415a);
+}
+
+.mib-theme-oraclemoon .mib-bar-trust-neg {
+    color: #b58250;
+    background: linear-gradient(90deg, #b58250, #8c6238 58%, #52381f);
+}
+
+.mib-theme-oraclemoon .mib-bar-love-pos {
+    color: #9367b8;
+    background: linear-gradient(90deg, #9367b8, #6b4891 58%, #3e2855);
+}
+
+.mib-theme-oraclemoon .mib-bar-love-neg {
+    color: #b96180;
+    background: linear-gradient(90deg, #b96180, #8b4460 58%, #4e2737);
+}
+
+.mib-theme-bloodmoon .mib-bar-affection-pos {
+    color: #d9827d;
+    background: linear-gradient(90deg, #d9827d, #a84a4f 58%, #631f29);
+}
+
+.mib-theme-bloodmoon .mib-bar-affection-neg {
+    color: #d76458;
+    background: linear-gradient(90deg, #d76458, #a23834 58%, #5f171d);
+}
+
+.mib-theme-bloodmoon .mib-bar-trust-pos {
+    color: #8da7c8;
+    background: linear-gradient(90deg, #8da7c8, #617998 58%, #344253);
+}
+
+.mib-theme-bloodmoon .mib-bar-trust-neg {
+    color: #d6a35f;
+    background: linear-gradient(90deg, #d6a35f, #a06f30 58%, #5b3c17);
+}
+
+.mib-theme-bloodmoon .mib-bar-love-pos {
+    color: #c46c98;
+    background: linear-gradient(90deg, #c46c98, #8d3d66 58%, #511f3a);
+}
+
+.mib-theme-bloodmoon .mib-bar-love-neg {
+    color: #b73545;
+    background: linear-gradient(90deg, #b73545, #7e1e2a 58%, #470d16);
+}
