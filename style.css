@@ -3820,3 +3820,76 @@
         inset 0 1px 0 rgba(255,255,255,0.08),
         0 0 10px rgba(224,184,79,0.06);
 }
+
+.mib-theme-casefile .mib-title {
+    position: relative;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    font-weight: 900;
+    color: #eee5d8;
+    text-shadow:
+        0 0 8px rgba(224,184,79,0.14),
+        0 2px 3px rgba(0,0,0,0.45);
+}
+
+.mib-theme-casefile .mib-title::before,
+.mib-theme-casefile .mib-title::after {
+    content: none;
+    display: none;
+}
+
+.mib-theme-casefile .mib-title-row {
+    position: relative;
+    padding-right: 118px;
+}
+
+.mib-theme-casefile .mib-title-row::before {
+    content: "EVIDENCE";
+    position: absolute;
+    right: 8px;
+    top: -1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 24px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    color: #151412;
+    background: linear-gradient(135deg, #e0b84f, #a98228);
+    border: 1px solid rgba(0,0,0,0.42);
+    border-radius: 3px;
+    box-shadow:
+        0 0 10px rgba(224,184,79,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.20),
+        inset 0 -1px 0 rgba(0,0,0,0.22);
+    transform: rotate(-4deg);
+    opacity: 0.92;
+    pointer-events: none;
+}
+
+.mib-theme-casefile .mib-title-row::after {
+    content: "";
+    position: absolute;
+    right: -10px;
+    bottom: -2px;
+    width: 142px;
+    height: 14px;
+    background:
+        repeating-linear-gradient(
+            135deg,
+            #e0b84f 0,
+            #e0b84f 8px,
+            #17130a 8px,
+            #17130a 16px
+        );
+    border-top: 1px solid rgba(255,255,255,0.12);
+    border-bottom: 1px solid rgba(0,0,0,0.42);
+    box-shadow:
+        0 0 10px rgba(224,184,79,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.16);
+    transform: rotate(-8deg);
+    opacity: 0.68;
+    pointer-events: none;
+}
