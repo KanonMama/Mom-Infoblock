@@ -184,6 +184,8 @@ barPixel: "Pixel Blocks",
 barCandy: "Candy Gloss",
 barPrism: "Prism Glass",
 barSigil: "Sigil Bands",
+        themePreview: "Палитра темы",
+themePreviewMissing: "Превью недоступно",
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -297,6 +299,8 @@ barPixel: "Pixel Blocks",
 barCandy: "Candy Gloss",
 barPrism: "Prism Glass",
 barSigil: "Sigil Bands",
+        themePreview: "Theme palette",
+themePreviewMissing: "Preview unavailable",
     }
 };
 
@@ -1660,6 +1664,304 @@ const kBarStyleOptions = [
     ["energon", "barEnergon"]
 ];
 
+const kThemeOptions = [
+    ["nocturne", "Nocturne"],
+    ["burgundy", "Burgundy"],
+    ["ashrose", "Ash Rose"],
+    ["coldsteel", "Cold Steel"],
+    ["frostwhite", "Frost White"],
+    ["pixel", "Pixel Neon"],
+    ["pinkbite", "Pink Bite"],
+    ["violetglass", "Violet Glass"],
+    ["verdantgrove", "Verdant Grove"],
+    ["sandalwood", "Sandalwood"],
+    ["gengar", "Gengar"],
+    ["systemlog", "System Log"],
+    ["terminal", "Terminal"],
+    ["oraclemoon", "Oracle Moon"],
+    ["bloodmoon", "Blood Moon"],
+    ["casefile", "Case File"],
+    ["obsidianregistry", "Obsidian Registry"],
+    ["neonquest", "Neon Quest"],
+    ["shockwave", "Shockwave"],
+    ["lockdown", "Lockdown"],
+    ["hotrod", "Hot Rod"],
+    ["gryffindor", "Gryffindor"],
+    ["slytherin", "Slytherin"],
+    ["ravenclaw", "Ravenclaw"],
+    ["hufflepuff", "Hufflepuff"]
+];
+
+const kThemePreviewMap = {
+    nocturne: {
+        label: { ru: "Ночное синее стекло", en: "Midnight blue glass" },
+        bg: "#141824",
+        bg2: "#1c2232",
+        accent: "#8fb4ff",
+        accent2: "#c09cff",
+        text: "#dbe3ff",
+        danger: "#ff8f9f"
+    },
+    burgundy: {
+        label: { ru: "Винный, тёплый, драматичный", en: "Wine-dark and dramatic" },
+        bg: "#221419",
+        bg2: "#311c24",
+        accent: "#ff9bb3",
+        accent2: "#e0a7ff",
+        text: "#ffe2ea",
+        danger: "#ff9bb3"
+    },
+    ashrose: {
+        label: { ru: "Пепельная роза", en: "Muted rose dusk" },
+        bg: "#211a20",
+        bg2: "#2d242c",
+        accent: "#f0a8c4",
+        accent2: "#caa8ff",
+        text: "#f3dfe8",
+        danger: "#f0a8c4"
+    },
+    coldsteel: {
+        label: { ru: "Холодный металл", en: "Cold iron and steel" },
+        bg: "#15191c",
+        bg2: "#20272d",
+        accent: "#9ec7d9",
+        accent2: "#b3b9df",
+        text: "#dde6eb",
+        danger: "#c89292"
+    },
+    frostwhite: {
+        label: { ru: "Морозное небо", en: "Frosted pale blue" },
+        bg: "#253446",
+        bg2: "#2d4158",
+        accent: "#7fb8ff",
+        accent2: "#a8bfff",
+        text: "#e3eefc",
+        danger: "#e06c84"
+    },
+    pixel: {
+        label: { ru: "Пиксельный неон", en: "Retro pixel neon" },
+        bg: "#17132b",
+        bg2: "#221b3f",
+        accent: "#a6ff78",
+        accent2: "#7de8ff",
+        text: "#d8ffd0",
+        danger: "#ff7f9f"
+    },
+    pinkbite: {
+        label: { ru: "Сахарный розовый укус", en: "Sweet pink bite" },
+        bg: "#2a1526",
+        bg2: "#3a1d35",
+        accent: "#ff8fc7",
+        accent2: "#ffc2e6",
+        text: "#ffe6f4",
+        danger: "#ff7ba5"
+    },
+    violetglass: {
+        label: { ru: "Фиолетовое стекло", en: "Soft violet glass" },
+        bg: "#1b1830",
+        bg2: "#2a2344",
+        accent: "#b69cff",
+        accent2: "#8fd4ff",
+        text: "#efeaff",
+        danger: "#ff92b2"
+    },
+    verdantgrove: {
+        label: { ru: "Лес, мох и приглушённое золото", en: "Forest moss and muted gold" },
+        bg: "#162019",
+        bg2: "#223126",
+        accent: "#9fcb8f",
+        accent2: "#d6c68b",
+        text: "#e7f1e4",
+        danger: "#d97f87"
+    },
+    sandalwood: {
+        label: { ru: "Тёплое дерево и бежевый свет", en: "Warm sandalwood and beige light" },
+        bg: "#2a221b",
+        bg2: "#3a2f25",
+        accent: "#ddb27a",
+        accent2: "#cfa98e",
+        text: "#f5eadc",
+        danger: "#d98b7d"
+    },
+    gengar: {
+        label: { ru: "Фиолетовый неон и призрачная пакость", en: "Purple neon ghost mischief" },
+        bg: "#14091f",
+        bg2: "#25103d",
+        accent: "#b86cff",
+        accent2: "#ff5fd7",
+        text: "#f3e7ff",
+        danger: "#ff5d8f"
+    },
+    systemlog: {
+        label: { ru: "Терминальный лог, холодный неон", en: "System log and cold neon" },
+        bg: "#07090c",
+        bg2: "#101820",
+        accent: "#6bd6ff",
+        accent2: "#ff6f9f",
+        text: "#d8e7ee",
+        danger: "#ff5e6c"
+    },
+    terminal: {
+        label: { ru: "Старый зелёный CRT", en: "Old green CRT" },
+        bg: "#020b06",
+        bg2: "#06160c",
+        accent: "#38ff7a",
+        accent2: "#b6ff6a",
+        text: "#c8ffd2",
+        danger: "#ff9b4a"
+    },
+    oraclemoon: {
+        label: { ru: "Мистическая луна и бархат", en: "Mystic moon velvet" },
+        bg: "#171122",
+        bg2: "#261a35",
+        accent: "#d8b86a",
+        accent2: "#b98cff",
+        text: "#f2e8ff",
+        danger: "#ff7fa8"
+    },
+    bloodmoon: {
+        label: { ru: "Бордо, кровь и старое золото", en: "Burgundy blood and old gold" },
+        bg: "#1a080d",
+        bg2: "#2a1017",
+        accent: "#b84552",
+        accent2: "#d6a35f",
+        text: "#f4e1dc",
+        danger: "#e05a67"
+    },
+    casefile: {
+        label: { ru: "Детективное дело и лента улик", en: "Case file and evidence tape" },
+        bg: "#151412",
+        bg2: "#25221d",
+        accent: "#e0b84f",
+        accent2: "#b7afa1",
+        text: "#eee5d8",
+        danger: "#d65f4f"
+    },
+    obsidianregistry: {
+        label: { ru: "Тёмный архив и старое золото", en: "Dark archive and old gold" },
+        bg: "#07130f",
+        bg2: "#10231b",
+        accent: "#d7c28a",
+        accent2: "#77b68c",
+        text: "#e4eee5",
+        danger: "#d9876f"
+    },
+    neonquest: {
+        label: { ru: "Игровой HUD и синий неон", en: "Game HUD and blue neon" },
+        bg: "#020817",
+        bg2: "#061a33",
+        accent: "#00d9ff",
+        accent2: "#2f7cff",
+        text: "#d8f7ff",
+        danger: "#ff4f9a"
+    },
+    shockwave: {
+        label: { ru: "Фиолетовый техно-металл", en: "Violet techno metal" },
+        bg: "#120b18",
+        bg2: "#261534",
+        accent: "#cc7cff",
+        accent2: "#ff71c8",
+        text: "#f3ebff",
+        danger: "#ff6a9d"
+    },
+    lockdown: {
+        label: { ru: "Серый металл и охотничий HUD", en: "Gray steel hunter HUD" },
+        bg: "#0d1114",
+        bg2: "#1c2327",
+        accent: "#86c98a",
+        accent2: "#a6b2b8",
+        text: "#e6ecef",
+        danger: "#d9876f"
+    },
+    hotrod: {
+        label: { ru: "Огонь, чёрный металл и скорость", en: "Fire black speed" },
+        bg: "#120b08",
+        bg2: "#2a1208",
+        accent: "#ff8a2a",
+        accent2: "#ffcf63",
+        text: "#fff1d8",
+        danger: "#ff6f4f"
+    },
+    gryffindor: {
+        label: { ru: "Бордо, золото и гербовый жар", en: "Crimson gold heraldry" },
+        bg: "#2a1114",
+        bg2: "#4a161b",
+        accent: "#d4a94e",
+        accent2: "#f0d28a",
+        text: "#f9e8db",
+        danger: "#ff8b7f"
+    },
+    slytherin: {
+        label: { ru: "Изумруд, серебро и холод", en: "Emerald silver cold sheen" },
+        bg: "#0f1b16",
+        bg2: "#173027",
+        accent: "#7dc8a2",
+        accent2: "#c7d2cf",
+        text: "#e6f2ed",
+        danger: "#c98f98"
+    },
+    ravenclaw: {
+        label: { ru: "Сапфир и бронза", en: "Sapphire and bronze" },
+        bg: "#121c2f",
+        bg2: "#1b2d4a",
+        accent: "#8da8d8",
+        accent2: "#b8894f",
+        text: "#edf2fb",
+        danger: "#d58d86"
+    },
+    hufflepuff: {
+        label: { ru: "Мёд, янтарь и тёплый свет", en: "Honey amber warmth" },
+        bg: "#241d13",
+        bg2: "#3a2b14",
+        accent: "#e0b94a",
+        accent2: "#f3d889",
+        text: "#f8eed5",
+        danger: "#d69a62"
+    }
+};
+
+function GetThemePreview(theme = gTheme) {
+    return kThemePreviewMap[theme] || null;
+}
+
+function RenderThemeSelectOptions(activeValue) {
+    return kThemeOptions.map(([value, label]) => `
+        <option value="${EscapeHtml(value)}" ${activeValue === value ? "selected" : ""}>
+            ${EscapeHtml(label)}
+        </option>
+    `).join("");
+}
+
+function RenderThemePreview(theme = gTheme) {
+    const preview = GetThemePreview(theme);
+
+    if (!preview) {
+        return `
+            <div class="mib-theme-preview">
+                <div class="mib-theme-preview-label">${EscapeHtml(T("themePreviewMissing"))}</div>
+            </div>
+        `;
+    }
+
+    const label = preview.label?.[gLang] || preview.label?.en || "";
+
+    return `
+        <div class="mib-theme-preview" data-mib-theme-preview>
+            <div class="mib-theme-preview-swatches">
+                <span class="mib-swatch" style="background:${EscapeHtml(preview.bg)}"></span>
+                <span class="mib-swatch" style="background:${EscapeHtml(preview.bg2)}"></span>
+                <span class="mib-swatch" style="background:${EscapeHtml(preview.accent)}"></span>
+                <span class="mib-swatch" style="background:${EscapeHtml(preview.accent2)}"></span>
+                <span class="mib-swatch" style="background:${EscapeHtml(preview.text)}"></span>
+                <span class="mib-swatch" style="background:${EscapeHtml(preview.danger)}"></span>
+            </div>
+            <div class="mib-theme-preview-label">
+                ${EscapeHtml(T("themePreview"))}: ${EscapeHtml(label)}
+            </div>
+        </div>
+    `;
+}
+
 function RenderStyleSelectOptions(options, activeValue) {
     return options.map(([value, labelKey]) => `
         <option value="${EscapeHtml(value)}" ${activeValue === value ? "selected" : ""}>
@@ -1950,17 +2252,16 @@ function ToggleStyleMenu(root) {
     const menu = document.createElement("div");
     menu.className = "mib-style-menu";
     menu.innerHTML = `
-        <div class="mib-style-menu-row">
-            <label>
-                <span>${EscapeHtml(T("theme"))}</span>
-                <select class="mib-style-theme-select">
-                    <option value="nocturne" ${gTheme === "nocturne" ? "selected" : ""}>Nocturne</option>
-                    <option value="terminal" ${gTheme === "terminal" ? "selected" : ""}>Terminal</option>
-                    <option value="casefile" ${gTheme === "casefile" ? "selected" : ""}>Case File</option>
-                    <option value="oraclemoon" ${gTheme === "oraclemoon" ? "selected" : ""}>Oracle Moon</option>
-                </select>
-            </label>
-        </div>
+<div class="mib-style-menu-row">
+    <label>
+        <span>${EscapeHtml(T("theme"))}</span>
+        <select class="mib-style-theme-select">
+            ${RenderThemeSelectOptions(gTheme)}
+        </select>
+    </label>
+</div>
+
+${RenderThemePreview(gTheme)}
 
         <div class="mib-style-menu-row">
             <label>
@@ -1972,11 +2273,17 @@ function ToggleStyleMenu(root) {
         </div>
     `;
 
-    menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event => {
-        gTheme = event.target.value || "nocturne";
-        SaveSettings();
-        RerenderAllPanels();
-    });
+menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event => {
+    gTheme = event.target.value || "nocturne";
+    SaveSettings();
+
+    const previewHost = menu.querySelector("[data-mib-theme-preview]");
+    if (previewHost) {
+        previewHost.outerHTML = RenderThemePreview(gTheme);
+    }
+
+    RerenderAllPanels();
+});
 
     menu.querySelector(".mib-style-bar-select")?.addEventListener("change", event => {
         gBarStyle = event.target.value || "classic";
