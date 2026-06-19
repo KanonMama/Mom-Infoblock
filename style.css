@@ -7400,3 +7400,133 @@
         border-radius: 10px !important;
     }
 }
+
+@media (max-width: 760px) {
+    #mib_dock_host.mib-dock-left {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 0 !important;
+        height: 100dvh !important;
+        z-index: 9000 !important;
+        pointer-events: none !important;
+        transform: none !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-dock-panel {
+        position: fixed !important;
+        top: 108px !important;
+        bottom: 118px !important;
+        left: 0 !important;
+        right: auto !important;
+        width: min(78vw, 360px) !important;
+        max-width: min(78vw, 360px) !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 9001 !important;
+        transform: translate3d(-100%, 0, 0) !important;
+        transition: transform 0.18s ease !important;
+        box-sizing: border-box !important;
+    }
+
+    #mib_dock_host.mib-dock-left.mib-dock-open .mib-dock-panel {
+        transform: translate3d(0, 0, 0) !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-dock-handle {
+        position: fixed !important;
+        top: 42vh !important;
+        left: 0 !important;
+        right: auto !important;
+        width: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        z-index: 9002 !important;
+        pointer-events: auto !important;
+        transform: none !important;
+    }
+
+    #mib_dock_host.mib-dock-left.mib-dock-open .mib-dock-handle {
+        left: min(78vw, 360px) !important;
+        transform: translateX(-1px) !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-dock-body {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-board {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 7px !important;
+        border-radius: 0 12px 12px 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-dock-header {
+        padding: 7px 8px !important;
+        min-height: 38px !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-dock-title {
+        font-size: 11px !important;
+        letter-spacing: 1.6px !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-title {
+        font-size: 12px !important;
+        letter-spacing: 0.7px !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-subtitle {
+        font-size: 8px !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-tabs {
+        padding: 3px !important;
+        gap: 3px !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-tab {
+        min-height: 28px !important;
+        padding: 5px 6px !important;
+        font-size: 11px !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-section,
+    #mib_dock_host.mib-dock-left .mib-char,
+    #mib_dock_host.mib-dock-left .mib-rel,
+    #mib_dock_host.mib-dock-left .mib-compact-rel {
+        padding: 7px !important;
+        border-radius: 9px !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-section-title {
+        font-size: 10px !important;
+        letter-spacing: 0.9px !important;
+        margin-bottom: 7px !important;
+    }
+
+    #mib_dock_host.mib-dock-left .mib-meta span,
+    #mib_dock_host.mib-dock-left .mib-chip,
+    #mib_dock_host.mib-dock-left .mib-status-chip,
+    #mib_dock_host.mib-dock-left .mib-mini-stat {
+        font-size: 9px !important;
+        padding: 3px 6px !important;
+    }
+}
