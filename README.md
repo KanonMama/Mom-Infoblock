@@ -191,3 +191,6 @@ The extension stores data locally in the browser via localStorage.
 The extension supports exporting and importing data.
 
 ## !! I recommend checking the settings; many things, such as Thoughts, Chronicle, etc., can be turned off if you're saving tokens or don't use them. 
+
+## You can also use the extension separately for Dossier and Notepad. I made it an additional extension, finding it useful overall. (Notepad in this version doesn't have the ability to send to Prompt.)
+https://github.com/KanonMama/KanonNotes
