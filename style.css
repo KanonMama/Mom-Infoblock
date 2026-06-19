@@ -3470,3 +3470,36 @@
         linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
     color: #ffc2d7;
 }
+
+.mib-theme-preview {
+    margin: 8px 0 2px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--mib-soft-border);
+}
+
+.mib-theme-preview-swatches {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.mib-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.12),
+        0 2px 6px rgba(0,0,0,0.18);
+    display: inline-block;
+}
+
+.mib-theme-preview-label {
+    color: var(--mib-dim);
+    font-size: 10px;
+    line-height: 1.35;
+}
