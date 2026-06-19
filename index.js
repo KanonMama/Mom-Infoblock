@@ -2293,10 +2293,9 @@ menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event 
         RerenderAllPanels();
     });
 
-    const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar");
-    gStyleMenuOpen = true;
-    titleRow?.after(menu);
-}
+const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar, .mib-floating-header, .mib-dock-header");
+titleRow?.after(menu);
+gStyleMenuOpen = true;
 
 function ToggleXmlInspector(root) {
     const host = GetInspectorHost(root);
@@ -2999,10 +2998,19 @@ function RenderFloating() {
 
     host.innerHTML = `
         <div class="mib-floating-shell">
-            <div class="mib-floating-header">
-                <div class="mib-floating-title">${EscapeHtml(T("floatingTitle"))}</div>
-                <button type="button" class="mib-floating-close" title="Collapse">×</button>
-            </div>
+<div class="mib-floating-header">
+    <div class="mib-floating-title">${EscapeHtml(T("floatingTitle"))}</div>
+
+    <div class="mib-title-actions">
+        <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
+        <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+        <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="${gSceneViewMode === "compact" ? "full" : "compact"}" title="${EscapeHtml(T(gSceneViewMode === "compact" ? "sceneFull" : "sceneCompact"))}">
+            ${gSceneViewMode === "compact" ? "↗" : "↘"}
+        </button>
+        <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+        <button type="button" class="mib-floating-close" title="Collapse">×</button>
+    </div>
+</div>
             <div class="mib-floating-body">
                 ${RenderPanel(gState)}
             </div>
@@ -3193,9 +3201,18 @@ host.className = [
             ${collapsed ? EscapeHtml(T("openDock")) : EscapeHtml(T("closeDock"))}
         </button>
         <div class="mib-dock-panel">
-            <div class="mib-dock-header">
-                <div class="mib-dock-title">${EscapeHtml(T("dockTitle"))}</div>
-            </div>
+<div class="mib-dock-header">
+    <div class="mib-dock-title">${EscapeHtml(T("dockTitle"))}</div>
+
+    <div class="mib-title-actions">
+        <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
+        <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+        <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="${gSceneViewMode === "compact" ? "full" : "compact"}" title="${EscapeHtml(T(gSceneViewMode === "compact" ? "sceneFull" : "sceneCompact"))}">
+            ${gSceneViewMode === "compact" ? "↗" : "↘"}
+        </button>
+        <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+    </div>
+</div>
             <div class="mib-dock-body">
                 ${RenderPanel(gState)}
             </div>
@@ -3228,7 +3245,7 @@ function RerenderAllPanels() {
         host.innerHTML = RenderPanel(gState);
         WirePanel(host);
 
-        if (gStyleMenuOpen) {
+        if (gStyleMenuOpen && !host.querySelector(".mib-style-menu")) {
             ToggleStyleMenu(host);
         }
     });
