@@ -3347,6 +3347,67 @@ function MakeFloatingDraggable(host) {
     };
 }
 
+function IsMobileView() {
+    return window.innerWidth <= 760;
+}
+
+function RemoveMobileDockPanel() {
+    document.getElementById("mib_mobile_panel_host")?.remove();
+}
+
+function IsMobilePanelOpen() {
+    return localStorage.getItem("MIB_MobilePanelOpen") === "true";
+}
+
+function SetMobilePanelOpen(value) {
+    localStorage.setItem("MIB_MobilePanelOpen", String(Boolean(value)));
+}
+
+function RenderMobileDockPanel() {
+    if (!gEnabled || !ShouldRenderDock() || !IsMobileView()) {
+        RemoveMobileDockPanel();
+        return;
+    }
+
+    let host = document.getElementById("mib_mobile_panel_host");
+
+    if (!host) {
+        host = document.createElement("div");
+        host.id = "mib_mobile_panel_host";
+        document.body.appendChild(host);
+    }
+
+    const open = IsMobilePanelOpen();
+
+    host.className = [
+        `mib-theme-${gTheme}`,
+        open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
+    ].join(" ");
+
+    host.dataset.rawXml = gLastRawXml || "";
+
+    host.innerHTML = `
+        <button type="button" class="mib-mobile-panel-toggle">
+            ${EscapeHtml(open ? T("closeDock") : T("openDock"))}
+        </button>
+
+        <div class="mib-mobile-panel-shell">
+            <div class="mib-mobile-panel-body">
+                ${open ? RenderPanel(gState) : ""}
+            </div>
+        </div>
+    `;
+
+    host.querySelector(".mib-mobile-panel-toggle")?.addEventListener("click", () => {
+        SetMobilePanelOpen(!open);
+        RenderMobileDockPanel();
+    });
+
+    if (open) {
+        WirePanel(host);
+    }
+}
+
 function RemoveDock() {
     document.getElementById("mib_dock_host")?.remove();
 }
@@ -3360,6 +3421,11 @@ function SetDockCollapsed(value) {
 }
 
 function RenderDock() {
+    if (IsMobileView()) {
+    RemoveDock();
+    RenderMobileDockPanel();
+    return;
+}
     if (!gEnabled || !ShouldRenderDock()) {
         RemoveDock();
         return;
@@ -3424,6 +3490,7 @@ function RenderFloatingOrDock() {
         RenderDock();
     } else {
         RemoveDock();
+        RemoveMobileDockPanel();
     }
 }
 
