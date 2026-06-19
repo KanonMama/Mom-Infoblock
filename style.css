@@ -7298,110 +7298,6 @@
 }
 
 @media (max-width: 760px) {
-    #mib_dock_host.mib-dock-left {
-        position: fixed !important;
-        inset: 0 auto 0 0 !important;
-        width: 0 !important;
-        height: 100dvh !important;
-        z-index: 9000 !important;
-        pointer-events: none !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-dock-panel {
-        position: fixed !important;
-        top: 54px !important;
-        bottom: 86px !important;
-        left: 0 !important;
-        right: auto !important;
-
-        width: min(88vw, 430px) !important;
-        max-width: min(88vw, 430px) !important;
-        height: auto !important;
-        max-height: none !important;
-
-        display: flex !important;
-        flex-direction: column !important;
-        overflow: hidden !important;
-
-        transform: translateX(-100%) !important;
-        transition: transform 0.22s ease !important;
-
-        opacity: 1 !important;
-        visibility: visible !important;
-        pointer-events: auto !important;
-        z-index: 9001 !important;
-    }
-
-    #mib_dock_host.mib-dock-left.mib-dock-open .mib-dock-panel {
-        transform: translateX(0) !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-dock-handle {
-        position: fixed !important;
-        top: 38vh !important;
-        left: 0 !important;
-        right: auto !important;
-
-        z-index: 9002 !important;
-        pointer-events: auto !important;
-        transform: none !important;
-    }
-
-    #mib_dock_host.mib-dock-left.mib-dock-open .mib-dock-handle {
-        left: min(88vw, 430px) !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-dock-body {
-        min-height: 0 !important;
-        flex: 1 1 auto !important;
-        overflow: hidden !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-board {
-        width: 100% !important;
-        height: 100% !important;
-        max-height: none !important;
-        overflow: auto !important;
-
-        padding: 8px !important;
-        border-radius: 0 14px 14px 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-header {
-        padding: 8px 9px !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-title {
-        font-size: 13px !important;
-        letter-spacing: 0.8px !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-subtitle {
-        font-size: 9px !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-tabs {
-        padding: 3px !important;
-        gap: 4px !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-tab {
-        min-height: 30px !important;
-        padding: 6px 8px !important;
-        font-size: 12px !important;
-    }
-
-    #mib_dock_host.mib-dock-left .mib-section,
-    #mib_dock_host.mib-dock-left .mib-char,
-    #mib_dock_host.mib-dock-left .mib-rel,
-    #mib_dock_host.mib-dock-left .mib-compact-rel {
-        padding: 8px !important;
-        border-radius: 10px !important;
-    }
-}
-
-@media (max-width: 760px) {
     body #mib_dock_host.mib-dock-left {
         position: fixed !important;
         top: 0 !important;
@@ -7435,6 +7331,7 @@
         transform: none !important;
         translate: none !important;
         margin: 0 !important;
+        min-width: 0 !important;
         box-sizing: border-box !important;
         transition: left 0.18s ease !important;
     }
@@ -7443,9 +7340,10 @@
         left: calc(-1 * min(82vw, 380px)) !important;
     }
 
-    body #mib_dock_host.mib-dock-left.mib-dock-open > .mib-dock-panel {
-        left: 0 !important;
-    }
+body #mib_dock_host.mib-dock-left.mib-dock-open > .mib-dock-panel {
+    left: 0 !important;
+    transform: none !important;
+}
 
     body #mib_dock_host.mib-dock-left > .mib-dock-handle {
         position: fixed !important;
