@@ -519,13 +519,6 @@
     transition: width 0.18s ease;
 }
 
-.mib-meter-pos .mib-bar-fill {
-    background: linear-gradient(90deg, var(--mib-good), #4a9cff);
-}
-
-.mib-meter-neg .mib-bar-fill {
-    background: linear-gradient(90deg, var(--mib-bad), #b85b6f);
-}
 
 .mib-thought {
     padding: 8px 10px;
