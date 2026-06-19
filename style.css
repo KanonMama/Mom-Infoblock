@@ -7297,82 +7297,144 @@
     }
 }
 
-@media (max-width: 760px) {
-    body #mib_dock_host.mib-dock-left {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: auto !important;
-        bottom: 0 !important;
-        width: auto !important;
-        height: 100dvh !important;
-        z-index: 99990 !important;
-        pointer-events: none !important;
-        transform: none !important;
-    }
-
-    body #mib_dock_host.mib-dock-left > .mib-dock-panel {
-        position: fixed !important;
-        top: 56px !important;
-        bottom: 82px !important;
-        left: 0 !important;
-        right: auto !important;
-        width: min(82vw, 380px) !important;
-        max-width: min(82vw, 380px) !important;
-        height: auto !important;
-        max-height: none !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow: hidden !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        pointer-events: auto !important;
-        z-index: 99991 !important;
-        transform: none !important;
-        translate: none !important;
-        margin: 0 !important;
-        min-width: 0 !important;
-        box-sizing: border-box !important;
-        transition: left 0.18s ease !important;
-    }
-
-    body #mib_dock_host.mib-dock-left.mib-dock-collapsed > .mib-dock-panel {
-        left: calc(-1 * min(82vw, 380px)) !important;
-    }
-
-body #mib_dock_host.mib-dock-left.mib-dock-open > .mib-dock-panel {
-    left: 0 !important;
-    transform: none !important;
+#mib_panel_host {
+    display: none;
 }
 
-    body #mib_dock_host.mib-dock-left > .mib-dock-handle {
-        position: fixed !important;
-        top: 42vh !important;
-        left: 0 !important;
-        right: auto !important;
-        z-index: 99992 !important;
-        pointer-events: auto !important;
-        transform: none !important;
+@media (max-width: 760px) {
+    #mib_panel_host {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        width: min(82vw, 380px);
+        z-index: 99990;
+        display: block;
+        color: var(--mib-text);
+        background:
+            radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 42%),
+            linear-gradient(135deg, var(--mib-bg-1), var(--mib-bg-2), var(--mib-bg-3));
+        border: 1px solid var(--mib-border);
+        box-shadow: var(--mib-shadow);
+        overflow: visible;
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    body #mib_dock_host.mib-dock-left.mib-dock-open > .mib-dock-handle {
-        left: min(82vw, 380px) !important;
+    #mib_panel_host.mib-panel-left {
+        left: 0;
+        border-left: none;
+        border-radius: 0 14px 14px 0;
+        transform: translateX(-100%);
     }
 
-    body #mib_dock_host.mib-dock-left .mib-dock-body {
-        flex: 1 1 auto !important;
-        min-height: 0 !important;
-        overflow: hidden !important;
+    #mib_panel_host.mib-panel-left.mib-panel-open {
+        transform: translateX(0);
     }
 
-    body #mib_dock_host.mib-dock-left .mib-board {
-        width: 100% !important;
-        height: 100% !important;
-        max-height: none !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
+    #mib_panel_host::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background:
+            linear-gradient(120deg, rgba(255,255,255,0.025), transparent 34%),
+            radial-gradient(circle at 8% 0%, rgba(255,255,255,0.04), transparent 24%);
+        opacity: 0.72;
+    }
+
+    #mib_panel_host::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        box-shadow:
+            inset 0 0 0 1px rgba(255,255,255,0.03),
+            inset 0 0 14px rgba(255,255,255,0.015);
+        opacity: 0.42;
+    }
+
+    .mib-panel-toggle {
+        position: absolute;
+        top: 42vh;
+        right: 0;
+        transform: translateX(100%);
+        z-index: 99991;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        padding: 12px 8px 12px 6px;
+        border-radius: 0 8px 8px 0;
+        border: 1px solid var(--mib-border);
+        border-left: none;
+        background: linear-gradient(135deg, var(--mib-bg-2), var(--mib-bg-1));
+        color: var(--mib-muted);
+        font-size: 11px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.18);
+    }
+
+    .mib-panel-toggle:hover {
+        color: var(--mib-text);
+    }
+
+    .mib-panel-shell {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mib-panel-body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        padding: 0;
+    }
+
+    #mib_panel_host .mib-board {
+        margin: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        height: 100%;
+        overflow: auto !important;
         padding: 8px !important;
-        box-sizing: border-box !important;
-        border-radius: 0 12px 12px 0 !important;
+    }
+
+    #mib_panel_host .mib-board::before,
+    #mib_panel_host .mib-board::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    #mib_panel_host .mib-header {
+        padding: 8px 9px !important;
+    }
+
+    #mib_panel_host .mib-title {
+        font-size: 13px !important;
+        letter-spacing: 0.8px !important;
+    }
+
+    #mib_panel_host .mib-subtitle {
+        font-size: 9px !important;
+    }
+
+    #mib_panel_host .mib-section,
+    #mib_panel_host .mib-char,
+    #mib_panel_host .mib-rel,
+    #mib_panel_host .mib-compact-rel {
+        padding: 8px !important;
+        border-radius: 10px !important;
     }
 }
