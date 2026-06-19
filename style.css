@@ -7395,3 +7395,61 @@
         content: none !important;
     }
 }
+
+@media (max-width: 760px) {
+    #mib_mobile_panel_host {
+        position: fixed !important;
+        top: 56px !important;
+        bottom: 82px !important;
+        left: 0 !important;
+        width: 78vw !important;
+        max-width: 360px !important;
+        min-width: 260px !important;
+        z-index: 999999 !important;
+        overflow: visible !important;
+        border: 2px solid red !important;
+        background: rgba(255, 0, 0, 0.12) !important;
+    }
+
+    #mib_mobile_panel_host.mib-mobile-panel-collapsed {
+        transform: translateX(calc(-100% + 34px)) !important;
+    }
+
+    #mib_mobile_panel_host.mib-mobile-panel-open {
+        transform: translateX(0) !important;
+    }
+
+    .mib-mobile-panel-shell {
+        position: relative !important;
+        z-index: 3 !important;
+        display: block !important;
+        height: 100% !important;
+        overflow: auto !important;
+        background: rgba(0, 255, 0, 0.12) !important;
+    }
+
+    .mib-mobile-panel-body {
+        display: block !important;
+        height: 100% !important;
+        min-height: 100% !important;
+        overflow: auto !important;
+        background: rgba(0, 0, 255, 0.12) !important;
+    }
+
+    #mib_mobile_panel_host .mib-board {
+        display: block !important;
+        width: 100% !important;
+        min-height: 100% !important;
+        height: auto !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        background: rgba(255, 255, 0, 0.12) !important;
+        border: 1px solid yellow !important;
+    }
+
+    .mib-mobile-panel-toggle {
+        z-index: 1000000 !important;
+        background: #1f2937 !important;
+        color: white !important;
+    }
+}
