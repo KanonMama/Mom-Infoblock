@@ -3370,6 +3370,12 @@ function SetMobilePanelOpen(value) {
 }
 
 function RenderMobileDockPanel() {
+    console.log("[MIB mobile] render", {
+    enabled: gEnabled,
+    displayMode: gDisplayMode,
+    mobile: IsMobileView(),
+    open: IsMobilePanelOpen()
+});
     if (!gEnabled || !ShouldRenderDock() || !IsMobileView()) {
         RemoveMobileDockPanel();
         return;
@@ -3391,6 +3397,7 @@ function RenderMobileDockPanel() {
     ].join(" ");
 
     host.innerHTML = `
+    console.log("[MIB mobile] host after render", host);
         <button type="button" class="mib-mobile-panel-toggle">
             ${EscapeHtml(open ? T("closeDock") : T("openDock"))}
         </button>
