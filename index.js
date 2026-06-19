@@ -30,6 +30,7 @@ const kFloatingCollapsedKey = `${kStoragePrefix}FloatingCollapsed`;
 const kCustomCssKey = `${kStoragePrefix}CustomCss`;
 const kFontSizeKey = `${kStoragePrefix}FontSize`;
 const kThoughtsEnabledKey = `${kStoragePrefix}ThoughtsEnabled`;
+const kInjectNotesKey = `${kStoragePrefix}InjectNotes`;
 
 let gEnabled = false;
 let gLang = "ru";
@@ -52,6 +53,7 @@ let gCustomCss = "";
 let gFontSize = "normal";
 let gThoughtsEnabled = true;
 let gStyleMenuOpen = false;
+let gInjectNotes = false;
 
 const kDefaultState = {
     scene: {
@@ -187,6 +189,7 @@ barPrism: "Prism Glass",
 barSigil: "Sigil Bands",
         themePreview: "Палитра темы",
 themePreviewMissing: "Превью недоступно",
+        injectNotes: "Отправлять блокнот модели",
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -302,6 +305,7 @@ barPrism: "Prism Glass",
 barSigil: "Sigil Bands",
         themePreview: "Theme palette",
 themePreviewMissing: "Preview unavailable",
+        injectNotes: "Inject notes into prompt",
     }
 };
 
@@ -728,6 +732,7 @@ function LoadSettings() {
     gFontSize = localStorage.getItem(kFontSizeKey) || "normal";
     gThoughtsEnabled = localStorage.getItem(kThoughtsEnabledKey) !== "false";
     gBarStyle = localStorage.getItem(kBarStyleKey) || "classic";
+    gInjectNotes = localStorage.getItem(kInjectNotesKey) === "true";
 }
 
 function SaveSettings() {
@@ -747,6 +752,7 @@ function SaveSettings() {
     localStorage.setItem(kFontSizeKey, gFontSize);
     localStorage.setItem(kThoughtsEnabledKey, String(gThoughtsEnabled));
     localStorage.setItem(kBarStyleKey, gBarStyle);
+    localStorage.setItem(kInjectNotesKey, String(gInjectNotes));
 }
 
 function GetThemeLocationIcon(theme = gTheme) {
@@ -1245,10 +1251,10 @@ function BuildStateInjection() {
         }
     }
 
-    if (gNotes.trim()) {
-        lines.push("User notes:");
-        lines.push(gNotes.trim());
-    }
+if (gInjectNotes && gNotes.trim()) {
+    lines.push("User notes:");
+    lines.push(gNotes.trim());
+}
 
 if (gThoughtsEnabled && gState.thoughts.length) {
     lines.push("Private NPC thoughts - internal memory only, never write these in visible narrative:");
@@ -3464,6 +3470,7 @@ function BuildExportPackage() {
             customCss: gCustomCss,
             fontSize: gFontSize,
 thoughtsEnabled: gThoughtsEnabled,
+            injectNotes: gInjectNotes,
             barStyle: gBarStyle,
         },
         state: gState,
@@ -3522,6 +3529,7 @@ function ApplyImportedPackage(data) {
             gCustomCss = data.settings.customCss || gCustomCss;
             gFontSize = data.settings.fontSize || gFontSize;
 gThoughtsEnabled = data.settings.thoughtsEnabled !== false;
+            gInjectNotes = data.settings.injectNotes === true;
             gBarStyle = data.settings.barStyle || gBarStyle;
         }
 
@@ -3605,6 +3613,7 @@ $("#mib_font_size option[value='normal']").text(T("fontNormal"));
 $("#mib_font_size option[value='large']").text(T("fontLarge"));
 $("#mib_font_size option[value='xlarge']").text(T("fontXLarge"));
     $("#mib_thoughts_enabled").closest("label").find("span").text(T("thoughtsEnabled"));
+    $("#mib_inject_notes").closest("label").find("span").text(T("injectNotes"));
 
     $('[data-mib-css-preset="compactThin"]').text(T("cssPresetCompactThin"));
 $('[data-mib-css-preset="biggerText"]').text(T("cssPresetBiggerText"));
@@ -3629,6 +3638,7 @@ function SyncSettingsControls() {
     $("#mib_custom_css_input").val(gCustomCss);
     $("#mib_font_size").val(gFontSize);
 $("#mib_thoughts_enabled").prop("checked", gThoughtsEnabled);
+    $("#mib_inject_notes").prop("checked", gInjectNotes);
 }
 
 function UpdateStatusDisplay() {
@@ -3700,6 +3710,12 @@ function WireSettings() {
         ReprocessChat();
     });
 
+$("#mib_inject_notes").on("change", function () {
+    gInjectNotes = $(this).is(":checked");
+    SaveSettings();
+    InjectPrompt();
+});
+    
     $("#mib_hide_thought_leaks").on("change", function () {
         gHideThoughtLeaks = $(this).is(":checked");
         SaveSettings();
