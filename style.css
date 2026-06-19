@@ -7304,11 +7304,12 @@
 @media (max-width: 760px) {
     #mib_mobile_panel_host {
         position: fixed !important;
-        top: 64px !important;
-        bottom: 96px !important;
+        top: 70px !important;
         width: min(78vw, 360px) !important;
+        height: calc(100dvh - 170px) !important;
         max-width: 360px !important;
         min-width: 260px !important;
+        max-height: calc(100dvh - 170px) !important;
         z-index: 999999 !important;
         display: block !important;
         overflow: visible !important;
@@ -7323,13 +7324,11 @@
     }
 
     #mib_mobile_panel_host.mib-mobile-panel-left {
-        left: 0 !important;
         border-left: none !important;
         border-radius: 0 14px 14px 0 !important;
     }
 
     #mib_mobile_panel_host.mib-mobile-panel-right {
-        right: 0 !important;
         border-right: none !important;
         border-radius: 14px 0 0 14px !important;
     }
@@ -7364,12 +7363,10 @@
 
     .mib-mobile-panel-toggle {
         position: absolute !important;
-        top: 50% !important;
-        z-index: 5 !important;
+        top: 120px !important;
         width: 34px !important;
-        min-width: 34px !important;
         height: 112px !important;
-        transform: translateY(-50%) !important;
+        z-index: 5 !important;
         writing-mode: vertical-rl !important;
         text-orientation: mixed !important;
         padding: 12px 6px !important;
