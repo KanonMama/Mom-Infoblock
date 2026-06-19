@@ -3503,3 +3503,10 @@
     font-size: 10px;
     line-height: 1.35;
 }
+
+#mib_floating_host .mib-title-row,
+#mib_floating_host .mib-compact-topbar,
+#mib_dock_host .mib-title-row,
+#mib_dock_host .mib-compact-topbar {
+    display: none;
+}
