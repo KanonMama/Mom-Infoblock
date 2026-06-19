@@ -1622,12 +1622,6 @@
     letter-spacing: 0.6px;
 }
 
-.mib-bars-classic .mib-meter-pos .mib-bar-fill,
-.mib-bars-glass .mib-meter-pos .mib-bar-fill,
-.mib-bars-neon .mib-meter-pos .mib-bar-fill,
-.mib-bars-terminal .mib-meter-pos .mib-bar-fill {
-    color: inherit;
-}
 
 .mib-theme-terminal .mib-bar-affection-pos,
 .mib-theme-terminal .mib-bar-trust-pos,
@@ -2082,3 +2076,30 @@
         linear-gradient(180deg, rgba(255,255,255,0.018), rgba(0,0,0,0.42)),
         rgba(0,0,0,0.70);
 }
+
+.mib-bar-fill.mib-bar-affection-pos { color: #67c79a !important; }
+.mib-bar-fill.mib-bar-affection-neg { color: #d88a82 !important; }
+
+.mib-bar-fill.mib-bar-trust-pos { color: #72b2da !important; }
+.mib-bar-fill.mib-bar-trust-neg { color: #d3a06d !important; }
+
+.mib-bar-fill.mib-bar-love-pos { color: #b086d9 !important; }
+.mib-bar-fill.mib-bar-love-neg { color: #d56d87 !important; }
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-affection-pos { color: #39d96f !important; }
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-affection-neg { color: #d86f4d !important; }
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-trust-pos { color: #54dcae !important; }
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-trust-neg { color: #d89a45 !important; }
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-love-pos { color: #9bd85a !important; }
+.mib-theme-terminal.mib-bars-terminal .mib-bar-fill.mib-bar-love-neg { color: #d8783d !important; }
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-affection-pos { color: #5ef0a0 !important; }
+.mib-bars-hearts .mib-bar-fill.mib-bar-affection-neg { color: #ff7e8f !important; }
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-trust-pos { color: #6ecbff !important; }
+.mib-bars-hearts .mib-bar-fill.mib-bar-trust-neg { color: #ffb76a !important; }
+
+.mib-bars-hearts .mib-bar-fill.mib-bar-love-pos { color: #d77cff !important; }
+.mib-bars-hearts .mib-bar-fill.mib-bar-love-neg { color: #ff4f8f !important; }
