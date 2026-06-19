@@ -3462,6 +3462,9 @@ host.className = [
     open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
 ].join(" ");
 
+host.style.left = gDockSide === "left" ? "0" : "auto";
+host.style.right = gDockSide === "right" ? "0" : "auto";
+
     host.innerHTML = `
         <button type="button" class="mib-mobile-panel-toggle">
             ${EscapeHtml(open ? T("closeDock") : T("openDock"))}
