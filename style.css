@@ -7396,19 +7396,33 @@
     }
 }
 
+#mib_mobile_panel_host {
+    display: none;
+}
+
 @media (max-width: 760px) {
     #mib_mobile_panel_host {
         position: fixed !important;
         top: 56px !important;
-        bottom: 82px !important;
+        bottom: 84px !important;
         left: 0 !important;
-        width: 78vw !important;
-        max-width: 360px !important;
+        width: min(78vw, 360px) !important;
         min-width: 260px !important;
+        max-width: 360px !important;
+        height: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
         z-index: 999999 !important;
+        color: var(--mib-text) !important;
+        background:
+            radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 42%),
+            linear-gradient(135deg, var(--mib-bg-1), var(--mib-bg-2), var(--mib-bg-3)) !important;
+        border: 1px solid var(--mib-border) !important;
+        border-left: none !important;
+        border-radius: 0 14px 14px 0 !important;
+        box-shadow: var(--mib-shadow) !important;
         overflow: visible !important;
-        border: 2px solid red !important;
-        background: rgba(255, 0, 0, 0.12) !important;
+        transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     #mib_mobile_panel_host.mib-mobile-panel-collapsed {
@@ -7419,37 +7433,91 @@
         transform: translateX(0) !important;
     }
 
-    .mib-mobile-panel-shell {
-        position: relative !important;
-        z-index: 3 !important;
-        display: block !important;
-        height: 100% !important;
-        overflow: auto !important;
-        background: rgba(0, 255, 0, 0.12) !important;
-    }
-
-    .mib-mobile-panel-body {
-        display: block !important;
-        height: 100% !important;
-        min-height: 100% !important;
-        overflow: auto !important;
-        background: rgba(0, 0, 255, 0.12) !important;
-    }
-
-    #mib_mobile_panel_host .mib-board {
-        display: block !important;
-        width: 100% !important;
-        min-height: 100% !important;
-        height: auto !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        background: rgba(255, 255, 0, 0.12) !important;
-        border: 1px solid yellow !important;
+    #mib_mobile_panel_host::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background:
+            linear-gradient(120deg, rgba(255,255,255,0.025), transparent 34%),
+            radial-gradient(circle at 8% 0%, rgba(255,255,255,0.04), transparent 24%);
+        opacity: 0.72;
     }
 
     .mib-mobile-panel-toggle {
-        z-index: 1000000 !important;
-        background: #1f2937 !important;
-        color: white !important;
+        position: absolute !important;
+        top: 42vh !important;
+        right: 0 !important;
+        transform: translateX(100%) !important;
+        z-index: 5 !important;
+        writing-mode: vertical-rl !important;
+        text-orientation: mixed !important;
+        padding: 12px 8px 12px 6px !important;
+        border-radius: 0 8px 8px 0 !important;
+        border: 1px solid var(--mib-border) !important;
+        border-left: none !important;
+        background: linear-gradient(135deg, var(--mib-bg-2), var(--mib-bg-1)) !important;
+        color: var(--mib-muted) !important;
+        font-size: 11px !important;
+        letter-spacing: 1px !important;
+        cursor: pointer !important;
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.18) !important;
+    }
+
+    .mib-mobile-panel-shell {
+        position: relative !important;
+        z-index: 2 !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    .mib-mobile-panel-body {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        display: block !important;
+    }
+
+    #mib_mobile_panel_host .mib-board {
+        margin: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        min-height: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 8px !important;
+        box-sizing: border-box !important;
+    }
+
+    #mib_mobile_panel_host .mib-board::before,
+    #mib_mobile_panel_host .mib-board::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    #mib_mobile_panel_host .mib-title-row {
+        margin-bottom: 8px !important;
+    }
+
+    #mib_mobile_panel_host .mib-header {
+        padding: 8px 9px !important;
+        margin-bottom: 8px !important;
+    }
+
+    #mib_mobile_panel_host .mib-section,
+    #mib_mobile_panel_host .mib-char,
+    #mib_mobile_panel_host .mib-rel,
+    #mib_mobile_panel_host .mib-compact-rel {
+        padding: 8px !important;
+        border-radius: 10px !important;
     }
 }
