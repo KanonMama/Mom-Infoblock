@@ -3412,6 +3412,13 @@ function RenderMobileDockPanel() {
     if (open) {
         WirePanel(host);
     }
+
+    if (open) {
+    requestAnimationFrame(() => {
+        const body = host.querySelector(".mib-mobile-panel-body");
+        if (body) body.scrollTop = 0;
+    });
+}
 }
 
 function RemoveDock() {
