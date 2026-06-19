@@ -3236,12 +3236,6 @@ function RenderFloating() {
         collapsed ? "mib-floating-collapsed" : "mib-floating-open"
     ].join(" ");
 
-host.className = [
-    `mib-theme-${gTheme}`,
-    `mib-mobile-panel-${gDockSide === "left" ? "left" : "right"}`,
-    open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
-].join(" ");
-
     host.dataset.rawXml = gLastRawXml || "";
 
     if (collapsed) {
@@ -3462,10 +3456,11 @@ function RenderMobileDockPanel() {
 
     const open = IsMobilePanelOpen();
 
-    host.className = [
-        `mib-theme-${gTheme}`,
-        open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
-    ].join(" ");
+host.className = [
+    `mib-theme-${gTheme}`,
+    `mib-mobile-panel-${gDockSide === "left" ? "left" : "right"}`,
+    open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
+].join(" ");
 
     host.innerHTML = `
         <button type="button" class="mib-mobile-panel-toggle">
