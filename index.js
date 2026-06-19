@@ -2209,7 +2209,6 @@ function ToggleDossier(root) {
 
 if (existing) {
     existing.remove();
-    gStyleMenuOpen = false;
     return;
 }
 
@@ -2296,6 +2295,7 @@ menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event 
 const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar, .mib-floating-header, .mib-dock-header");
 titleRow?.after(menu);
 gStyleMenuOpen = true;
+    }
 
 function ToggleXmlInspector(root) {
     const host = GetInspectorHost(root);
