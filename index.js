@@ -178,6 +178,12 @@ barVials: "Vials",
 barEvidence: "Evidence Tape",
 barRunic: "Runic Shards",
 barEnergon: "Energon",
+        barDeep: "Deep Neon",
+barSoft: "Soft Matte",
+barPixel: "Pixel Blocks",
+barCandy: "Candy Gloss",
+barPrism: "Prism Glass",
+barSigil: "Sigil Bands",
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -285,6 +291,12 @@ barVials: "Vials",
 barEvidence: "Evidence Tape",
 barRunic: "Runic Shards",
 barEnergon: "Energon",
+        barDeep: "Deep Neon",
+barSoft: "Soft Matte",
+barPixel: "Pixel Blocks",
+barCandy: "Candy Gloss",
+barPrism: "Prism Glass",
+barSigil: "Sigil Bands",
     }
 };
 
@@ -1631,7 +1643,12 @@ function RenderNotesTab() {
 
 const kBarStyleOptions = [
     ["classic", "barClassic"],
+    ["deep", "barDeep"],
     ["glass", "barGlass"],
+    ["soft", "barSoft"],
+    ["pixel", "barPixel"],
+    ["candy", "barCandy"],
+    ["prism", "barPrism"],
     ["neon", "barNeon"],
     ["terminal", "barTerminal"],
     ["hearts", "barHearts"],
@@ -1639,6 +1656,7 @@ const kBarStyleOptions = [
     ["vials", "barVials"],
     ["evidence", "barEvidence"],
     ["runic", "barRunic"],
+    ["sigil", "barSigil"],
     ["energon", "barEnergon"]
 ];
 
