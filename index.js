@@ -816,6 +816,116 @@ function GetThemeRelationsIcon(theme = gTheme) {
 }
 
 
+function GetThemeTitleData(theme = gTheme) {
+    const map = {
+        nocturne: {
+            main: "INFOBLOCK",
+            sub: "✩₊˚.⋆☾⋆⁺₊✧"
+        },
+        burgundy: {
+            main: "INFOBLOCK",
+            sub: "✩₊˚.⋆🕸️⋆⁺₊✧"
+        },
+        ashrose: {
+            main: "INFOBLOCK",
+            sub: "── ⋆⋅𖤓⋅⋆ ──"
+        },
+        coldsteel: {
+            main: "INFOBLOCK",
+            sub: "⫘⫘⫘⫘⫘⫘"
+        },
+        frostwhite: {
+            main: "INFOBLOCK",
+            sub: "⋆꙳•❅*°⋆❆.ೃ࿔*:･*"
+        },
+        pixel: {
+            main: "PIXEL INFOBLOCK",
+            sub: "⩇⩇:⩇⩇"
+        },
+        pinkbite: {
+            main: "INFOBLOCK",
+            sub: "-ˋˏ ༻❁✿❀༺ ˎˊ-"
+        },
+        violetglass: {
+            main: "INFOBLOCK",
+            sub: "· ─ ·𖥸· ─ ·"
+        },
+        verdantgrove: {
+            main: "INFOBLOCK",
+            sub: "☆.𓋼𓍊 𓆏 𓍊𓋼𓍊.☆"
+        },
+        sandalwood: {
+            main: "INFOBLOCK",
+            sub: "❁✿❀❁✿❀"
+        },
+        gengar: {
+            main: "☠ 𝔊𝔢𝔫𝔤𝔞𝔯 ☠",
+            sub: "𖦹 ⋆ ˚｡🩻｡˚ ⋆ 𖦹"
+        },
+        systemlog: {
+            main: "▾ SYSTEM LOG // ACCESS GRANTED 🖳",
+            sub: "↳ signal stable ✔"
+        },
+        terminal: {
+            main: "INFOBLOCK // USER ACCESS",
+            sub: "> relationship data loaded"
+        },
+        oraclemoon: {
+            main: "ORACLE BOARD",
+            sub: "🀧.✮..☽..✮.🀧"
+        },
+        bloodmoon: {
+            main: "𝐵𝐿𝒪𝒪𝒟 𝑀𝒪𝒪𝒩",
+            sub: ".˚⊹. ࣪𓉸 ࣪⊹˚."
+        },
+        casefile: {
+            main: "CASE FILE // SUBJECT RELATIONS",
+            sub: "˖⌕ ۫ . . . .𖥔"
+        },
+        obsidianregistry: {
+            main: "Infoblock",
+            sub: "⋆˖⁺‧₊⚜₊‧⁺˖⋆"
+        },
+        neonquest: {
+            main: "𝄃𝄃𝄂𝄂𝄀RP BLOCK𝄁𝄃𝄂𝄂𝄃",
+            sub: "█Err⃟⃤r⁴⁰⁴"
+        },
+        shockwave: {
+            main: "☣..𝚁𝚎𝚊𝚌𝚝𝚒𝚘𝚗 𝚝𝚛𝚊𝚌𝚔𝚒𝚗𝚐..☣",
+            sub: "ﮩ٨ـﮩﮩ٨ـﮩ٨ـﮩﮩ٨ـ"
+        },
+        lockdown: {
+            main: "𝕋𝕒𝕣𝕘𝕖𝕥 𖦏 𝕕𝕖𝕥𝕖𝕔𝕥𝕖𝕕",
+            sub: "▄︻テحكـ━一💥"
+        },
+        hotrod: {
+            main: "▶Infoblock◀",
+            sub: "🏁.........🏎.."
+        },
+        gryffindor: {
+            main: "𓃬 𝔊𝔯𝔶𝔣𝔣𝔦𝔫𝔡𝔬𝔯 𓃬",
+            sub: "✩₊˚.⋆🦁⋆⁺₊✧"
+        },
+        slytherin: {
+            main: "𓆙 𝔖𝔩𝔶𝔱𝔥𝔢𝔯𝔦𝔫 𓆙",
+            sub: "⊹₊˚‧︵‿₊🐍₊‿︵‧˚₊⊹"
+        },
+        ravenclaw: {
+            main: "𓄿 ℜ𝔞𝔳𝔢𝔫𝔠𝔩𝔞𝔴 𓄿",
+            sub: "✦•┈๑⋅⋯🦅⋯⋅๑┈•✦"
+        },
+        hufflepuff: {
+            main: "𓃮 ℌ𝔲𝔣𝔣𝔩𝔢𝔭𝔲𝔣𝔣 𓃮",
+            sub: "-ˋˏ ༻❁🦡❀༺ ˎˊ-"
+        }
+    };
+
+    return map[theme] || {
+        main: "INFOBLOCK",
+        sub: ""
+    };
+}
+
 function LoadState() {
     try {
         const raw = localStorage.getItem(GetStateKey());
@@ -2057,11 +2167,13 @@ const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter ===
             </div>
         `).join("")
         : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+    
+    const titleData = GetThemeTitleData();
 
     return `
 <div class="mib-board mib-board-compact mib-theme-${EscapeHtml(gTheme)} mib-bars-${EscapeHtml(gBarStyle)}" data-mib-board>
             <div class="mib-compact-topbar">
-                <div class="mib-compact-brand">Mom Infoblock</div>
+ <div class="mib-compact-brand">${EscapeHtml(titleData.main)}</div>
 
 <div class="mib-title-actions">
     <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
@@ -2090,12 +2202,15 @@ function RenderPanel(state = gState) {
             ? RenderNotesTab()
             : RenderSceneTab(state);
 
+    const titleData = GetThemeTitleData();
+
     return `
 <div class="mib-board mib-theme-${EscapeHtml(gTheme)} mib-bars-${EscapeHtml(gBarStyle)}" data-mib-board>
             <div class="mib-title-row">
-                <div>
-                    <div class="mib-title">Mom Infoblock</div>
-                </div>
+<div>
+    <div class="mib-title">${EscapeHtml(titleData.main)}</div>
+    ${titleData.sub ? `<div class="mib-subtitle">${EscapeHtml(titleData.sub)}</div>` : ""}
+</div>
 
 <div class="mib-title-actions">
 <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
