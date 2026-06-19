@@ -1758,3 +1758,33 @@
     color: #b73545;
     background: linear-gradient(90deg, #b73545, #7e1e2a 58%, #470d16);
 }
+
+.mib-bar-affection-pos {
+    background: linear-gradient(90deg, #67c79a, #2da96f 58%, #23885a);
+    color: #67c79a;
+}
+
+.mib-bar-affection-neg {
+    background: linear-gradient(90deg, #d88a82, #b55252 60%, #8d3d3d);
+    color: #d88a82;
+}
+
+.mib-bar-trust-pos {
+    background: linear-gradient(90deg, #72b2da, #4a87d8 58%, #3569b0);
+    color: #72b2da;
+}
+
+.mib-bar-trust-neg {
+    background: linear-gradient(90deg, #d3a06d, #b87442 60%, #945932);
+    color: #d3a06d;
+}
+
+.mib-bar-love-pos {
+    background: linear-gradient(90deg, #b086d9, #8a58d4 58%, #6738a5);
+    color: #b086d9;
+}
+
+.mib-bar-love-neg {
+    background: linear-gradient(90deg, #d56d87, #a93b58 60%, #7e243d);
+    color: #d56d87;
+}
