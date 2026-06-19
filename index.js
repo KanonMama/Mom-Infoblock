@@ -2197,6 +2197,76 @@ const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter ===
         </div>`;
 }
 
+function RenderMobilePanelContent(state = gState) {
+    const sortedChars = SortCharsByPriority(state.chars || []);
+    const filteredRels = GetFilteredRelations(state.rels || []);
+
+    const charsHtml = sortedChars.length
+        ? sortedChars.map(c => {
+            const visibleTags = (c.tags || []).filter(tag => !IsPresenceTag(tag));
+            const mood = String(c.mood || "").trim();
+
+            return `
+                <div class="mib-char">
+                    <div class="mib-char-main">
+                        <span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
+                        <span class="mib-char-name">${EscapeHtml(c.name)}</span>
+                        ${c.presence ? `<span class="mib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
+                        ${mood ? `<span class="mib-chip mib-mood">${EscapeHtml(mood)}</span>` : ""}
+                    </div>
+                    <div class="mib-tags">
+                        ${visibleTags.map(tag => `<span class="mib-chip">${EscapeHtml(tag)}</span>`).join("")}
+                    </div>
+                </div>
+            `;
+        }).join("")
+        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+
+    const relsHtml = filteredRels.length
+        ? `${RenderRelationFilterNote(state.rels || [])}${filteredRels.map(r => RenderRelationCard(r, state)).join("")}`
+        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+
+    return `
+        <div class="mib-mobile-board">
+            <div class="mib-mobile-head">
+                <div class="mib-mobile-title">${EscapeHtml(T("dockTitle"))}</div>
+                <div class="mib-mobile-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
+            </div>
+
+            ${RenderTabs()}
+
+            <div class="mib-mobile-content">
+                ${
+                    gActiveTab === "chronicle"
+                        ? RenderChronicleTab(state)
+                        : gActiveTab === "notes"
+                            ? RenderNotesTab()
+                            : `
+                                <div class="mib-header">
+                                    <div class="mib-location">${EscapeHtml(GetThemeLocationIcon())} ${EscapeHtml(state.scene.loc)}</div>
+                                    <div class="mib-meta">
+                                        <span>⏰ ${EscapeHtml(state.scene.time)}</span>
+                                        <span>📅 ${EscapeHtml(state.scene.date)}</span>
+                                        <span>☁ ${EscapeHtml(state.scene.weather)}</span>
+                                    </div>
+                                </div>
+
+                                <div class="mib-section">
+                                    <div class="mib-section-title">${EscapeHtml(GetThemeCharsIcon())} ${EscapeHtml(T("chars"))}</div>
+                                    ${charsHtml}
+                                </div>
+
+                                <div class="mib-section">
+                                    <div class="mib-section-title">${EscapeHtml(GetThemeRelationsIcon())} ${EscapeHtml(T("rels"))}</div>
+                                    ${relsHtml}
+                                </div>
+                            `
+                }
+            </div>
+        </div>
+    `;
+}
+
 function RenderPanel(state = gState) {
     if (gSceneViewMode === "compact") {
         return RenderCompactPanel(state);
@@ -3371,11 +3441,12 @@ function SetMobilePanelOpen(value) {
 
 function RenderMobileDockPanel() {
     console.log("[MIB mobile] render", {
-    enabled: gEnabled,
-    displayMode: gDisplayMode,
-    mobile: IsMobileView(),
-    open: IsMobilePanelOpen()
-});
+        enabled: gEnabled,
+        displayMode: gDisplayMode,
+        mobile: IsMobileView(),
+        open: IsMobilePanelOpen()
+    });
+
     if (!gEnabled || !ShouldRenderDock() || !IsMobileView()) {
         RemoveMobileDockPanel();
         return;
@@ -3397,31 +3468,27 @@ function RenderMobileDockPanel() {
     ].join(" ");
 
     host.innerHTML = `
-    console.log("[MIB mobile] host after render", host);
         <button type="button" class="mib-mobile-panel-toggle">
             ${EscapeHtml(open ? T("closeDock") : T("openDock"))}
         </button>
 
         <div class="mib-mobile-panel-shell">
             <div class="mib-mobile-panel-body">
-                ${open ? `
-                    <div style="padding:12px; color:white; background:rgba(255,0,0,0.25); min-height:300px;">
-                        <div style="font-weight:bold; margin-bottom:8px;">MOBILE PANEL TEST</div>
-                        <div>theme: ${EscapeHtml(gTheme)}</div>
-                        <div>mode: ${EscapeHtml(gDisplayMode)}</div>
-                        <div>chars: ${gState.chars?.length || 0}</div>
-                        <div>rels: ${gState.rels?.length || 0}</div>
-                        <div>notes len: ${(gNotes || "").length}</div>
-                    </div>
-                ` : ""}
+                ${open ? RenderMobilePanelContent(gState) : ""}
             </div>
         </div>
     `;
+
+    console.log("[MIB mobile] host after render", host);
 
     host.querySelector(".mib-mobile-panel-toggle")?.addEventListener("click", () => {
         SetMobilePanelOpen(!open);
         RenderMobileDockPanel();
     });
+
+    if (open) {
+        WirePanel(host);
+    }
 }
 
 function RemoveDock() {
