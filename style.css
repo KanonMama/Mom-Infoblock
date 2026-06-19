@@ -3510,3 +3510,21 @@
 #mib_dock_host .mib-compact-topbar {
     display: none;
 }
+
+.mib-floating-header,
+.mib-dock-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.mib-floating-header .mib-title-actions,
+.mib-dock-header .mib-title-actions {
+    flex-shrink: 0;
+}
+
+.mib-floating-title,
+.mib-dock-title {
+    min-width: 0;
+}
