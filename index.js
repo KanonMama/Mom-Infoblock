@@ -749,6 +749,73 @@ function SaveSettings() {
     localStorage.setItem(kBarStyleKey, gBarStyle);
 }
 
+function GetThemeLocationIcon(theme = gTheme) {
+    const map = {
+        casefile: "🔎",
+        bloodmoon: "🦇",
+        oraclemoon: "🌙",
+        terminal: "▣",
+        obsidianregistry: "⟡",
+        neonquest: "⚙️",
+        systemlog: "💾",
+        gengar: "🕯️",
+        shockwave: "⚛︎",
+        lockdown: "⌖",
+        hotrod: "▰",
+        gryffindor: "📜",
+        slytherin: "📜",
+        ravenclaw: "📜",
+        hufflepuff: "📜"
+    };
+
+    return map[theme] || "📍";
+}
+
+function GetThemeCharsIcon(theme = gTheme) {
+    const map = {
+        casefile: "ID",
+        bloodmoon: "✟",
+        oraclemoon: "✨",
+        terminal: ">",
+        obsidianregistry: "᯽",
+        neonquest: "👤",
+        systemlog: "📊",
+        gengar: "👻",
+        shockwave: "⚙",
+        lockdown: "◎",
+        hotrod: "▣",
+        gryffindor: "🪶",
+        slytherin: "🪶",
+        ravenclaw: "🪶",
+        hufflepuff: "🪶"
+    };
+
+    return map[theme] || "•";
+}
+
+function GetThemeRelationsIcon(theme = gTheme) {
+    const map = {
+        casefile: "𖦏",
+        bloodmoon: "🥀",
+        oraclemoon: "💫",
+        terminal: "♡",
+        obsidianregistry: "✶",
+        neonquest: "🤖",
+        systemlog: "🔗",
+        gengar: "💜",
+        shockwave: "🧪",
+        lockdown: "💥",
+        hotrod: "➤",
+        gryffindor: "❤️",
+        slytherin: "💚",
+        ravenclaw: "💙",
+        hufflepuff: "💛"
+    };
+
+    return map[theme] || "♥";
+}
+
+
 function LoadState() {
     try {
         const raw = localStorage.getItem(GetStateKey());
@@ -1586,7 +1653,7 @@ const thoughtsHtml = extraThoughts.length
 return `
     <div class="mib-scene-grid">
         <div class="mib-header">
-                <div class="mib-location">📍 ${EscapeHtml(state.scene.loc)}</div>
+<div class="mib-location">${EscapeHtml(GetThemeLocationIcon())} ${EscapeHtml(state.scene.loc)}</div>
                 <div class="mib-meta">
                     <span>⏰ ${EscapeHtml(state.scene.time)}</span>
                     <span>📅 ${EscapeHtml(state.scene.date)}</span>
@@ -1595,12 +1662,12 @@ return `
             </div>
 
             <div class="mib-section">
-                <div class="mib-section-title">${EscapeHtml(T("chars"))}</div>
+<div class="mib-section-title">${EscapeHtml(GetThemeCharsIcon())} ${EscapeHtml(T("chars"))}</div>
                 ${charsHtml}
             </div>
 
             <div class="mib-section">
-                <div class="mib-section-title">${EscapeHtml(T("rels"))}</div>
+<div class="mib-section-title">${EscapeHtml(GetThemeRelationsIcon())} ${EscapeHtml(T("rels"))}</div>
                 ${relsHtml}
             </div>
 
