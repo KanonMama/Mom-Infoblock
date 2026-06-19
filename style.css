@@ -1781,3 +1781,304 @@
     background: linear-gradient(90deg, #d56d87, #a93b58 60%, #7e243d);
     color: #d56d87;
 }
+
+.mib-bars-terminal .mib-bar {
+    height: 11px;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid rgba(56,255,122,0.14);
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(120, 170, 125, 0.18) 0,
+            rgba(120, 170, 125, 0.18) 8px,
+            transparent 8px,
+            transparent 12px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,0.030), rgba(0,0,0,0.34)),
+        rgba(0,0,0,0.55);
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.035),
+        inset 0 -1px 2px rgba(0,0,0,0.38);
+}
+
+.mib-bars-terminal .mib-bar-fill {
+    position: relative;
+    height: 100%;
+    border-radius: 0;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            currentColor 0,
+            currentColor 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+    filter: saturate(1.18) brightness(0.88);
+    box-shadow:
+        0 0 6px currentColor,
+        0 0 12px color-mix(in srgb, currentColor 46%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.14);
+}
+
+.mib-bars-terminal .mib-bar-fill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.04) 42%, transparent 100%);
+    opacity: 0.34;
+}
+
+.mib-bars-terminal .mib-bar-fill::after {
+    display: none;
+    content: none;
+}
+
+.mib-bars-evidence .mib-bar {
+    height: 13px;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.075);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.30)),
+        rgba(0,0,0,0.42);
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.035),
+        inset 0 -1px 2px rgba(0,0,0,0.38),
+        0 0 8px rgba(0,0,0,0.20);
+}
+
+.mib-bars-evidence .mib-bar-fill {
+    --mib-tape-a: #e0b84f;
+    --mib-tape-b: #14120d;
+    --mib-tape-glow: rgba(224,184,79,0.24);
+
+    position: relative;
+    height: 100%;
+    border-radius: 0;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.035) 42%, transparent 72%),
+        repeating-linear-gradient(
+            135deg,
+            var(--mib-tape-a) 0,
+            var(--mib-tape-a) 8px,
+            var(--mib-tape-b) 8px,
+            var(--mib-tape-b) 16px
+        ) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.16),
+        inset 0 -1px 0 rgba(0,0,0,0.22),
+        0 0 7px var(--mib-tape-glow),
+        0 0 13px color-mix(in srgb, var(--mib-tape-glow) 70%, transparent);
+    filter: saturate(0.96) brightness(0.94);
+}
+
+.mib-bars-evidence .mib-bar-fill::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px auto 1px;
+    height: 38%;
+    border-radius: 1px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.04));
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.mib-bars-evidence .mib-bar-fill::after {
+    display: none;
+    content: none;
+}
+
+.mib-bars-hearts .mib-bar {
+    height: 17px;
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    background-color: transparent !important;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%2343323e' opacity='.72'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-size: 18px 16px;
+    background-position: left center;
+    box-shadow: none;
+}
+
+.mib-bars-hearts .mib-bar-fill {
+    position: relative;
+    height: 100%;
+    border-radius: 0;
+    background: currentColor !important;
+    filter:
+        saturate(1.18)
+        brightness(1.08)
+        drop-shadow(0 0 3px currentColor);
+
+    -webkit-mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-repeat: repeat-x;
+    -webkit-mask-size: 18px 16px;
+    -webkit-mask-position: left center;
+
+    mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='black'/%3E%3C/svg%3E");
+    mask-repeat: repeat-x;
+    mask-size: 18px 16px;
+    mask-position: left center;
+}
+
+.mib-bars-hearts .mib-bar-fill::before,
+.mib-bars-hearts .mib-bar-fill::after {
+    display: none;
+    content: none;
+}
+
+.mib-bars-constellation .mib-bar {
+    height: 18px;
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+    background-image:
+        linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 8px,
+            rgba(125, 99, 143, 0.23) 8px,
+            rgba(125, 99, 143, 0.23) 9px,
+            transparent 9px,
+            transparent 100%
+        ),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 1.9l1.75 4.75 5.05.24-3.9 3.12 1.35 4.9L9 12.1 4.75 14.9l1.35-4.9-3.9-3.12 5.05-.24z' fill='none' stroke='%23745c86' stroke-width='1.18' opacity='.66'/%3E%3C/svg%3E");
+    background-repeat: no-repeat, repeat-x;
+    background-size: 100% 18px, 18px 18px;
+    background-position: left center, left center;
+}
+
+.mib-bars-constellation .mib-bar-fill {
+    position: relative;
+    height: 100%;
+    border-radius: 0;
+    background: var(--mib-star-fill, #8f789f) !important;
+    background-color: var(--mib-star-fill, #8f789f) !important;
+    box-shadow: none !important;
+    filter:
+        saturate(1.05)
+        brightness(0.92)
+        drop-shadow(0 0 3px var(--mib-star-glow, rgba(143,120,159,0.28)))
+        drop-shadow(0 0 6px var(--mib-star-glow, rgba(143,120,159,0.22)));
+
+    -webkit-mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 1.9l1.75 4.75 5.05.24-3.9 3.12 1.35 4.9L9 12.1 4.75 14.9l1.35-4.9-3.9-3.12 5.05-.24z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-repeat: repeat-x;
+    -webkit-mask-size: 18px 18px;
+    -webkit-mask-position: left center;
+
+    mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 1.9l1.75 4.75 5.05.24-3.9 3.12 1.35 4.9L9 12.1 4.75 14.9l1.35-4.9-3.9-3.12 5.05-.24z' fill='black'/%3E%3C/svg%3E");
+    mask-repeat: repeat-x;
+    mask-size: 18px 18px;
+    mask-position: left center;
+}
+
+.mib-bars-constellation .mib-bar-fill::before,
+.mib-bars-constellation .mib-bar-fill::after {
+    display: none;
+    content: none;
+}
+
+.mib-bars-evidence .mib-bar-affection-pos {
+    --mib-tape-a: #d7b34a;
+    --mib-tape-b: #18140b;
+    --mib-tape-glow: rgba(215,179,74,0.24);
+}
+
+.mib-bars-evidence .mib-bar-affection-neg {
+    --mib-tape-a: #c64e43;
+    --mib-tape-b: #16080a;
+    --mib-tape-glow: rgba(198,78,67,0.28);
+}
+
+.mib-bars-evidence .mib-bar-trust-pos {
+    --mib-tape-a: #8ba9bd;
+    --mib-tape-b: #111720;
+    --mib-tape-glow: rgba(139,169,189,0.24);
+}
+
+.mib-bars-evidence .mib-bar-trust-neg {
+    --mib-tape-a: #d18b3f;
+    --mib-tape-b: #160f08;
+    --mib-tape-glow: rgba(209,139,63,0.27);
+}
+
+.mib-bars-evidence .mib-bar-love-pos {
+    --mib-tape-a: #b58abf;
+    --mib-tape-b: #151018;
+    --mib-tape-glow: rgba(181,138,191,0.26);
+}
+
+.mib-bars-evidence .mib-bar-love-neg {
+    --mib-tape-a: #b9465f;
+    --mib-tape-b: #15080d;
+    --mib-tape-glow: rgba(185,70,95,0.29);
+}
+
+.mib-bars-hearts .mib-bar-affection-pos { color: #5ef0a0; }
+.mib-bars-hearts .mib-bar-affection-neg { color: #ff7e8f; }
+.mib-bars-hearts .mib-bar-trust-pos { color: #6ecbff; }
+.mib-bars-hearts .mib-bar-trust-neg { color: #ffb76a; }
+.mib-bars-hearts .mib-bar-love-pos { color: #d77cff; }
+.mib-bars-hearts .mib-bar-love-neg { color: #ff4f8f; }
+
+.mib-bars-constellation .mib-bar-affection-pos {
+    --mib-star-fill: #66b884;
+    --mib-star-glow: rgba(102,184,132,0.34);
+}
+
+.mib-bars-constellation .mib-bar-affection-neg {
+    --mib-star-fill: #b95f70;
+    --mib-star-glow: rgba(185,95,112,0.34);
+}
+
+.mib-bars-constellation .mib-bar-trust-pos {
+    --mib-star-fill: #668fc2;
+    --mib-star-glow: rgba(102,143,194,0.34);
+}
+
+.mib-bars-constellation .mib-bar-trust-neg {
+    --mib-star-fill: #b67d48;
+    --mib-star-glow: rgba(182,125,72,0.34);
+}
+
+.mib-bars-constellation .mib-bar-love-pos {
+    --mib-star-fill: #9664bb;
+    --mib-star-glow: rgba(150,100,187,0.36);
+}
+
+.mib-bars-constellation .mib-bar-love-neg {
+    --mib-star-fill: #b9577e;
+    --mib-star-glow: rgba(185,87,126,0.36);
+}
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-affection-pos { color: #39d96f; }
+.mib-theme-terminal.mib-bars-terminal .mib-bar-trust-pos { color: #54dcae; }
+.mib-theme-terminal.mib-bars-terminal .mib-bar-love-pos { color: #9bd85a; }
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar-affection-neg { color: #d86f4d; }
+.mib-theme-terminal.mib-bars-terminal .mib-bar-trust-neg { color: #d89a45; }
+.mib-theme-terminal.mib-bars-terminal .mib-bar-love-neg { color: #d8783d; }
+
+.mib-theme-terminal.mib-bars-terminal .mib-bar {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(56,255,122,0.08) 0,
+            rgba(56,255,122,0.08) 8px,
+            transparent 8px,
+            transparent 12px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,0.018), rgba(0,0,0,0.42)),
+        rgba(0,0,0,0.70);
+}
