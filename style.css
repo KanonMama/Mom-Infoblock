@@ -7301,10 +7301,6 @@
     display: none;
 }
 
-#mib_mobile_panel_host {
-    display: none;
-}
-
 @media (max-width: 760px) {
     #mib_mobile_panel_host {
         position: fixed !important;
