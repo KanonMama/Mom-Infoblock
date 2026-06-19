@@ -7196,3 +7196,103 @@
         0 0 12px rgba(134,201,138,0.12),
         inset 0 0 12px rgba(134,201,138,0.08);
 }
+
+@media (max-width: 760px) {
+    .mib-board {
+        padding: 8px;
+        border-radius: 12px;
+        gap: 8px;
+    }
+
+    .mib-header {
+        padding: 8px 10px;
+        border-radius: 10px;
+    }
+
+    .mib-title {
+        font-size: 13px !important;
+        line-height: 1.15;
+        letter-spacing: 0.8px !important;
+    }
+
+    .mib-subtitle {
+        font-size: 9px;
+        line-height: 1.2;
+        margin-top: 2px;
+        opacity: 0.75;
+    }
+
+    .mib-tabs {
+        padding: 3px;
+        gap: 4px;
+        border-radius: 10px;
+    }
+
+    .mib-tab {
+        min-height: 30px;
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+
+    .mib-section {
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    .mib-section-title {
+        font-size: 11px;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .mib-scene-title {
+        font-size: 12px;
+    }
+
+    .mib-meta {
+        gap: 6px;
+    }
+
+    .mib-meta span,
+    .mib-chip,
+    .mib-status-chip,
+    .mib-mini-stat {
+        font-size: 10px;
+        padding: 4px 7px;
+        border-radius: 999px;
+    }
+
+    .mib-char,
+    .mib-rel,
+    .mib-compact-rel {
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    .mib-char-head,
+    .mib-rel-head {
+        gap: 6px;
+    }
+
+    .mib-char-name,
+    .mib-rel-pair {
+        font-size: 12px;
+        line-height: 1.25;
+    }
+
+    .mib-bar {
+        height: 8px;
+    }
+
+    .mib-thought {
+        padding: 8px 9px;
+        font-size: 11px;
+        line-height: 1.35;
+        border-radius: 9px;
+    }
+
+    .mib-notes-area,
+    .mib-xml-editor {
+        min-height: 140px;
+    }
+}
