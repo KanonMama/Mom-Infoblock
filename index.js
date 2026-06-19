@@ -2198,6 +2198,10 @@ const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter ===
 }
 
 function RenderPanel(state = gState) {
+    if (window.innerWidth <= 760) {
+    RenderMobilePanel();
+    return;
+}
     if (gSceneViewMode === "compact") {
         return RenderCompactPanel(state);
     }
@@ -2320,6 +2324,54 @@ function GetInspectorHost(root) {
     return root.closest(".mib-board-host, #mib_floating_host, #mib_dock_host") || root;
 }
 
+function RemoveMobilePanel() {
+    document.getElementById("mib_panel_host")?.remove();
+}
+
+function RenderMobilePanel() {
+    if (window.innerWidth > 760 || !gEnabled) {
+        RemoveMobilePanel();
+        return;
+    }
+
+    let host = document.getElementById("mib_panel_host");
+
+    if (!host) {
+        host = document.createElement("div");
+        host.id = "mib_panel_host";
+        document.body.appendChild(host);
+    }
+
+    host.className = `mib-panel-left ${gTheme ? `mib-theme-${gTheme}` : ""} ${gBarStyle ? `mib-bars-${gBarStyle}` : ""}`;
+    if (gPanelOpen) {
+        host.classList.add("mib-panel-open");
+    }
+
+    host.innerHTML = `
+        <div class="mib-panel-toggle">${gPanelOpen ? T("panelClose") : T("panelOpen")}</div>
+        <div class="mib-panel-shell">
+            <div class="mib-panel-body">
+                ${gPanelOpen ? RenderBoard(GetMergedStateForRendering(), false, null, "panel") : ""}
+            </div>
+        </div>
+    `;
+
+    const toggle = host.querySelector(".mib-panel-toggle");
+    if (toggle) {
+        toggle.addEventListener("click", () => {
+            gPanelOpen = !gPanelOpen;
+            RenderMobilePanel();
+        });
+    }
+
+    if (gPanelOpen) {
+        const boardEl = host.querySelector(".mib-board");
+        if (boardEl) {
+            WireBoardControls(boardEl, null);
+            AutoScrollThoughts(boardEl);
+        }
+    }
+}
 
 function FindMessageByHost(host) {
     const mesId = host?.dataset?.mesId;
@@ -3900,8 +3952,13 @@ ApplyFontSize();
 
     setTimeout(ReprocessChat, 150);
     setTimeout(RenderFloatingOrDock, 250);
+     setTimeout(RenderPanelBoard, 260);
 
     InjectPrompt();
+
+    window.addEventListener("resize", () => {
+        RenderPanelBoard();
+    });
 
     console.log("[MIB] Mom Infoblock ready");
 });
