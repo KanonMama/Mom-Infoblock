@@ -384,6 +384,7 @@ Rules:
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
 - Always write the name before the thought
+- Always use the full name for npc and <char>
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
 - Format only: Полное Имя: мысль`;
