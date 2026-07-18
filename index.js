@@ -1323,7 +1323,7 @@ function ParseThoughtLine(line) {
 
     if (!clean) return null;
 
-    const match = clean.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
+const match = clean.match(/^([^:]+?)\s*:\s*(.+)$/u);
 
     // Модель не указала владельца мысли.
     // NormalizeThoughtOwners() потом привяжет её к единственному rel/char.
@@ -2901,7 +2901,7 @@ function ParseVisibleThoughtLine(line) {
     const clean = String(line || "").trim();
     if (!clean) return null;
 
-    const match = clean.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
+const match = clean.match(/^([^:]+?)\s*:\s*(.+)$/u);
     if (!match) return null;
 
     return {
