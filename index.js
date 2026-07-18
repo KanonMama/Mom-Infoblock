@@ -310,9 +310,11 @@ themePreviewMissing: "Preview unavailable",
 };
 
 const kSystemPromptRu = `Mom Infoblock:
-Append exactly one XML block at the end of every assistant response. Fill all values in Russian. Keep it concise, accurate, and updated every message.
+Append exactly one XML block at the end of every assistant response.
+Fill all values in Russian.
+Keep the XML concise, accurate, and updated every message.
 
-Format:
+Required format:
 <mom_infoblock time="" date="" weather="" loc="">
 <chars>
 <c icon="" name="" tags="" mood="" />
@@ -325,78 +327,105 @@ Format:
 <thread></thread>
 </chronicle>
 <thk>
-Полное Имя NPC: непосредственная частная мысль
+<t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
 </thk>
 </mom_infoblock>
 
 Optional only for explicitly intimate scenes:
 <nsfw f="" p="" />
 
-Rules:
-- Output exactly one <mom_infoblock> block in every message
+General rules:
+- Output exactly one <mom_infoblock> block in every response
+- Put the complete XML block at the very end of the response
 - Fill all values in Russian
-- No extra XML tags or commentary
-- Add one <c /> for each NPC currently present
-- Use the exact same full NPC name in <chars name="">, <rel source="">, and <thk>
-- Never shorten NPC names in <rel> or <thk>
-- Do not include {{user}} as NPC
-- tags: 1-4 short tags separated by |
-- tags must be short labels, not phrases or sentences
-- Never write explanations, actions, or long descriptions in tags
-- Use scene presence tags only when clearly relevant: focus | рядом | наблюдает | на периферии | вышел
-- Use at most one scene presence tag per NPC
-- Do not invent new presence tags
-- mood: 1-3 words, visible current emotional state only
-- Leave mood empty if unclear
-- Do not duplicate mood inside tags
-- Add one <rel /> per relevant present NPC describing feelings toward {{user}} only
-- Add <rel /> only for the 1-3 most relevant present NPCs
-- a, tr, l: from -100 to 100
-- ac, tc, lc: per-message change, usually within -5..+5 unless major event
-- Negative affection = aversion/dislike
-- Negative trust = distrust/suspicion/fear
-- Negative love = hatred/destructive obsession/anti-attachment
-- status: 1-3 words only, relationship phase/status only
-- status must not describe events, thoughts, explanations, or causes
-- Never write full sentences in status
-- Good status examples: заинтересована | доверяет | тянется | защитная привязанность | сложное влечение
-- Bad status examples: её слова пробили защиту | впервые не знает что сказать | привязанность перешла в новую фазу
-- Put all NPC private thoughts into one <thk> block
-- One NPC per line in <thk>
-- Never include {{user}} thoughts in <thk>
-- Private thoughts must appear only inside <thk>
-- Never output private NPC thoughts in visible narrative text
-- Private NPC thoughts: max 1 sentence and max 30 words per NPC
-- Do not explain feelings in <thk>; write only the immediate private thought
-- Never write <thk> thoughts as visible lines before the XML
-- No "Имя: мысль" thought list in visible narrative
-- Chronicle events: add only important new events from this response
-- Chronicle events: max 3 <event> entries per response, max 18 words each
-- Chronicle threads: include only currently unresolved plot hooks, max 4 <thread> entries, do not rephrase old threads
-- Do not repeat old chronicle events unless they changed meaning
-- Do not write guesses as facts in chronicle
-- Omit <chronicle> if nothing important changed
-- Omit <nsfw /> if the scene is not intimate
-- Never write chronicle events, thread lists, summaries, recaps, or bullet-point scene summaries in visible narrative
-- Chronicle content must appear only inside <chronicle>
-- Never duplicate <event> or <thread> content outside XML
-- Do not write visible lines like "Что произошло", "Открытые вопросы", "Сводка", or question lists after the scene
-- Visible narrative must contain only roleplay prose/dialogue, not system summaries
+- Do not add commentary after the XML
+- Use only the XML elements defined in this format
+- Do not include {{user}} as an NPC
 
-<thk> strict format:
-- Use the exact full NPC name exactly as in <chars>
-- Always write the name before the thought
-- Always use the full name for npc and <char>
-- Never shorten names
-- No markdown, quotes, asterisks, or brackets
-- Format only: Полное Имя: мысль
-- Even when only one NPC is present, the full NPC name before the thought is mandatory
-- A thought without "Полное Имя NPC:" is invalid`
+Characters:
+- Add one <c /> for each NPC currently present or explicitly leaving the scene
+- Use the exact full NPC name in <c name="">, <rel source="">, and <t name="">
+- Never shorten, translate, or alter NPC names
+- tags: 1-4 short labels separated by |
+- Never write actions, explanations, or sentences in tags
+- Allowed presence tags: focus | рядом | наблюдает | на периферии | вышел
+- Use at most one presence tag per NPC
+- mood: 1-3 words describing visible current emotion
+- Leave mood empty if unclear
+- Do not duplicate mood in tags
+
+Relationships:
+- Add one <rel /> for each relevant NPC whose relationship toward {{user}} matters
+- Add at most 3 <rel /> elements
+- source: exact full NPC name from <chars>
+- target: {{user}}
+- a, tr, l: integers from -100 to 100
+- ac, tc, lc: change in this response, usually from -5 to +5
+- Negative affection means aversion or dislike
+- Negative trust means distrust, suspicion, or fear
+- Negative love means hatred, destructive obsession, or anti-attachment
+- status: 1-3 words describing only the relationship phase
+- Never write a sentence, event, explanation, or cause in status
+
+NPC private thoughts:
+- Put all private NPC thoughts inside exactly one <thk> block
+- Every thought must be a separate <t name=""> element
+- The name attribute is mandatory and must never be empty
+- The name must exactly match the full NPC name from <chars>
+- Never place raw text directly inside <thk>
+- Never use the old "Имя: мысль" format inside <thk>
+- Never write an unnamed thought
+- Never include {{user}} thoughts
+- Maximum one immediate private thought per NPC
+- Maximum one sentence and 30 words per thought
+- Write only the immediate private thought, not an explanation of emotions
+- Private thoughts must never appear in visible narrative
+- No markdown, quotes, asterisks, or brackets inside <thk>
+
+Valid:
+<thk>
+<t name="Aemond Targaryen">Мне не следовало сюда приходить.</t>
+<t name="Borros Baratheon">Если он тронул мою дочь, я ему этого не прощу.</t>
+</thk>
+
+Invalid:
+<thk>
+Мне не следовало сюда приходить.
+</thk>
+
+Invalid:
+<thk>
+Aemond Targaryen: Мне не следовало сюда приходить.
+</thk>
+
+Chronicle:
+- Add only important new events from this response
+- Maximum 3 <event> elements, maximum 18 words each
+- Include only currently unresolved plot hooks in <thread>
+- Maximum 4 <thread> elements
+- Do not repeat old events unless their meaning changed
+- Do not write guesses as facts
+- Omit <chronicle> if nothing important changed
+- Chronicle content must appear only inside <chronicle>
+- Never duplicate chronicle events or threads in visible narrative
+- Never add visible summaries, recaps, bullet lists, or open-question lists
+
+NSFW:
+- Omit <nsfw /> unless the current scene is explicitly intimate
+
+FINAL XML VALIDATION BEFORE SENDING:
+- Verify that every private thought uses exactly:
+<t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
+- Verify that every thought name exactly matches a <c name="">
+- Verify that no raw text exists directly inside <thk>
+- Verify that no private thought appears in visible narrative`;
 
 const kSystemPromptEn = `Mom Infoblock:
-Append exactly one XML block at the end of every assistant response. Fill all values in English. Keep it concise, accurate, and updated every message.
+Append exactly one XML block at the end of every assistant response.
+Fill all values in Russian.
+Keep the XML concise, accurate, and updated every message.
 
-Format:
+Required format:
 <mom_infoblock time="" date="" weather="" loc="">
 <chars>
 <c icon="" name="" tags="" mood="" />
@@ -409,72 +438,98 @@ Format:
 <thread></thread>
 </chronicle>
 <thk>
-Full NPC Name: immediate private thought
+<t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
 </thk>
 </mom_infoblock>
 
 Optional only for explicitly intimate scenes:
 <nsfw f="" p="" />
 
-Rules:
-- Output exactly one <mom_infoblock> block in every message
-- Fill all values in English
-- No extra XML tags or commentary
-- Add one <c /> for each NPC currently present
-- Use the exact same full NPC name in <chars name="">, <rel source="">, and <thk>
-- Never shorten NPC names in <rel> or <thk>
-- Do not include {{user}} as NPC
-- tags: 1-4 short tags separated by |
-- tags must be short labels, not phrases or sentences
-- Never write explanations, actions, or long descriptions in tags
-- Use scene presence tags only when clearly relevant: focus | near | watching | background | left
-- Use at most one scene presence tag per NPC
-- Do not invent new presence tags
-- mood: 1-3 words, visible current emotional state only
-- Leave mood empty if unclear
-- Do not duplicate mood inside tags
-- Add one <rel /> per relevant present NPC describing feelings toward {{user}} only
-- Add <rel /> only for the 1-3 most relevant present NPCs
-- a, tr, l: from -100 to 100
-- ac, tc, lc: per-message change, usually within -5..+5 unless major event
-- Negative affection = aversion/dislike
-- Negative trust = distrust/suspicion/fear
-- Negative love = hatred/destructive obsession/anti-attachment
-- status: 1-3 words only, relationship phase/status only
-- status must not describe events, thoughts, explanations, or causes
-- Never write full sentences in status
-- Good status examples: interested | trusts you | drawn in | protective attachment | complicated attraction
-- Bad status examples: her words pierced his defenses | does not know what to say | attachment moved into a new phase
-- Put all NPC private thoughts into one <thk> block
-- One NPC per line in <thk>
-- Never include {{user}} thoughts in <thk>
-- Private thoughts must appear only inside <thk>
-- Never output private NPC thoughts in visible narrative text
-- Private NPC thoughts: max 1 sentence and max 20 words per NPC
-- Do not explain feelings in <thk>; write only the immediate private thought
-- Never write <thk> thoughts as visible lines before the XML
-- No "Name: thought" thought list in visible narrative
-- Chronicle events: add only important new events from this response
-- Chronicle events: max 3 <event> entries per response, max 18 words each
-- Chronicle threads: include only currently unresolved plot hooks, max 4 <thread> entries, do not rephrase old threads
-- Do not repeat old chronicle events unless they changed meaning
-- Do not write guesses as facts in chronicle
-- Omit <chronicle> if nothing important changed
-- Omit <nsfw /> if the scene is not intimate
-- Never write chronicle events, thread lists, summaries, recaps, or bullet-point scene summaries in visible narrative
-- Chronicle content must appear only inside <chronicle>
-- Never duplicate <event> or <thread> content outside XML
-- Do not write visible lines like "What happened", "Open questions", "Summary", or question lists after the scene
-- Visible narrative must contain only roleplay prose/dialogue, not system summaries
+General rules:
+- Output exactly one <mom_infoblock> block in every response
+- Put the complete XML block at the very end of the response
+- Fill all values in Russian
+- Do not add commentary after the XML
+- Use only the XML elements defined in this format
+- Do not include {{user}} as an NPC
 
-<thk> strict format:
-- Use the exact full NPC name exactly as in <chars>
-- Always write the name before the thought
-- Never shorten names
-- No markdown, quotes, asterisks, or brackets
-- Format only: Full NPC Name: thought
-- Even when only one NPC is present, the full NPC name before the thought is mandatory
-- A thought without "Full NPC Name:" is invalid`
+Characters:
+- Add one <c /> for each NPC currently present or explicitly leaving the scene
+- Use the exact full NPC name in <c name="">, <rel source="">, and <t name="">
+- Never shorten, translate, or alter NPC names
+- tags: 1-4 short labels separated by |
+- Never write actions, explanations, or sentences in tags
+- Allowed presence tags: focus | nearby | watching | on the periphery | came out
+- Use at most one presence tag per NPC
+- mood: 1-3 words describing visible current emotion
+- Leave mood empty if unclear
+- Do not duplicate mood in tags
+
+Relationships:
+- Add one <rel /> for each relevant NPC whose relationship toward {{user}} matters
+- Add at most 3 <rel /> elements
+- source: exact full NPC name from <chars>
+- target: {{user}}
+- a, tr, l: integers from -100 to 100
+- ac, tc, lc: change in this response, usually from -5 to +5
+- Negative affection means aversion or dislike
+- Negative trust means distrust, suspicion, or fear
+- Negative love means hatred, destructive obsession, or anti-attachment
+- status: 1-3 words describing only the relationship phase
+- Never write a sentence, event, explanation, or cause in status
+
+NPC private thoughts:
+- Put all private NPC thoughts inside exactly one <thk> block
+- Every thought must be a separate <t name=""> element
+- The name attribute is mandatory and must never be empty
+- The name must exactly match the full NPC name from <chars>
+- Never place raw text directly inside <thk>
+- Never use the old "Name: thought" format inside <thk>
+- Never write an unnamed thought
+- Never include {{user}} thoughts
+- Maximum one immediate private thought per NPC
+- Maximum one sentence and 30 words per thought
+- Write only the immediate private thought, not an explanation of emotions
+- Private thoughts must never appear in visible narrative
+- No markdown, quotes, asterisks, or brackets inside <thk>
+
+Valid:
+<thk>
+<t name="Aemond Targaryen">I shouldn't have come here.</t>
+<t name="Borros Baratheon">If he touched my daughter, I will never forgive him.</t>
+</thk>
+
+Invalid:
+<thk>
+I shouldn't have come here.
+</thk>
+
+Invalid:
+<thk>
+Aemond Targaryen: I shouldn't have come here.
+</thk>
+
+Chronicle:
+- Add only important new events from this response
+- Maximum 3 <event> elements, maximum 18 words each
+- Include only currently unresolved plot hooks in <thread>
+- Maximum 4 <thread> elements
+- Do not repeat old events unless their meaning changed
+- Do not write guesses as facts
+- Omit <chronicle> if nothing important changed
+- Chronicle content must appear only inside <chronicle>
+- Never duplicate chronicle events or threads in visible narrative
+- Never add visible summaries, recaps, bullet lists, or open-question lists
+
+NSFW:
+- Omit <nsfw /> unless the current scene is explicitly intimate
+
+FINAL XML VALIDATION BEFORE SENDING:
+- Verify that every private thought uses exactly:
+<t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
+- Verify that every thought name exactly matches a <c name="">
+- Verify that no raw text exists directly inside <thk>
+- Verify that no private thought appears in visible narrative`;
 
 function T(key) {
     return kLangMap[gLang]?.[key] ?? key;
@@ -1442,15 +1497,16 @@ function NormalizeThoughtOwners(parsed) {
             owner = availableNpcNames[0];
         }
 
-        // Если кандидатов несколько, не выдумываем владельца.
-        if (!owner) {
-            continue;
-        }
+if (!owner) {
+    // Владельца определить нельзя, но мысль сохраняем,
+    // чтобы RemoveThoughtLeaks мог убрать её из сообщения.
+    resolvedThoughts.push({
+        ...thought,
+        name: "__UNASSIGNED__"
+    });
 
-        resolvedThoughts.push({
-            ...thought,
-            name: owner
-        });
+    continue;
+}
 
         claimedNpcNames.add(NormalizeName(owner));
 
@@ -1557,11 +1613,41 @@ parsed.chars.push({
 const thk = doc.querySelector("thk");
 
 if (thk && gThoughtsEnabled) {
-    parsed.thoughts = String(thk.textContent || "")
-        .replace(/\r/g, "\n")
-        .split("\n")
-        .map(ParseThoughtLine)
+    const structuredThoughts = [...thk.querySelectorAll(":scope > t")]
+        .map(node => {
+            const name = StripNameDecorators(
+                node.getAttribute("name") || ""
+            );
+
+            const text = LimitText(
+                node.textContent || "",
+                220
+            );
+
+            if (!name || !text || IsUserLikeName(name)) {
+                return null;
+            }
+
+            return {
+                name: LimitText(name, 80),
+                text
+            };
+        })
         .filter(Boolean);
+
+    if (structuredThoughts.length) {
+        // Новый структурированный формат:
+        // <t name="Full Name">thought</t>
+        parsed.thoughts = structuredThoughts;
+    } else {
+        // Поддержка старых сообщений:
+        // Имя: мысль или безымянная строка.
+        parsed.thoughts = String(thk.textContent || "")
+            .replace(/\r/g, "\n")
+            .split("\n")
+            .map(ParseThoughtLine)
+            .filter(Boolean);
+    }
 }
 
     const tailText = rawText.slice(rawText.indexOf(rawXml) + rawXml.length);
@@ -1824,7 +1910,17 @@ const allNpcNames = sortedRels.map(rel => rel.source);
 
 const extraThoughts = gThoughtsEnabled
     ? (state.thoughts || []).filter(thought => {
-        return !sortedRels.some(rel => ThoughtOwnerMatchesNpc(thought.name, rel.source, allNpcNames));
+        const name = NormalizeName(thought.name);
+
+        // Не показываем мысль без установленного владельца
+        // отдельной карточкой с надписью __UNASSIGNED__.
+        if (name === "__unassigned__" || name === "npc") {
+            return false;
+        }
+
+        return !sortedRels.some(rel =>
+            ThoughtOwnerMatchesNpc(thought.name, rel.source, allNpcNames)
+        );
     })
     : [];
 
