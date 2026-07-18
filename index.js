@@ -2717,12 +2717,23 @@ function GetOrCreateMessageHost(mesTextEl) {
 function CleanupRawXmlDom(messageTextEl) {
     if (!gHideRaw || !messageTextEl) return;
 
-    messageTextEl
-        .querySelectorAll("mom_infoblock, chars, rels, chronicle, event, thread, c, rel, thk, nsfw")
-        .forEach(node => {
-            if (node.closest(".mib-board-host, .mib-board")) return;
+    // Удаляем только корневой элемент нашего XML.
+    // Его дочерние chars/rels/thk и прочее удалятся вместе с ним.
+    messageTextEl.querySelectorAll("mom_infoblock").forEach(node => {
+        if (node.closest(".mib-board-host, .mib-board")) return;
+        node.remove();
+    });
+
+    // Поддержка старого формата, где nsfw мог находиться
+    // отдельно после mom_infoblock. Проверяем характерные атрибуты,
+    // чтобы не сносить чужой кастомный HTML-тег <nsfw>.
+    messageTextEl.querySelectorAll("nsfw").forEach(node => {
+        if (node.closest(".mib-board-host, .mib-board")) return;
+
+        if (node.hasAttribute("f") || node.hasAttribute("p")) {
             node.remove();
-        });
+        }
+    });
 }
 
 function RemoveRawXmlFromText(messageTextEl) {
@@ -2834,19 +2845,18 @@ function LooksLikeChronicleLeakLine(line, parsed) {
         ...(parsed?.chronicle?.events || []),
         ...(parsed?.chronicle?.threads || [])
     ]
-        .map(NormalizeLeakText)
-        .filter(x => x.length >= 10);
+        .map(item => ({
+            original: String(item || "").trim(),
+            normalized: NormalizeLeakText(item)
+        }))
+        .filter(item => item.normalized.length >= 10);
 
     if (!chronicleItems.length) return false;
 
+    // Удаляем только строку, совпадающую с записью хроники целиком.
+    // Частичное сходство с обычным нарративом не считается утечкой.
     return chronicleItems.some(item => {
-        if (normalized === item) return true;
-        if (normalized.includes(item) || item.includes(normalized)) {
-            const minLen = Math.min(normalized.length, item.length);
-            const maxLen = Math.max(normalized.length, item.length);
-            return minLen >= 12 && minLen / maxLen >= 0.72;
-        }
-        return false;
+        return normalized === item.normalized;
     });
 }
 
@@ -3031,55 +3041,25 @@ function RemoveThoughtLeaks(messageTextEl, parsed) {
 function CleanupEmptyMessageNodes(messageTextEl) {
     if (!messageTextEl) return;
 
-    const isEmptyElement = (node) => {
-        if (!node || node.nodeType !== Node.ELEMENT_NODE) return false;
-        if (node.closest(".mib-board-host, .mib-board")) return false;
-
-        const tag = node.tagName?.toLowerCase();
-        if (tag === "br") return true;
+    // Удаляем только действительно пустые абзацы,
+    // которые могли остаться после удаления XML.
+    // Произвольные div/span не трогаем: они могут быть
+    // декоративными и отображаться через CSS.
+    messageTextEl.querySelectorAll("p").forEach(node => {
+        if (node.closest(".mib-board-host, .mib-board")) return;
 
         const text = String(node.textContent || "")
             .replace(/\u00a0/g, " ")
             .trim();
 
-        const hasMedia = node.querySelector("img, video, audio, iframe, svg, canvas");
-        const hasBoard = node.querySelector(".mib-board-host, .mib-board");
-
-        if (hasMedia || hasBoard) return false;
-
-        const meaningfulChildren = [...node.childNodes].some(child => {
-            if (child.nodeType === Node.TEXT_NODE) {
-                return String(child.textContent || "").replace(/\u00a0/g, " ").trim();
-            }
-
-            if (child.nodeType === Node.ELEMENT_NODE) {
-                const childTag = child.tagName?.toLowerCase();
-                if (childTag === "br") return false;
-                if (child.classList?.contains("mib-board-host")) return false;
-                return !isEmptyElement(child);
-            }
-
-            return false;
+        const hasMeaningfulElement = [...node.children].some(child => {
+            return child.tagName?.toLowerCase() !== "br";
         });
 
-        return !text && !meaningfulChildren;
-    };
-
-    let changed = true;
-
-    while (changed) {
-        changed = false;
-
-        [...messageTextEl.querySelectorAll("p, div, span, br")].forEach(node => {
-            if (node.classList?.contains("mib-board-host")) return;
-            if (node.closest(".mib-board-host, .mib-board")) return;
-
-            if (isEmptyElement(node)) {
-                node.remove();
-                changed = true;
-            }
-        });
-    }
+        if (!text && !hasMeaningfulElement) {
+            node.remove();
+        }
+    });
 
     messageTextEl.normalize();
 }
@@ -4042,11 +4022,30 @@ ApplyFontSize();
         });
     }
 
-    if (stContext.eventTypes?.MESSAGE_EDITED) {
-        stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
-            ScheduleReprocessChat();
-        });
-    }
+if (stContext.eventTypes?.MESSAGE_EDITED) {
+    stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
+        // SillyTavern может несколько раз перерисовать сообщение
+        // после сохранения редактирования. Обрабатываем его повторно,
+        // когда DOM уже успел устаканиться.
+        setTimeout(() => {
+            RebuildStateFromCurrentChat();
+            ReprocessChat();
+        }, 100);
+
+        setTimeout(() => {
+            RebuildStateFromCurrentChat();
+            ReprocessChat();
+            RenderFloatingOrDock();
+        }, 500);
+
+        setTimeout(() => {
+            RebuildStateFromCurrentChat();
+            ReprocessChat();
+            RenderFloatingOrDock();
+            InjectPrompt();
+        }, 1200);
+    });
+}
 
     if (stContext.eventTypes?.MESSAGE_SWIPED) {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, () => {
