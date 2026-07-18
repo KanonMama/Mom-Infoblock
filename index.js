@@ -389,9 +389,9 @@ Rules:
 - Always use the full name for npc and <char>
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
-- Format only: Полное Имя: мысль`
+- Format only: Полное Имя: мысль
 - Even when only one NPC is present, the full NPC name before the thought is mandatory
-- A thought without "Полное Имя NPC:" is invalid
+- A thought without "Полное Имя NPC:" is invalid`
 
 const kSystemPromptEn = `Mom Infoblock:
 Append exactly one XML block at the end of every assistant response. Fill all values in English. Keep it concise, accurate, and updated every message.
@@ -472,9 +472,9 @@ Rules:
 - Always write the name before the thought
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
-- Format only: Full NPC Name: thought`
+- Format only: Full NPC Name: thought
 - Even when only one NPC is present, the full NPC name before the thought is mandatory
-- A thought without "Full NPC Name:" is invalid
+- A thought without "Full NPC Name:" is invalid`
 
 function T(key) {
     return kLangMap[gLang]?.[key] ?? key;
