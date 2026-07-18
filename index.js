@@ -1351,59 +1351,119 @@ const match = clean.match(/^([^:]+?)\s*:\s*(.+)$/u);
 function NormalizeThoughtOwners(parsed) {
     if (!parsed?.thoughts?.length) return;
 
-    const singleRelName = parsed.rels?.length === 1 ? parsed.rels[0].source : "";
-    const singleCharName = parsed.chars?.length === 1 ? parsed.chars[0].name : "";
+    // Сначала собираем канонические имена NPC.
+    // Отношения приоритетнее chars, потому что мысли показываются
+    // прежде всего внутри карточек отношений.
+    const npcNames = [];
 
-    parsed.thoughts = parsed.thoughts
-        .map(thought => {
-            let thoughtName = thought.name;
+    for (const rel of parsed.rels || []) {
+        const name = String(rel.source || "").trim();
 
-            const isUnassigned =
-                NormalizeName(thoughtName) === "__unassigned__" ||
-                NormalizeName(thoughtName) === "npc";
+        if (
+            name &&
+            !IsUserLikeName(name) &&
+            !npcNames.some(existing => NamesLikelyMatch(existing, name))
+        ) {
+            npcNames.push(name);
+        }
+    }
 
-            if (isUnassigned) {
-                if (singleRelName || singleCharName) {
-                    thoughtName = singleRelName || singleCharName;
-                } else {
-                    return {
-                        ...thought,
-                        name: "__UNASSIGNED__"
-                    };
-                }
-            }
+    for (const char of parsed.chars || []) {
+        const name = String(char.name || "").trim();
 
-            const allNpcNames = [
-                ...parsed.rels.map(rel => rel.source),
-                ...parsed.chars.map(char => char.name)
-            ];
+        if (
+            name &&
+            !IsUserLikeName(name) &&
+            !npcNames.some(existing => NamesLikelyMatch(existing, name))
+        ) {
+            npcNames.push(name);
+        }
+    }
 
-            const relMatches = parsed.rels.filter(rel => ThoughtOwnerMatchesNpc(thoughtName, rel.source, allNpcNames));
-            const charMatches = parsed.chars.filter(char => ThoughtOwnerMatchesNpc(thoughtName, char.name, allNpcNames));
+    if (!npcNames.length) {
+        parsed.thoughts = [];
+        return;
+    }
 
-            const canonicalName =
-                relMatches.length === 1 ? relMatches[0].source :
-                charMatches.length === 1 ? charMatches[0].name :
-                thoughtName;
+    const claimedNpcNames = new Set();
+    const resolvedThoughts = [];
+    const unassignedThoughts = [];
 
-            return {
+    // Сначала обрабатываем все явно подписанные мысли,
+    // независимо от их порядка внутри <thk>.
+    for (const thought of parsed.thoughts) {
+        const rawName = String(thought?.name || "").trim();
+
+        const isUnassigned =
+            NormalizeName(rawName) === "__unassigned__" ||
+            NormalizeName(rawName) === "npc";
+
+        if (isUnassigned) {
+            unassignedThoughts.push(thought);
+            continue;
+        }
+
+        if (!rawName || IsUserLikeName(rawName)) {
+            continue;
+        }
+
+        const matches = npcNames.filter(npcName =>
+            ThoughtOwnerMatchesNpc(rawName, npcName, npcNames)
+        );
+
+        // Берём только однозначное совпадение.
+        if (matches.length === 1) {
+            const canonicalName = matches[0];
+
+            resolvedThoughts.push({
                 ...thought,
                 name: canonicalName
-            };
-        })
-        .filter(thought => !IsUserLikeName(thought.name));
+            });
 
-    if (parsed.chars.length > 0 || parsed.rels.length > 0) {
-        parsed.thoughts = parsed.thoughts.filter(thought => {
-            const n = NormalizeName(thought.name);
-            if (n === "npc" || n === "__unassigned__") return false;
-
-            const byChar = parsed.chars.some(char => NamesLikelyMatch(char.name, thought.name));
-            const byRel = parsed.rels.some(rel => NamesLikelyMatch(rel.source, thought.name));
-
-            return byChar || byRel;
-        });
+            claimedNpcNames.add(NormalizeName(canonicalName));
+        }
     }
+
+    // NPC, которым ещё не назначена явно подписанная мысль.
+    let availableNpcNames = npcNames.filter(name =>
+        !claimedNpcNames.has(NormalizeName(name))
+    );
+
+    for (const thought of unassignedThoughts) {
+        let owner = "";
+
+        // Если NPC вообще один — всё очевидно.
+        if (npcNames.length === 1) {
+            owner = npcNames[0];
+        }
+        // Если после явно подписанных мыслей остался ровно один NPC,
+        // безымянная мысль принадлежит ему.
+        else if (availableNpcNames.length === 1) {
+            owner = availableNpcNames[0];
+        }
+
+        // Если кандидатов несколько, не выдумываем владельца.
+        if (!owner) {
+            continue;
+        }
+
+        resolvedThoughts.push({
+            ...thought,
+            name: owner
+        });
+
+        claimedNpcNames.add(NormalizeName(owner));
+
+        availableNpcNames = availableNpcNames.filter(name =>
+            NormalizeName(name) !== NormalizeName(owner)
+        );
+    }
+
+    parsed.thoughts = resolvedThoughts.filter(thought =>
+        thought.name &&
+        thought.text &&
+        !IsUserLikeName(thought.name)
+    );
 }
 
 function ParseMomInfoblock(text) {
