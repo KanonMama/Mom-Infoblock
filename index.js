@@ -324,7 +324,9 @@ Format:
 <event></event>
 <thread></thread>
 </chronicle>
-<thk></thk>
+<thk>
+Полное Имя NPC: непосредственная частная мысль
+</thk>
 </mom_infoblock>
 
 Optional only for explicitly intimate scenes:
@@ -387,7 +389,9 @@ Rules:
 - Always use the full name for npc and <char>
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
-- Format only: Полное Имя: мысль`;
+- Format only: Полное Имя: мысль`
+- Even when only one NPC is present, the full NPC name before the thought is mandatory
+- A thought without "Полное Имя NPC:" is invalid
 
 const kSystemPromptEn = `Mom Infoblock:
 Append exactly one XML block at the end of every assistant response. Fill all values in English. Keep it concise, accurate, and updated every message.
@@ -404,7 +408,9 @@ Format:
 <event></event>
 <thread></thread>
 </chronicle>
-<thk></thk>
+<thk>
+Full NPC Name: immediate private thought
+</thk>
 </mom_infoblock>
 
 Optional only for explicitly intimate scenes:
@@ -466,7 +472,9 @@ Rules:
 - Always write the name before the thought
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
-- Format only: Full NPC Name: thought`;
+- Format only: Full NPC Name: thought`
+- Even when only one NPC is present, the full NPC name before the thought is mandatory
+- A thought without "Full NPC Name:" is invalid
 
 function T(key) {
     return kLangMap[gLang]?.[key] ?? key;
@@ -1313,8 +1321,18 @@ function ParseThoughtLine(line) {
         .replace(/[*_~`]+\s*$/, "")
         .trim();
 
+    if (!clean) return null;
+
     const match = clean.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
-    if (!match) return null;
+
+    // Модель не указала владельца мысли.
+    // NormalizeThoughtOwners() потом привяжет её к единственному rel/char.
+    if (!match) {
+        return {
+            name: "__UNASSIGNED__",
+            text: LimitText(clean, 220)
+        };
+    }
 
     const name = StripNameDecorators(match[1]);
     const text = String(match[2] || "")
