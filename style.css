@@ -7445,3 +7445,674 @@
         margin-bottom: 8px !important;
     }
 }
+/* =========================================================
+   RELIQUARY
+   Blackened wood, aged bronze, oxidized copper and old vows
+   ========================================================= */
+
+.mib-theme-reliquary {
+    --mib-bg-1: #080c0b;
+    --mib-bg-2: #131a17;
+    --mib-bg-3: #040706;
+
+    --mib-border: rgba(184, 154, 93, 0.25);
+    --mib-soft-border: rgba(184, 154, 93, 0.115);
+
+    --mib-text: #e7dfce;
+    --mib-muted: #afa791;
+    --mib-dim: #706d61;
+
+    --mib-accent: #b89a5d;
+    --mib-accent-2: #4f8b7b;
+
+    --mib-good: #76a083;
+    --mib-bad: #a94f59;
+    --mib-warn: #c19758;
+
+    --mib-shadow:
+        0 20px 46px rgba(0, 0, 0, 0.68),
+        0 0 26px rgba(79, 139, 123, 0.045);
+}
+
+
+/* Main shell */
+
+.mib-theme-reliquary.mib-board,
+#mib_floating_host.mib-theme-reliquary .mib-floating-shell,
+#mib_dock_host.mib-theme-reliquary .mib-dock-panel {
+    background:
+        radial-gradient(
+            circle at 82% 4%,
+            rgba(184, 154, 93, 0.105),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 8% 96%,
+            rgba(79, 139, 123, 0.09),
+            transparent 31%
+        ),
+        linear-gradient(
+            135deg,
+            #080c0b,
+            #131a17 50%,
+            #040706
+        );
+}
+
+.mib-theme-reliquary.mib-board {
+    border-color: rgba(184, 154, 93, 0.27);
+    box-shadow:
+        0 20px 46px rgba(0, 0, 0, 0.68),
+        0 0 0 1px rgba(255, 255, 255, 0.012),
+        0 0 20px rgba(79, 139, 123, 0.055),
+        inset 0 0 0 1px rgba(184, 154, 93, 0.025),
+        inset 0 0 34px rgba(0, 0, 0, 0.22);
+}
+
+
+/* Fine old-paper / wood grain */
+
+.mib-theme-reliquary.mib-board::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.105;
+    mix-blend-mode: soft-light;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72 .12' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.72'/%3E%3C/svg%3E");
+
+    background-size: 180px 180px;
+}
+
+
+/* Barely visible cathedral geometry */
+
+.mib-theme-reliquary.mib-board::after {
+    content: "";
+    position: absolute;
+    right: -34px;
+    top: 56px;
+    width: 230px;
+    height: 330px;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.075;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 17%,
+            transparent 0 28%,
+            rgba(184, 154, 93, 0.72) 28.5% 29.4%,
+            transparent 30%
+        ),
+        linear-gradient(
+            90deg,
+            transparent 49.5%,
+            rgba(184, 154, 93, 0.58) 49.5% 50.5%,
+            transparent 50.5%
+        ),
+        linear-gradient(
+            45deg,
+            transparent 49.5%,
+            rgba(79, 139, 123, 0.48) 49.5% 50.5%,
+            transparent 50.5%
+        ),
+        linear-gradient(
+            -45deg,
+            transparent 49.5%,
+            rgba(79, 139, 123, 0.48) 49.5% 50.5%,
+            transparent 50.5%
+        );
+
+    border: 1px solid rgba(184, 154, 93, 0.48);
+    border-radius: 120px 120px 4px 4px;
+    transform: rotate(1.5deg);
+}
+
+
+/* Panels */
+
+.mib-theme-reliquary .mib-header,
+.mib-theme-reliquary .mib-section,
+.mib-theme-reliquary .mib-char,
+.mib-theme-reliquary .mib-rel,
+.mib-theme-reliquary .mib-compact-rel,
+#mib_floating_host.mib-theme-reliquary .mib-floating-header,
+#mib_dock_host.mib-theme-reliquary .mib-dock-header {
+    position: relative;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(184, 154, 93, 0.027),
+            transparent 46%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.018),
+            rgba(0, 0, 0, 0.055)
+        ),
+        rgba(5, 9, 8, 0.44);
+
+    border-color: rgba(184, 154, 93, 0.125);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.026),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+        0 6px 16px rgba(0, 0, 0, 0.075);
+}
+
+
+/* Bronze thread across major blocks */
+
+.mib-theme-reliquary .mib-header::before {
+    content: "";
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 0;
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(79, 139, 123, 0.72),
+            rgba(184, 154, 93, 0.90),
+            rgba(79, 139, 123, 0.72),
+            transparent
+        );
+
+    box-shadow:
+        0 0 8px rgba(184, 154, 93, 0.12);
+}
+
+
+/* Typography */
+
+.mib-theme-reliquary .mib-title,
+.mib-theme-reliquary .mib-compact-brand,
+#mib_floating_host.mib-theme-reliquary .mib-floating-title,
+#mib_dock_host.mib-theme-reliquary .mib-dock-title {
+    color: #ded2b9;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 2.2px;
+
+    text-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.62),
+        0 0 10px rgba(184, 154, 93, 0.13);
+}
+
+.mib-theme-reliquary .mib-subtitle {
+    color: #668f82;
+    font-size: 9px;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+
+    text-shadow:
+        0 0 8px rgba(79, 139, 123, 0.16);
+}
+
+.mib-theme-reliquary .mib-section-title {
+    color: #b89a5d;
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 1.85px;
+
+    text-shadow:
+        0 0 8px rgba(184, 154, 93, 0.12);
+}
+
+.mib-theme-reliquary .mib-char-name,
+.mib-theme-reliquary .mib-rel-name,
+.mib-theme-reliquary .mib-location,
+.mib-theme-reliquary .mib-compact-name {
+    color: #e7dfce;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.58);
+}
+
+
+/* Character seal */
+
+.mib-theme-reliquary .mib-char-icon {
+    background:
+        radial-gradient(
+            circle at 34% 27%,
+            rgba(255, 255, 255, 0.10),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle,
+            rgba(79, 139, 123, 0.12),
+            rgba(3, 8, 7, 0.68)
+        );
+
+    border-color: rgba(184, 154, 93, 0.26);
+
+    box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, 0.18),
+        0 0 10px rgba(79, 139, 123, 0.075);
+}
+
+
+/* Chips and controls */
+
+.mib-theme-reliquary .mib-chip,
+.mib-theme-reliquary .mib-status-chip,
+.mib-theme-reliquary .mib-meta span,
+.mib-theme-reliquary .mib-mini-stat,
+.mib-theme-reliquary .mib-style-btn,
+.mib-theme-reliquary .mib-dossier-btn,
+.mib-theme-reliquary .mib-panel-mode-btn,
+.mib-theme-reliquary .mib-debug-btn,
+.mib-theme-reliquary .mib-pin-btn {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(184, 154, 93, 0.065),
+            rgba(0, 0, 0, 0.11)
+        );
+
+    border-color: rgba(184, 154, 93, 0.17);
+    color: #aaa18b;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.035),
+        0 2px 7px rgba(0, 0, 0, 0.14);
+}
+
+.mib-theme-reliquary .mib-chip {
+    color: #c0aa78;
+}
+
+.mib-theme-reliquary .mib-mood {
+    color: #84aa9d;
+    border-color: rgba(79, 139, 123, 0.29);
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(255, 255, 255, 0.06),
+            transparent 48%
+        ),
+        rgba(79, 139, 123, 0.085);
+
+    font-style: normal;
+}
+
+.mib-theme-reliquary .mib-mood::before {
+    content: "◇";
+    color: #b89a5d;
+    margin-right: 5px;
+    opacity: 0.72;
+}
+
+
+/* Thought as an inset handwritten confession */
+
+.mib-theme-reliquary .mib-thought {
+    position: relative;
+    padding-left: 16px;
+
+    color: #d7cdb9;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(79, 139, 123, 0.055),
+            rgba(255, 255, 255, 0.012)
+        );
+
+    border-color: rgba(79, 139, 123, 0.16);
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+}
+
+.mib-theme-reliquary .mib-thought::before {
+    content: "†";
+    position: absolute;
+    left: 6px;
+    top: 7px;
+    color: #8f774a;
+    opacity: 0.72;
+}
+
+
+/* Tabs */
+
+.mib-theme-reliquary .mib-tabs {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.015),
+            rgba(0, 0, 0, 0.12)
+        ),
+        rgba(3, 7, 6, 0.58);
+
+    border-color: rgba(184, 154, 93, 0.13);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.022);
+}
+
+.mib-theme-reliquary .mib-tab {
+    color: #8f897a;
+}
+
+.mib-theme-reliquary .mib-tab:hover {
+    color: #ded6c7;
+    background: rgba(79, 139, 123, 0.065);
+    border-color: rgba(79, 139, 123, 0.16);
+}
+
+.mib-theme-reliquary .mib-tab-active {
+    color: #e7dfce;
+
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(184, 154, 93, 0.085),
+            transparent 68%
+        ),
+        rgba(79, 139, 123, 0.075);
+
+    border-color: rgba(184, 154, 93, 0.22);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 0 10px rgba(79, 139, 123, 0.045);
+}
+
+
+/* Presence chips */
+
+.mib-theme-reliquary .mib-presence-focus {
+    background: rgba(184, 154, 93, 0.10);
+    color: #d2bd8a;
+    border-color: rgba(184, 154, 93, 0.22);
+}
+
+.mib-theme-reliquary .mib-presence-near {
+    background: rgba(79, 139, 123, 0.10);
+    color: #8db3a5;
+    border-color: rgba(79, 139, 123, 0.23);
+}
+
+.mib-theme-reliquary .mib-presence-watch {
+    background: rgba(111, 87, 127, 0.11);
+    color: #b49dbd;
+    border-color: rgba(111, 87, 127, 0.24);
+}
+
+.mib-theme-reliquary .mib-presence-background {
+    background: rgba(120, 120, 108, 0.08);
+    color: #9d9a8e;
+    border-color: rgba(120, 120, 108, 0.18);
+}
+
+.mib-theme-reliquary .mib-presence-left {
+    background: rgba(125, 57, 62, 0.10);
+    color: #b2787c;
+    border-color: rgba(125, 57, 62, 0.23);
+}
+/* =========================================================
+   ROSARY CHAIN BARS
+   Repeating beads with a metal connector and terminal seal
+   ========================================================= */
+
+.mib-bars-rosary .mib-bar {
+    height: 19px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+
+    background-color: transparent !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='19' viewBox='0 0 20 19'%3E%3Cpath d='M0 9.5h20' stroke='%23594f43' stroke-width='1.2' opacity='.62'/%3E%3Ccircle cx='10' cy='9.5' r='5.25' fill='%23090b0a' stroke='%236d6251' stroke-width='1.15' opacity='.92'/%3E%3Ccircle cx='8.4' cy='7.8' r='1.15' fill='%23847965' opacity='.18'/%3E%3C/svg%3E");
+
+    background-repeat: repeat-x;
+    background-size: 20px 19px;
+    background-position: left center;
+}
+
+
+.mib-bars-rosary .mib-bar-fill {
+    position: relative;
+    height: 100%;
+    border-radius: 0;
+
+    background: currentColor !important;
+    background-color: currentColor !important;
+
+    filter:
+        saturate(0.84)
+        brightness(0.88)
+        drop-shadow(0 0 3px currentColor);
+
+    box-shadow: none !important;
+
+    -webkit-mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='19' viewBox='0 0 20 19'%3E%3Cpath d='M0 9.5h20' stroke='black' stroke-width='1.7'/%3E%3Ccircle cx='10' cy='9.5' r='5.4' fill='black'/%3E%3C/svg%3E");
+
+    -webkit-mask-repeat: repeat-x;
+    -webkit-mask-size: 20px 19px;
+    -webkit-mask-position: left center;
+
+    mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='19' viewBox='0 0 20 19'%3E%3Cpath d='M0 9.5h20' stroke='black' stroke-width='1.7'/%3E%3Ccircle cx='10' cy='9.5' r='5.4' fill='black'/%3E%3C/svg%3E");
+
+    mask-repeat: repeat-x;
+    mask-size: 20px 19px;
+    mask-position: left center;
+}
+
+
+/* Bead highlights */
+
+.mib-bars-rosary .mib-bar-fill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    display: block;
+
+    background:
+        radial-gradient(
+            circle at 8px 7px,
+            rgba(255, 255, 255, 0.40) 0 1px,
+            transparent 1.7px
+        ) 0 0 / 20px 19px repeat-x,
+
+        radial-gradient(
+            circle at 10px 10px,
+            transparent 0 3px,
+            rgba(0, 0, 0, 0.20) 4.2px,
+            transparent 5px
+        ) 0 0 / 20px 19px repeat-x !important;
+
+    opacity: 0.66 !important;
+    pointer-events: none;
+}
+
+
+/* Terminal seal */
+
+.mib-bars-rosary .mib-bar-fill::after {
+    content: "✦";
+    position: absolute;
+    right: 0;
+    top: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 15px;
+    height: 15px;
+
+    transform:
+        translate(42%, -50%)
+        rotate(45deg);
+
+    border: 1px solid currentColor;
+    border-radius: 3px;
+
+    background:
+        radial-gradient(
+            circle at 32% 26%,
+            rgba(255, 255, 255, 0.30),
+            transparent 35%
+        ),
+        #0b0d0c !important;
+
+    color: currentColor;
+    font-size: 8px;
+    line-height: 1;
+
+    opacity: 0.94;
+
+    box-shadow:
+        0 0 7px currentColor,
+        inset 0 0 0 2px rgba(0, 0, 0, 0.44),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+
+    text-shadow: 0 0 4px currentColor;
+    pointer-events: none;
+}
+
+
+/* Rotate the glyph back while the seal stays diamond-shaped */
+
+.mib-bars-rosary .mib-bar-fill::after {
+    padding-bottom: 1px;
+}
+
+
+/* Metric colors */
+
+.mib-bars-rosary .mib-bar-fill.mib-bar-affection-pos {
+    color: #73a884 !important;
+    background-color: #73a884 !important;
+}
+
+.mib-bars-rosary .mib-bar-fill.mib-bar-affection-neg {
+    color: #a65459 !important;
+    background-color: #a65459 !important;
+}
+
+.mib-bars-rosary .mib-bar-fill.mib-bar-trust-pos {
+    color: #6792a2 !important;
+    background-color: #6792a2 !important;
+}
+
+.mib-bars-rosary .mib-bar-fill.mib-bar-trust-neg {
+    color: #ae7b4e !important;
+    background-color: #ae7b4e !important;
+}
+
+.mib-bars-rosary .mib-bar-fill.mib-bar-love-pos {
+    color: #8e719b !important;
+    background-color: #8e719b !important;
+}
+
+.mib-bars-rosary .mib-bar-fill.mib-bar-love-neg {
+    color: #9e435e !important;
+    background-color: #9e435e !important;
+}
+
+
+/* Reliquary-specific Rosary tuning */
+
+.mib-theme-reliquary.mib-bars-rosary .mib-bar {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='19' viewBox='0 0 20 19'%3E%3Cpath d='M0 9.5h20' stroke='%235c5140' stroke-width='1.2' opacity='.68'/%3E%3Ccircle cx='10' cy='9.5' r='5.25' fill='%23060908' stroke='%237b6742' stroke-width='1.1' opacity='.94'/%3E%3Ccircle cx='8.3' cy='7.7' r='1.1' fill='%23b89a5d' opacity='.16'/%3E%3C/svg%3E");
+}
+
+.mib-theme-reliquary.mib-bars-rosary
+.mib-bar-fill.mib-bar-affection-pos {
+    color: #6f9a7c !important;
+    background-color: #6f9a7c !important;
+}
+
+.mib-theme-reliquary.mib-bars-rosary
+.mib-bar-fill.mib-bar-affection-neg {
+    color: #995057 !important;
+    background-color: #995057 !important;
+}
+
+.mib-theme-reliquary.mib-bars-rosary
+.mib-bar-fill.mib-bar-trust-pos {
+    color: #628b91 !important;
+    background-color: #628b91 !important;
+}
+
+.mib-theme-reliquary.mib-bars-rosary
+.mib-bar-fill.mib-bar-trust-neg {
+    color: #a87645 !important;
+    background-color: #a87645 !important;
+}
+
+.mib-theme-reliquary.mib-bars-rosary
+.mib-bar-fill.mib-bar-love-pos {
+    color: #887096 !important;
+    background-color: #887096 !important;
+}
+
+.mib-theme-reliquary.mib-bars-rosary
+.mib-bar-fill.mib-bar-love-neg {
+    color: #98445c !important;
+    background-color: #98445c !important;
+}
+
+
+/* Mini-stat adaptation */
+
+.mib-bars-rosary .mib-mini-stat {
+    border-radius: 4px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(0, 0, 0, 0.15)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 2px 7px rgba(0, 0, 0, 0.18);
+}
+
+.mib-bars-rosary .mib-mini-stat::before {
+    content: "·";
+    margin-right: 1px;
+    color: currentColor;
+    opacity: 0.72;
+}
+@media (max-width: 760px) {
+    .mib-bars-rosary .mib-bar {
+        height: 19px !important;
+        margin-top: 1px;
+        margin-bottom: 2px;
+    }
+
+    .mib-theme-reliquary .mib-title {
+        font-size: 14px !important;
+        letter-spacing: 1.5px !important;
+    }
+
+    .mib-theme-reliquary .mib-subtitle {
+        font-size: 8px;
+        letter-spacing: 1.5px;
+    }
+
+    .mib-theme-reliquary.mib-board::after {
+        right: -78px;
+        opacity: 0.045;
+    }
+}
