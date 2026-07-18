@@ -187,6 +187,7 @@ barPixel: "Pixel Blocks",
 barCandy: "Candy Gloss",
 barPrism: "Prism Glass",
 barSigil: "Sigil Bands",
+        barRosary: "Rosary Chain",
         themePreview: "Палитра темы",
 themePreviewMissing: "Превью недоступно",
         injectNotes: "Отправлять блокнот модели",
@@ -303,6 +304,7 @@ barPixel: "Pixel Blocks",
 barCandy: "Candy Gloss",
 barPrism: "Prism Glass",
 barSigil: "Sigil Bands",
+        barRosary: "Rosary Chain",
         themePreview: "Theme palette",
 themePreviewMissing: "Preview unavailable",
         injectNotes: "Inject notes into prompt",
@@ -828,6 +830,7 @@ function GetThemeLocationIcon(theme = gTheme) {
         obsidianregistry: "⟡",
         neonquest: "⚙️",
         systemlog: "💾",
+        reliquary: "🕯",
         gengar: "🕯️",
         shockwave: "⚛︎",
         lockdown: "⌖",
@@ -850,6 +853,7 @@ function GetThemeCharsIcon(theme = gTheme) {
         obsidianregistry: "᯽",
         neonquest: "👤",
         systemlog: "📊",
+        reliquary: "♙",
         gengar: "👻",
         shockwave: "⚙",
         lockdown: "◎",
@@ -872,6 +876,7 @@ function GetThemeRelationsIcon(theme = gTheme) {
         obsidianregistry: "✶",
         neonquest: "🤖",
         systemlog: "🔗",
+        reliquary: "☩",
         gengar: "💜",
         shockwave: "🧪",
         lockdown: "💥",
@@ -956,6 +961,10 @@ function GetThemeTitleData(theme = gTheme) {
             main: "Infoblock",
             sub: "⋆˖⁺‧₊⚜₊‧⁺˖⋆"
         },
+        reliquary: {
+    main: "THE RELIQUARY",
+    sub: "† VOWS · DEBTS · WOUNDS †"
+},
         neonquest: {
             main: "𝄃𝄃𝄂𝄂𝄀RP BLOCK𝄁𝄃𝄂𝄂𝄃",
             sub: "█Err⃟⃤r⁴⁰⁴"
@@ -2019,6 +2028,7 @@ const kBarStyleOptions = [
     ["vials", "barVials"],
     ["evidence", "barEvidence"],
     ["runic", "barRunic"],
+    ["rosary", "barRosary"],
     ["sigil", "barSigil"],
     ["energon", "barEnergon"]
 ];
@@ -2041,6 +2051,7 @@ const kThemeOptions = [
     ["bloodmoon", "Blood Moon"],
     ["casefile", "Case File"],
     ["obsidianregistry", "Obsidian Registry"],
+    ["reliquary", "Reliquary"],
     ["neonquest", "Neon Quest"],
     ["shockwave", "Shockwave"],
     ["lockdown", "Lockdown"],
@@ -2160,6 +2171,18 @@ const kThemePreviewMap = {
         text: "#d8e7ee",
         danger: "#ff5e6c"
     },
+reliquary: {
+    label: {
+        ru: "Чёрное дерево, старая бронза и окисленная медь",
+        en: "Black wood, aged bronze and oxidized copper"
+    },
+    bg: "#080c0b",
+    bg2: "#131a17",
+    accent: "#b89a5d",
+    accent2: "#4f8b7b",
+    text: "#e7dfce",
+    danger: "#a94f59"
+},
     terminal: {
         label: { ru: "Старый зелёный CRT", en: "Old green CRT" },
         bg: "#020b06",
