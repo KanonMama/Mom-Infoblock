@@ -607,6 +607,25 @@ function GetNameAliases(name) {
 }
 
 function NamesLikelyMatch(a, b) {
+    const aClean = NormalizeName(StripNameDecorators(a));
+    const bClean = NormalizeName(StripNameDecorators(b));
+
+    if (!aClean || !bClean) return false;
+    if (aClean === bClean) return true;
+
+    const aParts = aClean.split(/\s+/).filter(Boolean);
+    const bParts = bClean.split(/\s+/).filter(Boolean);
+
+    // Два разных полных имени с общей фамилией не являются одним NPC.
+    if (
+        aParts.length > 1 &&
+        bParts.length > 1 &&
+        aParts[aParts.length - 1] === bParts[bParts.length - 1] &&
+        aParts[0] !== bParts[0]
+    ) {
+        return false;
+    }
+
     const aAliases = GetNameAliases(a);
     const bAliases = GetNameAliases(b);
 
@@ -1426,7 +1445,7 @@ function NormalizeThoughtOwners(parsed) {
         if (
             name &&
             !IsUserLikeName(name) &&
-            !npcNames.some(existing => NamesLikelyMatch(existing, name))
+ !npcNames.some(existing => NormalizeName(existing) === NormalizeName(name))
         ) {
             npcNames.push(name);
         }
@@ -1438,7 +1457,7 @@ function NormalizeThoughtOwners(parsed) {
         if (
             name &&
             !IsUserLikeName(name) &&
-            !npcNames.some(existing => NamesLikelyMatch(existing, name))
+!npcNames.some(existing => NormalizeName(existing) === NormalizeName(name))
         ) {
             npcNames.push(name);
         }
@@ -1471,9 +1490,15 @@ function NormalizeThoughtOwners(parsed) {
             continue;
         }
 
-        const matches = npcNames.filter(npcName =>
-            ThoughtOwnerMatchesNpc(rawName, npcName, npcNames)
-        );
+const exactMatches = npcNames.filter(npcName =>
+    NormalizeName(rawName) === NormalizeName(npcName)
+);
+
+const matches = exactMatches.length
+    ? exactMatches
+    : npcNames.filter(npcName =>
+        ThoughtOwnerMatchesNpc(rawName, npcName, npcNames)
+    );
 
         // Берём только однозначное совпадение.
         if (matches.length === 1) {
