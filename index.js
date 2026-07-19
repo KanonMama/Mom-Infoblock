@@ -317,6 +317,7 @@ Fill all values in Russian.
 Keep the XML concise, accurate, and updated every message.
 
 Required format:
+
 <mom_infoblock time="" date="" weather="" loc="">
 <chars>
 <c icon="" name="" tags="" mood="" />
@@ -331,10 +332,8 @@ Required format:
 <thk>
 <t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
 </thk>
-</mom_infoblock>
-
-Optional only for explicitly intimate scenes:
 <nsfw f="" p="" />
+</mom_infoblock>
 
 General rules:
 - Output exactly one <mom_infoblock> block in every response
@@ -413,7 +412,10 @@ Chronicle:
 - Never add visible summaries, recaps, bullet lists, or open-question lists
 
 NSFW:
-- Omit <nsfw /> unless the current scene is explicitly intimate
+- <nsfw /> is optional
+- When used, <nsfw /> must be inside <mom_infoblock>
+- Place <nsfw /> immediately before </mom_infoblock>
+- Omit <nsfw /> unless the scene is explicitly intimate
 
 FINAL XML VALIDATION BEFORE SENDING:
 - Verify that every private thought uses exactly:
@@ -428,6 +430,7 @@ Fill all values in Russian.
 Keep the XML concise, accurate, and updated every message.
 
 Required format:
+
 <mom_infoblock time="" date="" weather="" loc="">
 <chars>
 <c icon="" name="" tags="" mood="" />
@@ -442,10 +445,8 @@ Required format:
 <thk>
 <t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
 </thk>
-</mom_infoblock>
-
-Optional only for explicitly intimate scenes:
 <nsfw f="" p="" />
+</mom_infoblock>
 
 General rules:
 - Output exactly one <mom_infoblock> block in every response
@@ -524,7 +525,10 @@ Chronicle:
 - Never add visible summaries, recaps, bullet lists, or open-question lists
 
 NSFW:
-- Omit <nsfw /> unless the current scene is explicitly intimate
+- <nsfw /> is optional
+- When used, <nsfw /> must be inside <mom_infoblock>
+- Place <nsfw /> immediately before </mom_infoblock>
+- Omit <nsfw /> unless the scene is explicitly intimate
 
 FINAL XML VALIDATION BEFORE SENDING:
 - Verify that every private thought uses exactly:
@@ -1684,15 +1688,37 @@ if (thk && gThoughtsEnabled) {
     }
 }
 
-    const tailText = rawText.slice(rawText.indexOf(rawXml) + rawXml.length);
-    const nsfwMatch = tailText.match(/<nsfw\s+f="(.*?)"\s+p="(.*?)"\s*\/?>/i);
+// Основной формат: <nsfw /> находится внутри <mom_infoblock>.
+const nsfwNode = root.querySelector("nsfw");
 
-    if (nsfwMatch) {
-        parsed.nsfw = {
-            f: LimitText(nsfwMatch[1], 160),
-            p: LimitText(nsfwMatch[2], 160)
-        };
+if (nsfwNode) {
+    const f = LimitText(nsfwNode.getAttribute("f") || "", 160);
+    const p = LimitText(nsfwNode.getAttribute("p") || "", 160);
+
+    if (f || p) {
+        parsed.nsfw = { f, p };
     }
+} else {
+    // Legacy: поддерживаем <nsfw /> после </mom_infoblock>.
+    const tailText = rawText.slice(
+        rawText.indexOf(rawXml) + rawXml.length
+    );
+
+    const legacyMatch = tailText.match(/<nsfw\b([^>]*)\/?>/i);
+
+    if (legacyMatch) {
+        const attributes = legacyMatch[1] || "";
+        const fMatch = attributes.match(/\bf="([^"]*)"/i);
+        const pMatch = attributes.match(/\bp="([^"]*)"/i);
+
+        const f = LimitText(fMatch?.[1] || "", 160);
+        const p = LimitText(pMatch?.[1] || "", 160);
+
+        if (f || p) {
+            parsed.nsfw = { f, p };
+        }
+    }
+}
 
 if (parsed.rels.length && parsed.chars.length) {
     parsed.rels = parsed.rels.map(rel => {
