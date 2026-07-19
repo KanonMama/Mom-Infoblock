@@ -312,12 +312,10 @@ themePreviewMissing: "Preview unavailable",
 };
 
 const kSystemPromptRu = `Mom Infoblock:
-Append exactly one XML block at the end of every assistant response.
-Fill all values in Russian.
-Keep the XML concise, accurate, and updated every message.
+Append exactly one concise XML block at the end of every assistant response.
+All attribute values and content must be in Russian.
 
-Required format:
-
+Format:
 <mom_infoblock time="" date="" weather="" loc="">
 <chars>
 <c icon="" name="" tags="" mood="" />
@@ -335,102 +333,62 @@ Required format:
 <nsfw f="" p="" />
 </mom_infoblock>
 
-General rules:
-- Output exactly one <mom_infoblock> block in every response
-- Put the complete XML block at the very end of the response
-- Fill all values in Russian
-- Do not add commentary after the XML
-- Use only the XML elements defined in this format
-- Do not include {{user}} as an NPC
+Output:
+- Output exactly one <mom_infoblock> at the very end of the response
+- Do not write commentary, summaries, lists, or any text after it
+- Use only the XML elements shown above
+- Omit optional sections when they have no relevant content
+- Never include {{user}} as an NPC or assign thoughts to {{user}}
 
 Characters:
-- Add one <c /> for each NPC currently present or explicitly leaving the scene
-- Use the exact full NPC name in <c name="">, <rel source="">, and <t name="">
+- Add one <c /> per NPC present or explicitly leaving the scene
+- Use the same exact full NPC name in <c name="">, <rel source="">, and <t name="">
 - Never shorten, translate, or alter NPC names
 - tags: 1-4 short labels separated by |
-- Never write actions, explanations, or sentences in tags
 - Allowed presence tags: focus | рядом | наблюдает | на периферии | вышел
 - Use at most one presence tag per NPC
-- mood: 1-3 words describing visible current emotion
-- Leave mood empty if unclear
-- Do not duplicate mood in tags
+- tags must not contain actions, explanations, or sentences
+- mood: 1-3 words describing visible current emotion; leave empty if unclear
+- Do not repeat mood in tags
 
 Relationships:
-- Add one <rel /> for each relevant NPC whose relationship toward {{user}} matters
-- Add at most 3 <rel /> elements
-- source: exact full NPC name from <chars>
-- target: {{user}}
+- Add up to 3 <rel /> elements for relevant NPC feelings toward {{user}}
+- source: exact full name from <chars>; target: {{user}}
 - a, tr, l: integers from -100 to 100
-- ac, tc, lc: change in this response, usually from -5 to +5
-- Negative affection means aversion or dislike
-- Negative trust means distrust, suspicion, or fear
-- Negative love means hatred, destructive obsession, or anti-attachment
-- status: 1-3 words describing only the relationship phase
-- Never write a sentence, event, explanation, or cause in status
+- ac, tc, lc: change this response, normally from -5 to +5
+- Negative a means aversion, negative tr means distrust, negative l means hatred or destructive attachment
+- status: 1-3 words naming only the relationship phase, never a sentence or event
 
-NPC private thoughts:
-- Put all private NPC thoughts inside exactly one <thk> block
-- Every thought must be a separate <t name=""> element
-- The name attribute is mandatory and must never be empty
-- The name must exactly match the full NPC name from <chars>
-- Never place raw text directly inside <thk>
-- Never use the old "Имя: мысль" format inside <thk>
-- Never write an unnamed thought
-- Never include {{user}} thoughts
-- Maximum one immediate private thought per NPC
-- Maximum one sentence and 30 words per thought
-- Write only the immediate private thought, not an explanation of emotions
-- Private thoughts must never appear in visible narrative
-- No markdown, quotes, asterisks, or brackets inside <thk>
-
-Valid:
-<thk>
-<t name="Aemond Targaryen">Мне не следовало сюда приходить.</t>
-<t name="Borros Baratheon">Если он тронул мою дочь, я ему этого не прощу.</t>
-</thk>
-
-Invalid:
-<thk>
-Мне не следовало сюда приходить.
-</thk>
-
-Invalid:
-<thk>
-Aemond Targaryen: Мне не следовало сюда приходить.
-</thk>
+Private thoughts:
+- Put thoughts only inside one <thk> block, never in visible narrative
+- Every thought must use exactly <t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
+- The name attribute is mandatory and must exactly match a <c name="">
+- Never put raw text or the old "Name: thought" format directly inside <thk>
+- Use at most one immediate private thought per NPC
+- Each thought: one sentence, maximum 30 words
+- No markdown, quotes, asterisks, or brackets
 
 Chronicle:
-- Add only important new events from this response
-- Maximum 3 <event> elements, maximum 18 words each
-- Include only currently unresolved plot hooks in <thread>
-- Maximum 4 <thread> elements
-- Do not repeat old events unless their meaning changed
-- Do not write guesses as facts
+- Add only important new events from this response: at most 3, maximum 18 words each
+- Add only unresolved plot hooks: at most 4 <thread> elements
+- Do not repeat old events, rephrase old threads, or state guesses as facts
 - Omit <chronicle> if nothing important changed
-- Chronicle content must appear only inside <chronicle>
-- Never duplicate chronicle events or threads in visible narrative
-- Never add visible summaries, recaps, bullet lists, or open-question lists
+- Never duplicate chronicle content in visible narrative
 
 NSFW:
-- <nsfw /> is optional
-- When used, <nsfw /> must be inside <mom_infoblock>
-- Place <nsfw /> immediately before </mom_infoblock>
-- Omit <nsfw /> unless the scene is explicitly intimate
+- Use <nsfw /> only for explicitly intimate scenes
+- Place it inside <mom_infoblock>, immediately before </mom_infoblock>
 
-FINAL XML VALIDATION BEFORE SENDING:
-- Verify that every private thought uses exactly:
-<t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
-- Verify that every thought name exactly matches a <c name="">
-- Verify that no raw text exists directly inside <thk>
-- Verify that no private thought appears in visible narrative`;
+Before sending, verify:
+- Every thought has a valid <t name=""> owner matching <chars>
+- No raw text exists directly inside <thk>
+- Thoughts and chronicle content do not appear in visible narrative`;
 
 const kSystemPromptEn = `Mom Infoblock:
-Append exactly one XML block at the end of every assistant response.
-Fill all values in Russian.
-Keep the XML concise, accurate, and updated every message.
+Append exactly one concise XML block at the end of every assistant response.
+All descriptive attribute values and text content must be in English; preserve NPC names exactly.
 
-Required format:
-
+Format:
 <mom_infoblock time="" date="" weather="" loc="">
 <chars>
 <c icon="" name="" tags="" mood="" />
@@ -448,94 +406,56 @@ Required format:
 <nsfw f="" p="" />
 </mom_infoblock>
 
-General rules:
-- Output exactly one <mom_infoblock> block in every response
-- Put the complete XML block at the very end of the response
-- Fill all values in Russian
-- Do not add commentary after the XML
-- Use only the XML elements defined in this format
-- Do not include {{user}} as an NPC
+Output:
+- Output exactly one <mom_infoblock> at the very end of the response
+- Do not write commentary, summaries, lists, or any text after it
+- Use only the XML elements shown above
+- Omit optional sections when they have no relevant content
+- Never include {{user}} as an NPC or assign thoughts to {{user}}
 
 Characters:
-- Add one <c /> for each NPC currently present or explicitly leaving the scene
-- Use the exact full NPC name in <c name="">, <rel source="">, and <t name="">
+- Add one <c /> per NPC present or explicitly leaving the scene
+- Use the same exact full NPC name in <c name="">, <rel source="">, and <t name="">
 - Never shorten, translate, or alter NPC names
 - tags: 1-4 short labels separated by |
-- Never write actions, explanations, or sentences in tags
-- Allowed presence tags: focus | nearby | watching | on the periphery | came out
+- Allowed presence tags: focus | near | watching | background | left
 - Use at most one presence tag per NPC
-- mood: 1-3 words describing visible current emotion
-- Leave mood empty if unclear
-- Do not duplicate mood in tags
+- tags must not contain actions, explanations, or sentences
+- mood: 1-3 words describing the visible current emotion; leave empty if unclear
+- Do not repeat mood in tags
 
 Relationships:
-- Add one <rel /> for each relevant NPC whose relationship toward {{user}} matters
-- Add at most 3 <rel /> elements
-- source: exact full NPC name from <chars>
-- target: {{user}}
+- Add up to 3 <rel /> elements for relevant NPC feelings toward {{user}}
+- source: exact full name from <chars>; target: {{user}}
 - a, tr, l: integers from -100 to 100
-- ac, tc, lc: change in this response, usually from -5 to +5
-- Negative affection means aversion or dislike
-- Negative trust means distrust, suspicion, or fear
-- Negative love means hatred, destructive obsession, or anti-attachment
-- status: 1-3 words describing only the relationship phase
-- Never write a sentence, event, explanation, or cause in status
+- ac, tc, lc: change in this response, normally from -5 to +5
+- Negative a means aversion, negative tr means distrust, negative l means hatred or destructive attachment
+- status: 1-3 words naming only the relationship phase, never a sentence or event
 
-NPC private thoughts:
-- Put all private NPC thoughts inside exactly one <thk> block
-- Every thought must be a separate <t name=""> element
-- The name attribute is mandatory and must never be empty
-- The name must exactly match the full NPC name from <chars>
-- Never place raw text directly inside <thk>
-- Never use the old "Name: thought" format inside <thk>
-- Never write an unnamed thought
-- Never include {{user}} thoughts
-- Maximum one immediate private thought per NPC
-- Maximum one sentence and 30 words per thought
-- Write only the immediate private thought, not an explanation of emotions
-- Private thoughts must never appear in visible narrative
-- No markdown, quotes, asterisks, or brackets inside <thk>
-
-Valid:
-<thk>
-<t name="Aemond Targaryen">I shouldn't have come here.</t>
-<t name="Borros Baratheon">If he touched my daughter, I will never forgive him.</t>
-</thk>
-
-Invalid:
-<thk>
-I shouldn't have come here.
-</thk>
-
-Invalid:
-<thk>
-Aemond Targaryen: I shouldn't have come here.
-</thk>
+Private thoughts:
+- Put thoughts only inside one <thk> block, never in visible narrative
+- Every thought must use exactly <t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
+- The name attribute is mandatory and must exactly match a <c name="">
+- Never put raw text or the old "Name: thought" format directly inside <thk>
+- Use at most one immediate private thought per NPC
+- Each thought: one sentence, maximum 20 words
+- No markdown, quotes, asterisks, or brackets
 
 Chronicle:
-- Add only important new events from this response
-- Maximum 3 <event> elements, maximum 18 words each
-- Include only currently unresolved plot hooks in <thread>
-- Maximum 4 <thread> elements
-- Do not repeat old events unless their meaning changed
-- Do not write guesses as facts
+- Add only important new events from this response: at most 3, maximum 18 words each
+- Add only unresolved plot hooks: at most 4 <thread> elements
+- Do not repeat old events, rephrase old threads, or state guesses as facts
 - Omit <chronicle> if nothing important changed
-- Chronicle content must appear only inside <chronicle>
-- Never duplicate chronicle events or threads in visible narrative
-- Never add visible summaries, recaps, bullet lists, or open-question lists
+- Never duplicate chronicle content in visible narrative
 
 NSFW:
-- <nsfw /> is optional
-- When used, <nsfw /> must be inside <mom_infoblock>
-- Place <nsfw /> immediately before </mom_infoblock>
-- Omit <nsfw /> unless the scene is explicitly intimate
+- Use <nsfw /> only for explicitly intimate scenes
+- Place it inside <mom_infoblock>, immediately before </mom_infoblock>
 
-FINAL XML VALIDATION BEFORE SENDING:
-- Verify that every private thought uses exactly:
-<t name="EXACT FULL NPC NAME">PRIVATE THOUGHT</t>
-- Verify that every thought name exactly matches a <c name="">
-- Verify that no raw text exists directly inside <thk>
-- Verify that no private thought appears in visible narrative`;
+Before sending, verify:
+- Every thought has a valid <t name=""> owner matching <chars>
+- No raw text exists directly inside <thk>
+- Thoughts and chronicle content do not appear in visible narrative`;
 
 function T(key) {
     return kLangMap[gLang]?.[key] ?? key;
