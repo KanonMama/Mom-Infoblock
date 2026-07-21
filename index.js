@@ -2945,49 +2945,31 @@ function NormalizeThoughtText(value) {
         .trim();
 }
 
+function NormalizeStandaloneThought(value) {
+    return String(value ?? "")
+        .toLowerCase()
+        .replace(/^[\s"'«„“”]+|[\s"'»“”]+$/g, "")
+        .replace(/[.!?,:;]+$/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
 function LooksLikeStandaloneThoughtFragment(rawText, thoughtEntries = []) {
-    const raw = String(rawText || "").trim();
+    const raw = StripBulletPrefix(String(rawText || "").trim());
     if (!raw) return false;
 
-    const normalized = NormalizeLeakText(raw);
-    const soft = NormalizeThoughtText(raw);
-
-    if (!normalized || !soft) return false;
-
-    const looksQuoted =
-        /^[«"„“].+[»"“”]$/.test(raw) ||
-        /^["'][^"']+["']$/.test(raw);
-
-    const looksStandalone =
-        raw.length <= 180 &&
-        (
-            looksQuoted ||
-            !/[.!?]\s+\S/.test(raw)
-        );
-
-    if (!looksStandalone) return false;
+    const standalone = NormalizeStandaloneThought(raw);
+    if (!standalone) return false;
 
     return thoughtEntries.some(thought => {
-        if (!thought?.softText) return false;
+        const thoughtText = NormalizeStandaloneThought(thought?.text || "");
+        if (!thoughtText) return false;
 
-        const thoughtSoft = thought.softText;
-        const thoughtNormalized = thought.normalizedText;
-
-        if (
-            soft === thoughtSoft ||
-            normalized === thoughtNormalized
-        ) {
-            return true;
+        if (thoughtText.length < 10) {
+            return standalone === thoughtText;
         }
 
-        if (soft.length < 8 || thoughtSoft.length < 8) {
-            return false;
-        }
-
-        return (
-            thoughtSoft.includes(soft) ||
-            thoughtNormalized.includes(normalized)
-        );
+        return standalone === thoughtText;
     });
 }
 
@@ -3122,53 +3104,87 @@ function LooksLikeThoughtLeakLine(line, parsed) {
 
     if (LooksLikeStandaloneThoughtFragment(raw, thoughts)) return true;
 
-    return thoughts.some(thought => {
-        const thoughtText = thought.softText;
-        const thoughtFull = thought.normalizedFull;
-        const rawSoft = NormalizeThoughtText(raw);
-const rawNormalized = NormalizeLeakText(raw);
+return thoughts.some(thought => {
+    const thoughtText = thought.softText;
+    const thoughtFull = thought.normalizedFull;
 
-if (
-    rawSoft === thoughtText ||
-    rawNormalized === thought.normalizedText ||
-    rawNormalized === thoughtFull
-) {
-    return true;
-}
-     
+    if (!thoughtText) return false;
 
-if (!thoughtText) return false;
+    const rawStandalone = NormalizeStandaloneThought(raw);
+    const thoughtStandalone = NormalizeStandaloneThought(thought.text);
 
-        if (parsedLine) {
-            const ownerMatches = NamesLikelyMatch(parsedLine.name, thought.name) ||
-                ThoughtOwnerMatchesNpc(parsedLine.name, thought.name, (parsed?.chars || []).map(char => char.name));
+    // Короткие мысли: только точное совпадение всей строки.
+    // "спать" не должен вырезать "Саша пошёл спать".
+    if (thoughtStandalone.length < 10) {
+        return (
+            rawStandalone === thoughtStandalone &&
+            rawStandalone.length > 0
+        );
+    }
 
-            const lineText = NormalizeThoughtText(parsedLine.text);
+    // Для длинных мыслей можно использовать существующую
+    // более гибкую логику совпадений.
+    const rawSoft = NormalizeThoughtText(raw);
+    const rawNormalized = NormalizeLeakText(raw);
 
-            if (ownerMatches) {
-                if (lineText === thoughtText) return true;
+    if (
+        rawSoft === thoughtText ||
+        rawNormalized === thought.normalizedText ||
+        rawNormalized === thoughtFull
+    ) {
+        return true;
+    }
 
-                if (lineText.includes(thoughtText) || thoughtText.includes(lineText)) {
-                    const minLen = Math.min(lineText.length, thoughtText.length);
-                    const maxLen = Math.max(lineText.length, thoughtText.length);
-                    return minLen >= 12 && minLen / maxLen >= 0.62;
-                }
+    const parsedLine = ParseVisibleThoughtLine(raw);
+
+    if (parsedLine) {
+        const ownerMatches =
+            NamesLikelyMatch(parsedLine.name, thought.name) ||
+            ThoughtOwnerMatchesNpc(
+                parsedLine.name,
+                thought.name,
+                (parsed?.chars || []).map(char => char.name)
+            );
+
+        const lineText = NormalizeThoughtText(parsedLine.text);
+
+        if (ownerMatches) {
+            if (lineText === thoughtText) return true;
+
+            if (
+                lineText.length >= 12 &&
+                thoughtText.length >= 12 &&
+                (
+                    lineText.includes(thoughtText) ||
+                    thoughtText.includes(lineText)
+                )
+            ) {
+                const minLen = Math.min(lineText.length, thoughtText.length);
+                const maxLen = Math.max(lineText.length, thoughtText.length);
+
+                return minLen / maxLen >= 0.62;
             }
         }
+    }
 
-        if (normalizedLine === thoughtFull || NormalizeThoughtText(raw) === thoughtText) return true;
+    const softRaw = NormalizeThoughtText(raw);
 
-        const softRaw = NormalizeThoughtText(raw);
-
-        if (softRaw.includes(thoughtText) || thoughtText.includes(softRaw)) {
-            const minLen = Math.min(softRaw.length, thoughtText.length);
-            const maxLen = Math.max(softRaw.length, thoughtText.length);
-            return minLen >= 14 && minLen / maxLen >= 0.62;
-        }
-
+    if (softRaw.length < 14 || thoughtText.length < 14) {
         return false;
-    });
-}
+    }
+
+    if (
+        softRaw.includes(thoughtText) ||
+        thoughtText.includes(softRaw)
+    ) {
+        const minLen = Math.min(softRaw.length, thoughtText.length);
+        const maxLen = Math.max(softRaw.length, thoughtText.length);
+
+        return minLen / maxLen >= 0.62;
+    }
+
+    return false;
+});
 
 function RemoveThoughtLeaks(messageTextEl, parsed) {
     if (!gHideThoughtLeaks || !messageTextEl || !parsed?.thoughts?.length) return;
