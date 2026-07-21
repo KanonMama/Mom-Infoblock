@@ -3219,24 +3219,102 @@ if (LooksLikeQuotedThoughtPrefix(raw, thought.text)) {
 });
     }
 
+function IsQuotedThoughtPrefix(rawText, thoughtText) {
+    const raw = String(rawText || "").trim();
+    const thought = String(thoughtText || "").trim();
+
+    if (!raw || !thought) return false;
+
+    // Видимый обрыв должен содержать законченную цитату.
+    const hasClosedQuote =
+        /«[^»]+»/u.test(raw) ||
+        /„[^“]+“/u.test(raw) ||
+        /“[^”]+”/u.test(raw) ||
+        /"[^"]+"/u.test(raw);
+
+    if (!hasClosedQuote) return false;
+
+    const normalizedRaw = NormalizeThoughtText(raw);
+    const normalizedThought = NormalizeThoughtText(thought);
+
+    if (!normalizedRaw || !normalizedThought) return false;
+
+    // Видимый абзац должен целиком совпадать с началом мысли.
+    return (
+        normalizedRaw.length >= 10 &&
+        normalizedThought.startsWith(normalizedRaw)
+    );
+}
+
 function RemoveThoughtLeaks(messageTextEl, parsed) {
-    if (!gHideThoughtLeaks || !messageTextEl || !parsed?.thoughts?.length) return;
+    if (
+        !gHideThoughtLeaks ||
+        !messageTextEl ||
+        !parsed?.thoughts?.length
+    ) {
+        return;
+    }
+
+
+    const blockElements = [
+        ...messageTextEl.querySelectorAll("p, li, blockquote")
+    ];
+
+    for (const element of blockElements) {
+        if (!element.isConnected) continue;
+
+        if (element.closest(".mib-board-host, .mib-board")) {
+            continue;
+        }
+
+
+        if (element.querySelector("p, li, blockquote")) {
+            continue;
+        }
+
+        const visibleText = String(element.textContent || "").trim();
+        if (!visibleText) continue;
+
+        const isThoughtLeak = parsed.thoughts.some(thought => {
+            return IsQuotedThoughtPrefix(
+                visibleText,
+                thought.text
+            );
+        });
+
+        if (isThoughtLeak) {
+            element.remove();
+        }
+    }
+
 
     const walker = document.createTreeWalker(
         messageTextEl,
         NodeFilter.SHOW_TEXT,
         {
             acceptNode(node) {
-                if (!node.parentElement) return NodeFilter.FILTER_REJECT;
-                if (node.parentElement.closest(".mib-board-host, .mib-board")) {
+                if (!node.parentElement) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                if (
+                    node.parentElement.closest(
+                        ".mib-board-host, .mib-board"
+                    )
+                ) {
                     return NodeFilter.FILTER_REJECT;
                 }
 
                 const raw = node.textContent || "";
-                if (!raw.trim()) return NodeFilter.FILTER_SKIP;
+                if (!raw.trim()) {
+                    return NodeFilter.FILTER_SKIP;
+                }
 
                 const lines = raw.split(/\r?\n/);
-                return lines.some(line => LooksLikeThoughtLeakLine(line, parsed))
+
+                return lines.some(line =>
+                    LooksLikeThoughtLeakLine(line, parsed)
+                )
                     ? NodeFilter.FILTER_ACCEPT
                     : NodeFilter.FILTER_SKIP;
             }
@@ -3252,10 +3330,13 @@ function RemoveThoughtLeaks(messageTextEl, parsed) {
     }
 
     for (const node of targets) {
-        const lines = String(node.textContent || "").split(/\r?\n/);
+        const lines = String(node.textContent || "")
+            .split(/\r?\n/);
 
         node.textContent = lines
-            .filter(line => !LooksLikeThoughtLeakLine(line, parsed))
+            .filter(line =>
+                !LooksLikeThoughtLeakLine(line, parsed)
+            )
             .join("\n")
             .replace(/\n{3,}/g, "\n\n");
     }
