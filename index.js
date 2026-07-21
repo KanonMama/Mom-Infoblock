@@ -2935,8 +2935,11 @@ function NormalizeLeakText(value) {
 }
 
 function NormalizeThoughtText(value) {
-    return NormalizeLeakText(value)
-        .replace(/[,:;!?]/g, "")
+    return String(value ?? "")
+        .toLowerCase()
+        .replace(/[«»„“”"']/g, "")
+        .replace(/[—–-]/g, " ")
+        .replace(/[!?.,:;()[\]{}]+/g, " ")
         .replace(/\.\.\./g, " ")
         .replace(/\s+/g, " ")
         .trim();
@@ -2949,31 +2952,41 @@ function LooksLikeStandaloneThoughtFragment(rawText, thoughtEntries = []) {
     const normalized = NormalizeLeakText(raw);
     const soft = NormalizeThoughtText(raw);
 
-    if (!normalized || soft.length < 18) return false;
+    if (!normalized || !soft) return false;
 
     const looksQuoted =
         /^[«"„“].+[»"“”]$/.test(raw) ||
         /^["'][^"']+["']$/.test(raw);
 
-    const looksShortFragment =
-        raw.length <= 120 &&
+    const looksStandalone =
+        raw.length <= 180 &&
         (
             looksQuoted ||
-            /^\.{0,3}[^.!?]{18,120}\.{0,3}$/.test(raw)
+            !/[.!?]\s+\S/.test(raw)
         );
 
-    if (!looksShortFragment) return false;
+    if (!looksStandalone) return false;
 
     return thoughtEntries.some(thought => {
         if (!thought?.softText) return false;
 
+        const thoughtSoft = thought.softText;
+        const thoughtNormalized = thought.normalizedText;
+
+        if (
+            soft === thoughtSoft ||
+            normalized === thoughtNormalized
+        ) {
+            return true;
+        }
+
+        if (soft.length < 8 || thoughtSoft.length < 8) {
+            return false;
+        }
+
         return (
-            soft.length >= 18 &&
-            (
-                thought.softText.includes(soft) ||
-                thought.normalizedText.includes(normalized) ||
-                thought.normalizedFull.includes(normalized)
-            )
+            thoughtSoft.includes(soft) ||
+            thoughtNormalized.includes(normalized)
         );
     });
 }
@@ -3112,8 +3125,19 @@ function LooksLikeThoughtLeakLine(line, parsed) {
     return thoughts.some(thought => {
         const thoughtText = thought.softText;
         const thoughtFull = thought.normalizedFull;
+        const rawSoft = NormalizeThoughtText(raw);
+const rawNormalized = NormalizeLeakText(raw);
 
-        if (thoughtText.length < 10) return false;
+if (
+    rawSoft === thoughtText ||
+    rawNormalized === thought.normalizedText ||
+    rawNormalized === thoughtFull
+) {
+    return true;
+}
+     
+
+if (!thoughtText) return false;
 
         if (parsedLine) {
             const ownerMatches = NamesLikelyMatch(parsedLine.name, thought.name) ||
