@@ -3082,6 +3082,34 @@ function NamesSoftMatch(a, b) {
     return false;
 }
 
+function LooksLikeQuotedThoughtPrefix(rawText, thoughtText) {
+    const raw = String(rawText || "").trim();
+    const thought = String(thoughtText || "").trim();
+
+    if (!raw || !thought) return false;
+
+    const hasGuillemets = raw.includes("«") && raw.includes("»");
+    const hasCurlyQuotes =
+        (raw.includes("“") && raw.includes("”")) ||
+        (raw.includes("„") && raw.includes("“"));
+    const hasStraightQuotes =
+        (raw.match(/"/g) || []).length >= 2;
+
+    if (!hasGuillemets && !hasCurlyQuotes && !hasStraightQuotes) {
+        return false;
+    }
+
+    const normalizedRaw = NormalizeThoughtText(raw);
+    const normalizedThought = NormalizeThoughtText(thought);
+
+    if (!normalizedRaw || !normalizedThought) return false;
+
+    return (
+        normalizedRaw.length >= 12 &&
+        normalizedThought.startsWith(normalizedRaw)
+    );
+}
+
 function LooksLikeThoughtLeakLine(line, parsed) {
     const raw = StripBulletPrefix(line);
     if (!raw) return false;
@@ -3110,6 +3138,10 @@ return thoughts.some(thought => {
 
     if (!thoughtText) return false;
 
+if (LooksLikeQuotedThoughtPrefix(raw, thought.text)) {
+    return true;
+}
+    
     const rawStandalone = NormalizeStandaloneThought(raw);
     const thoughtStandalone = NormalizeStandaloneThought(thought.text);
 
