@@ -3185,6 +3185,7 @@ return thoughts.some(thought => {
 
     return false;
 });
+    }
 
 function RemoveThoughtLeaks(messageTextEl, parsed) {
     if (!gHideThoughtLeaks || !messageTextEl || !parsed?.thoughts?.length) return;
