@@ -3368,15 +3368,107 @@ function CleanupEmptyMessageNodes(messageTextEl) {
     messageTextEl.normalize();
 }
 
+function NormalizeInfoblockPayloadText(value) {
+    return String(value ?? "")
+        .toLowerCase()
+        .replace(/\u00a0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function GetElementTextWithBreaks(element) {
+    const clone = element.cloneNode(true);
+
+    clone.querySelectorAll("br").forEach(br => {
+        br.replaceWith("\n");
+    });
+
+    return String(clone.textContent || "");
+}
+
+function RemoveTrailingInfoblockPayload(messageTextEl, parsed) {
+    if (!messageTextEl || !parsed) return;
+
+    const payloadItems = [
+        ...(gHideThoughtLeaks ? parsed.thoughts || [] : [])
+            .map(thought => thought?.text),
+
+        ...(gChronicleEnabled
+            ? parsed.chronicle?.events || []
+            : []),
+
+        ...(gChronicleEnabled
+            ? parsed.chronicle?.threads || []
+            : [])
+    ]
+        .map(NormalizeInfoblockPayloadText)
+        .filter(Boolean);
+
+    if (!payloadItems.length) return;
+
+    const payloadSet = new Set(payloadItems);
+    const blockSelector = "p, li, blockquote, div";
+
+    const candidates = [...messageTextEl.querySelectorAll(blockSelector)]
+        .filter(element => {
+            if (element === messageTextEl) return false;
+
+            if (
+                element.closest(
+                    ".mib-board-host, .mib-board"
+                )
+            ) {
+                return false;
+            }
+
+            // Берём только конечный текстовый блок, а не контейнер,
+            // внутри которого лежат другие абзацы.
+            return !element.querySelector(blockSelector);
+        });
+
+    /*
+     * XML находится в конце ответа, поэтому идём снизу вверх.
+     * Как только встречается обычная проза, останавливаемся:
+     * выше ничего удалять уже нельзя.
+     */
+    for (let index = candidates.length - 1; index >= 0; index--) {
+        const element = candidates[index];
+
+        if (!element.isConnected) continue;
+
+        const rawText = GetElementTextWithBreaks(element);
+        const lines = rawText
+            .split(/\r?\n/)
+            .map(NormalizeInfoblockPayloadText)
+            .filter(Boolean);
+
+        if (!lines.length) {
+            continue;
+        }
+
+        const wholeText = NormalizeInfoblockPayloadText(rawText);
+
+        const isPayload =
+            payloadSet.has(wholeText) ||
+            lines.every(line => payloadSet.has(line));
+
+        if (isPayload) {
+            element.remove();
+            continue;
+        }
+
+        // Началась обычная часть сообщения.
+        break;
+    }
+}
+
 function RenderBoardIntoMessage(mesTextEl, state, parsed) {
     if (!mesTextEl || !parsed) return;
 
 CleanupRawXmlDom(mesTextEl);
 RemoveRawXmlFromText(mesTextEl);
 CleanupRawXmlDom(mesTextEl);
-RemoveChronicleLeaks(mesTextEl, parsed);
-RemoveThoughtLeaks(mesTextEl, parsed);
-CleanupRawXmlDom(mesTextEl);
+RemoveTrailingInfoblockPayload(mesTextEl, parsed);
 CleanupEmptyMessageNodes(mesTextEl);
 
     if (!ShouldRenderInline()) {
@@ -3472,8 +3564,7 @@ function ReprocessChat() {
         CleanupRawXmlDom(mesTextEl);
 
 if (parsed) {
-    RemoveChronicleLeaks(mesTextEl, parsed);
-    RemoveThoughtLeaks(mesTextEl, parsed);
+    RemoveTrailingInfoblockPayload(mesTextEl, parsed);
     CleanupEmptyMessageNodes(mesTextEl);
 }
 
