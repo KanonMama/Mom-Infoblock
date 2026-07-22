@@ -1456,8 +1456,6 @@ const matches = exactMatches.length
         }
 
 if (!owner) {
-    // Владельца определить нельзя, но мысль сохраняем,
-    // чтобы RemoveThoughtLeaks мог убрать её из сообщения.
     resolvedThoughts.push({
         ...thought,
         name: "__UNASSIGNED__"
@@ -1466,12 +1464,16 @@ if (!owner) {
     continue;
 }
 
-        claimedNpcNames.add(NormalizeName(owner));
+resolvedThoughts.push({
+    ...thought,
+    name: owner
+});
 
-        availableNpcNames = availableNpcNames.filter(name =>
-            NormalizeName(name) !== NormalizeName(owner)
-        );
-    }
+claimedNpcNames.add(NormalizeName(owner));
+
+availableNpcNames = availableNpcNames.filter(name =>
+    NormalizeName(name) !== NormalizeName(owner)
+);
 
     parsed.thoughts = resolvedThoughts.filter(thought =>
         thought.name &&
