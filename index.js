@@ -1464,16 +1464,17 @@ if (!owner) {
     continue;
 }
 
-resolvedThoughts.push({
-    ...thought,
-    name: owner
-});
+        resolvedThoughts.push({
+            ...thought,
+            name: owner
+        });
 
-claimedNpcNames.add(NormalizeName(owner));
+        claimedNpcNames.add(NormalizeName(owner));
 
-availableNpcNames = availableNpcNames.filter(name =>
-    NormalizeName(name) !== NormalizeName(owner)
-);
+        availableNpcNames = availableNpcNames.filter(name =>
+            NormalizeName(name) !== NormalizeName(owner)
+        );
+    }
 
     parsed.thoughts = resolvedThoughts.filter(thought =>
         thought.name &&
