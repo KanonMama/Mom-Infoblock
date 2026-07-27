@@ -774,6 +774,8 @@ function GetThemeLocationIcon(theme = gTheme) {
         neonquest: "⚙️",
         systemlog: "💾",
         reliquary: "🕯",
+        aurum: "◆",
+silvernitrate: "◉",
         gengar: "🕯️",
         shockwave: "⚛︎",
         lockdown: "⌖",
@@ -797,6 +799,8 @@ function GetThemeCharsIcon(theme = gTheme) {
         neonquest: "👤",
         systemlog: "📊",
         reliquary: "♙",
+        aurum: "♛",
+silvernitrate: "🎞",
         gengar: "👻",
         shockwave: "⚙",
         lockdown: "◎",
@@ -820,6 +824,8 @@ function GetThemeRelationsIcon(theme = gTheme) {
         neonquest: "🤖",
         systemlog: "🔗",
         reliquary: "☩",
+        aurum: "⚜",
+silvernitrate: "✰",
         gengar: "💜",
         shockwave: "🧪",
         lockdown: "💥",
@@ -907,6 +913,16 @@ function GetThemeTitleData(theme = gTheme) {
         reliquary: {
     main: "THE RELIQUARY",
     sub: "† VOWS · DEBTS · WOUNDS †"
+},
+
+        aurum: {
+    main: "INFOBLOCK",
+    sub: "˗ˋˏ⛀⛁ ⛁⛀ˎˊ˗"
+},
+
+silvernitrate: {
+    main: "SCENE IN PROGRESS 📽",
+    sub: "↻ ◁ || ▷ ↺"
 },
         neonquest: {
             main: "𝄃𝄃𝄂𝄂𝄀RP BLOCK𝄁𝄃𝄂𝄂𝄃",
@@ -2026,6 +2042,8 @@ const kThemeOptions = [
     ["casefile", "Case File"],
     ["obsidianregistry", "Obsidian Registry"],
     ["reliquary", "Reliquary"],
+    ["aurum", "Aurum"],
+["silvernitrate", "Silver Nitrate"],
     ["neonquest", "Neon Quest"],
     ["shockwave", "Shockwave"],
     ["lockdown", "Lockdown"],
@@ -2157,6 +2175,33 @@ reliquary: {
     text: "#e7dfce",
     danger: "#a94f59"
 },
+
+aurum: {
+    label: {
+        ru: "Старое золото, чёрный лак и тёплое шампанское",
+        en: "Old gold, black lacquer and warm champagne"
+    },
+    bg: "#100d09",
+    bg2: "#241a0e",
+    accent: "#d4af5a",
+    accent2: "#f0d89a",
+    text: "#f3e8ce",
+    danger: "#a95e4b"
+},
+
+silvernitrate: {
+    label: {
+        ru: "Серебряная плёнка, угольный дым и старое кино",
+        en: "Silver film, charcoal smoke and old cinema"
+    },
+    bg: "#111313",
+    bg2: "#292b2a",
+    accent: "#b7b7ad",
+    accent2: "#777b78",
+    text: "#e2e0d7",
+    danger: "#92716c"
+},
+    
     terminal: {
         label: { ru: "Старый зелёный CRT", en: "Old green CRT" },
         bg: "#020b06",
