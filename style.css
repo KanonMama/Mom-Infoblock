@@ -8116,3 +8116,802 @@
         opacity: 0.045;
     }
 }
+
+/* =========================================================
+   AURUM
+   Old gold, black lacquer, champagne and Art Deco geometry
+   ========================================================= */
+
+.mib-theme-aurum {
+    --mib-bg-1: #100d09;
+    --mib-bg-2: #241a0e;
+    --mib-bg-3: #070604;
+
+    --mib-border: rgba(212, 175, 90, 0.34);
+    --mib-soft-border: rgba(212, 175, 90, 0.15);
+
+    --mib-text: #f3e8ce;
+    --mib-muted: #bdb093;
+    --mib-dim: #756b58;
+
+    --mib-accent: #d4af5a;
+    --mib-accent-2: #f0d89a;
+
+    --mib-good: #c8ae67;
+    --mib-bad: #a95e4b;
+    --mib-warn: #d29a46;
+
+    --mib-shadow:
+        0 20px 48px rgba(0, 0, 0, 0.72),
+        0 0 25px rgba(212, 175, 90, 0.065);
+}
+
+
+/* Main shell */
+
+.mib-theme-aurum.mib-board,
+#mib_floating_host.mib-theme-aurum .mib-floating-shell,
+#mib_dock_host.mib-theme-aurum .mib-dock-panel {
+    background:
+        radial-gradient(
+            ellipse at 50% -15%,
+            rgba(240, 216, 154, 0.13),
+            transparent 41%
+        ),
+        radial-gradient(
+            circle at 95% 98%,
+            rgba(145, 83, 29, 0.12),
+            transparent 29%
+        ),
+        linear-gradient(
+            145deg,
+            #090704 0%,
+            #181108 47%,
+            #0b0804 100%
+        );
+}
+
+.mib-theme-aurum.mib-board {
+    border-color: rgba(212, 175, 90, 0.42);
+
+    box-shadow:
+        0 24px 55px rgba(0, 0, 0, 0.74),
+        0 0 0 1px rgba(255, 227, 163, 0.035),
+        0 0 28px rgba(212, 175, 90, 0.07),
+        inset 0 0 0 1px rgba(212, 175, 90, 0.035),
+        inset 0 0 50px rgba(0, 0, 0, 0.28);
+}
+
+
+/* Fine lacquer grain */
+
+.mib-theme-aurum.mib-board::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.1;
+    mix-blend-mode: screen;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='.32'/%3E%3C/svg%3E");
+
+    background-size: 160px 160px;
+}
+
+
+/* Art Deco fan */
+
+.mib-theme-aurum.mib-board::after {
+    content: "";
+    position: absolute;
+    right: -42px;
+    top: -54px;
+    width: 245px;
+    height: 245px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.12;
+
+    border: 1px solid rgba(240, 216, 154, 0.62);
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 49.5%,
+            rgba(212, 175, 90, 0.72) 49.5% 50.5%,
+            transparent 50.5%
+        ),
+        linear-gradient(
+            67.5deg,
+            transparent 49.5%,
+            rgba(212, 175, 90, 0.62) 49.5% 50.5%,
+            transparent 50.5%
+        ),
+        linear-gradient(
+            112.5deg,
+            transparent 49.5%,
+            rgba(212, 175, 90, 0.62) 49.5% 50.5%,
+            transparent 50.5%
+        ),
+        linear-gradient(
+            45deg,
+            transparent 49.5%,
+            rgba(212, 175, 90, 0.42) 49.5% 50.5%,
+            transparent 50.5%
+        ),
+        linear-gradient(
+            135deg,
+            transparent 49.5%,
+            rgba(212, 175, 90, 0.42) 49.5% 50.5%,
+            transparent 50.5%
+        );
+
+    box-shadow:
+        inset 0 0 0 22px rgba(212, 175, 90, 0.018),
+        inset 0 0 0 23px rgba(212, 175, 90, 0.14),
+        inset 0 0 0 48px rgba(212, 175, 90, 0.014),
+        inset 0 0 0 49px rgba(212, 175, 90, 0.10);
+
+    transform: rotate(22.5deg);
+}
+
+
+/* Panels */
+
+.mib-theme-aurum .mib-header,
+.mib-theme-aurum .mib-section,
+.mib-theme-aurum .mib-char,
+.mib-theme-aurum .mib-rel,
+.mib-theme-aurum .mib-compact-rel,
+#mib_floating_host.mib-theme-aurum .mib-floating-header,
+#mib_dock_host.mib-theme-aurum .mib-dock-header {
+    position: relative;
+
+    background:
+        radial-gradient(
+            circle at 10% 0,
+            rgba(240, 216, 154, 0.045),
+            transparent 44%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(255, 236, 188, 0.028),
+            rgba(0, 0, 0, 0.10)
+        ),
+        rgba(10, 7, 3, 0.58);
+
+    border-color: rgba(212, 175, 90, 0.18);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 238, 194, 0.045),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.40),
+        0 8px 20px rgba(0, 0, 0, 0.11);
+}
+
+
+/* Decorative corner cuts */
+
+.mib-theme-aurum .mib-section,
+.mib-theme-aurum .mib-header,
+.mib-theme-aurum .mib-rel {
+    clip-path: polygon(
+        9px 0,
+        calc(100% - 9px) 0,
+        100% 9px,
+        100% calc(100% - 9px),
+        calc(100% - 9px) 100%,
+        9px 100%,
+        0 calc(100% - 9px),
+        0 9px
+    );
+}
+
+
+/* Typography */
+
+.mib-theme-aurum .mib-title,
+.mib-theme-aurum .mib-compact-brand,
+#mib_floating_host.mib-theme-aurum .mib-floating-title,
+#mib_dock_host.mib-theme-aurum .mib-dock-title {
+    color: #f0d89a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 4px;
+
+    text-shadow:
+        0 1px 0 #000,
+        0 0 10px rgba(212, 175, 90, 0.17);
+}
+
+.mib-theme-aurum .mib-subtitle {
+    color: #a7833e;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+}
+
+.mib-theme-aurum .mib-section-title {
+    color: #d7b65f;
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+
+    text-shadow:
+        0 1px 0 #000,
+        0 0 9px rgba(212, 175, 90, 0.13);
+}
+
+.mib-theme-aurum .mib-char-name,
+.mib-theme-aurum .mib-rel-name,
+.mib-theme-aurum .mib-compact-name,
+.mib-theme-aurum .mib-location {
+    color: #f3e8ce;
+}
+
+
+/* Tabs */
+
+.mib-theme-aurum .mib-tabs {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(212, 175, 90, 0.035),
+            rgba(0, 0, 0, 0.15)
+        ),
+        rgba(6, 4, 2, 0.72);
+
+    border-color: rgba(212, 175, 90, 0.19);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 236, 184, 0.035);
+}
+
+.mib-theme-aurum .mib-tab {
+    color: #95866c;
+}
+
+.mib-theme-aurum .mib-tab:hover {
+    color: #f1ddaa;
+    background: rgba(212, 175, 90, 0.055);
+}
+
+.mib-theme-aurum .mib-tab-active {
+    color: #f6e7bd;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(212, 175, 90, 0.12),
+            rgba(212, 175, 90, 0.025)
+        );
+
+    border-color: rgba(212, 175, 90, 0.34);
+
+    box-shadow:
+        inset 0 0 14px rgba(212, 175, 90, 0.045),
+        0 0 10px rgba(212, 175, 90, 0.045);
+}
+
+
+/* Chips */
+
+.mib-theme-aurum .mib-chip,
+.mib-theme-aurum .mib-status-chip,
+.mib-theme-aurum .mib-meta span,
+.mib-theme-aurum .mib-mini-stat,
+.mib-theme-aurum .mib-style-btn,
+.mib-theme-aurum .mib-dossier-btn,
+.mib-theme-aurum .mib-panel-mode-btn,
+.mib-theme-aurum .mib-debug-btn,
+.mib-theme-aurum .mib-pin-btn {
+    color: #cbb681;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(240, 216, 154, 0.07),
+            rgba(0, 0, 0, 0.18)
+        );
+
+    border-color: rgba(212, 175, 90, 0.22);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 237, 193, 0.045),
+        0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.mib-theme-aurum .mib-mood {
+    color: #e3c778;
+    border-color: rgba(212, 175, 90, 0.29);
+    background: rgba(212, 175, 90, 0.075);
+}
+
+.mib-theme-aurum .mib-mood::before {
+    content: "◆";
+    margin-right: 5px;
+    color: #f0d89a;
+    font-size: 7px;
+}
+
+
+/* Thought: engraved plaque */
+
+.mib-theme-aurum .mib-thought {
+    position: relative;
+    padding: 11px 15px 11px 20px;
+
+    color: #eadcb9;
+
+    background:
+        linear-gradient(
+            100deg,
+            rgba(212, 175, 90, 0.055),
+            rgba(255, 255, 255, 0.012)
+        );
+
+    border-color: rgba(212, 175, 90, 0.20);
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+
+    box-shadow:
+        inset 3px 0 0 rgba(212, 175, 90, 0.36),
+        inset 0 1px 0 rgba(255, 237, 193, 0.025);
+}
+
+.mib-theme-aurum .mib-thought::before {
+    content: "◆";
+    position: absolute;
+    left: 7px;
+    top: 12px;
+    color: #d4af5a;
+    font-size: 7px;
+}
+
+
+/* Metric colours */
+
+.mib-theme-aurum .mib-bar-affection-pos {
+    background: linear-gradient(90deg, #8c6d30, #d3ae58) !important;
+}
+
+.mib-theme-aurum .mib-bar-affection-neg {
+    background: linear-gradient(90deg, #55251e, #a95e4b) !important;
+}
+
+.mib-theme-aurum .mib-bar-trust-pos {
+    background: linear-gradient(90deg, #897851, #ddca95) !important;
+}
+
+.mib-theme-aurum .mib-bar-trust-neg {
+    background: linear-gradient(90deg, #5b3b24, #b57b42) !important;
+}
+
+.mib-theme-aurum .mib-bar-love-pos {
+    background: linear-gradient(90deg, #815b4f, #d6a085) !important;
+}
+
+.mib-theme-aurum .mib-bar-love-neg {
+    background: linear-gradient(90deg, #51242f, #a55368) !important;
+}
+
+
+/* Aurum Rosary tuning */
+
+.mib-theme-aurum.mib-bars-rosary .mib-bar {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='19' viewBox='0 0 20 19'%3E%3Cpath d='M0 9.5h20' stroke='%236b5428' stroke-width='1.2' opacity='.72'/%3E%3Ccircle cx='10' cy='9.5' r='5.25' fill='%23090603' stroke='%23997936' stroke-width='1.1' opacity='.96'/%3E%3Ccircle cx='8.3' cy='7.7' r='1.15' fill='%23f0d89a' opacity='.2'/%3E%3C/svg%3E");
+}
+
+/* =========================================================
+   SILVER NITRATE
+   Charcoal, smoke, old film grain and worn silver
+   ========================================================= */
+
+.mib-theme-silvernitrate {
+    --mib-bg-1: #111313;
+    --mib-bg-2: #292b2a;
+    --mib-bg-3: #090a0a;
+
+    --mib-border: rgba(190, 190, 180, 0.25);
+    --mib-soft-border: rgba(190, 190, 180, 0.12);
+
+    --mib-text: #e2e0d7;
+    --mib-muted: #aaa9a1;
+    --mib-dim: #747570;
+
+    --mib-accent: #b7b7ad;
+    --mib-accent-2: #777b78;
+
+    --mib-good: #a9aca5;
+    --mib-bad: #92716c;
+    --mib-warn: #aaa18b;
+
+    --mib-shadow:
+        0 22px 48px rgba(0, 0, 0, 0.68),
+        0 0 24px rgba(220, 220, 210, 0.035);
+}
+
+
+/* Main shell */
+
+.mib-theme-silvernitrate.mib-board,
+#mib_floating_host.mib-theme-silvernitrate .mib-floating-shell,
+#mib_dock_host.mib-theme-silvernitrate .mib-dock-panel {
+    background:
+        radial-gradient(
+            ellipse at 42% -10%,
+            rgba(230, 228, 215, 0.09),
+            transparent 39%
+        ),
+        radial-gradient(
+            circle at 91% 90%,
+            rgba(255, 255, 255, 0.035),
+            transparent 30%
+        ),
+        linear-gradient(
+            137deg,
+            #0d0f0f,
+            #252726 52%,
+            #101212
+        );
+}
+
+.mib-theme-silvernitrate.mib-board {
+    border-color: rgba(196, 196, 185, 0.29);
+
+    box-shadow:
+        0 24px 52px rgba(0, 0, 0, 0.72),
+        0 0 0 1px rgba(255, 255, 247, 0.025),
+        inset 0 0 42px rgba(0, 0, 0, 0.25);
+}
+
+
+/* Film grain */
+
+.mib-theme-silvernitrate.mib-board::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.21;
+    mix-blend-mode: soft-light;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23f)' opacity='.74'/%3E%3C/svg%3E");
+
+    background-size: 140px 140px;
+}
+
+
+/* Scratches, exposure seams and projector flicker */
+
+.mib-theme-silvernitrate.mib-board::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.105;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 7%,
+            rgba(255, 255, 245, 0.26) 7.08%,
+            transparent 7.18%,
+            transparent 73%,
+            rgba(0, 0, 0, 0.62) 73.12%,
+            transparent 73.28%,
+            transparent 91%,
+            rgba(255, 255, 245, 0.20) 91.06%,
+            transparent 91.15%
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 44px,
+            rgba(255, 255, 255, 0.045) 45px,
+            transparent 46px 83px
+        );
+}
+
+
+/* Panels */
+
+.mib-theme-silvernitrate .mib-header,
+.mib-theme-silvernitrate .mib-section,
+.mib-theme-silvernitrate .mib-char,
+.mib-theme-silvernitrate .mib-rel,
+.mib-theme-silvernitrate .mib-compact-rel,
+#mib_floating_host.mib-theme-silvernitrate .mib-floating-header,
+#mib_dock_host.mib-theme-silvernitrate .mib-dock-header {
+    position: relative;
+
+    background:
+        linear-gradient(
+            128deg,
+            rgba(255, 255, 248, 0.04),
+            rgba(0, 0, 0, 0.10)
+        ),
+        rgba(13, 15, 15, 0.57);
+
+    border-color: rgba(196, 196, 185, 0.15);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 248, 0.035),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.37),
+        0 7px 18px rgba(0, 0, 0, 0.09);
+}
+
+
+/* Slightly uneven old-frame borders */
+
+.mib-theme-silvernitrate .mib-section:nth-of-type(odd),
+.mib-theme-silvernitrate .mib-rel:nth-of-type(even) {
+    border-color: rgba(215, 214, 202, 0.185);
+}
+
+
+/* Typography */
+
+.mib-theme-silvernitrate .mib-title,
+.mib-theme-silvernitrate .mib-compact-brand,
+#mib_floating_host.mib-theme-silvernitrate .mib-floating-title,
+#mib_dock_host.mib-theme-silvernitrate .mib-dock-title {
+    color: #e6e3d9;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 3.4px;
+
+    text-shadow:
+        1px 0 rgba(255, 255, 255, 0.10),
+        -1px 0 rgba(0, 0, 0, 0.65),
+        0 0 8px rgba(255, 255, 245, 0.06);
+}
+
+.mib-theme-silvernitrate .mib-subtitle {
+    color: #8d8e88;
+    font-family: "Courier New", monospace;
+    font-size: 9px;
+    letter-spacing: 2.1px;
+    text-transform: uppercase;
+}
+
+.mib-theme-silvernitrate .mib-section-title {
+    color: #c8c6bb;
+    font-family: "Courier New", monospace;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+
+    text-shadow:
+        1px 0 rgba(255, 255, 255, 0.07),
+        -1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.mib-theme-silvernitrate .mib-char-name,
+.mib-theme-silvernitrate .mib-rel-name,
+.mib-theme-silvernitrate .mib-compact-name,
+.mib-theme-silvernitrate .mib-location {
+    color: #e1dfd6;
+}
+
+
+/* Tabs */
+
+.mib-theme-silvernitrate .mib-tabs {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 248, 0.028),
+            rgba(0, 0, 0, 0.18)
+        ),
+        rgba(8, 10, 10, 0.70);
+
+    border-color: rgba(196, 196, 185, 0.15);
+}
+
+.mib-theme-silvernitrate .mib-tab {
+    color: #858681;
+    font-family: "Courier New", monospace;
+    letter-spacing: 0.6px;
+}
+
+.mib-theme-silvernitrate .mib-tab:hover {
+    color: #d2d0c7;
+    background: rgba(220, 220, 210, 0.045);
+}
+
+.mib-theme-silvernitrate .mib-tab-active {
+    color: #e6e3d9;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(210, 210, 200, 0.10),
+            rgba(210, 210, 200, 0.018)
+        );
+
+    border-color: rgba(205, 205, 194, 0.28);
+
+    box-shadow:
+        inset 0 0 13px rgba(255, 255, 245, 0.026);
+}
+
+
+/* Buttons, chips and metadata */
+
+.mib-theme-silvernitrate .mib-chip,
+.mib-theme-silvernitrate .mib-status-chip,
+.mib-theme-silvernitrate .mib-meta span,
+.mib-theme-silvernitrate .mib-mini-stat,
+.mib-theme-silvernitrate .mib-style-btn,
+.mib-theme-silvernitrate .mib-dossier-btn,
+.mib-theme-silvernitrate .mib-panel-mode-btn,
+.mib-theme-silvernitrate .mib-debug-btn,
+.mib-theme-silvernitrate .mib-pin-btn {
+    color: #b8b7af;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 248, 0.05),
+            rgba(0, 0, 0, 0.17)
+        );
+
+    border-color: rgba(190, 190, 180, 0.18);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 248, 0.035),
+        0 2px 7px rgba(0, 0, 0, 0.15);
+}
+
+.mib-theme-silvernitrate .mib-mood {
+    color: #cfcdc3;
+    border-color: rgba(200, 200, 190, 0.22);
+    background: rgba(200, 200, 190, 0.055);
+}
+
+.mib-theme-silvernitrate .mib-mood::before {
+    content: "◌";
+    margin-right: 5px;
+    color: #8b8d89;
+}
+
+
+/* Character icon as film-frame stamp */
+
+.mib-theme-silvernitrate .mib-char-icon {
+    filter: grayscale(0.72) contrast(0.94);
+
+    background:
+        radial-gradient(
+            circle at 37% 27%,
+            rgba(255, 255, 255, 0.11),
+            transparent 29%
+        ),
+        #171919;
+
+    border-color: rgba(203, 202, 192, 0.24);
+
+    box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, 0.25),
+        0 0 8px rgba(255, 255, 245, 0.025);
+}
+
+
+/* Thought: subtitle card / screenplay note */
+
+.mib-theme-silvernitrate .mib-thought {
+    position: relative;
+    padding: 11px 15px 11px 20px;
+
+    color: #dedbd0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(220, 220, 210, 0.055),
+            rgba(255, 255, 255, 0.012)
+        );
+
+    border-color: rgba(200, 200, 190, 0.18);
+    border-left: 2px solid rgba(210, 209, 199, 0.38);
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+
+    text-shadow:
+        1px 0 rgba(255, 255, 255, 0.035),
+        -1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.mib-theme-silvernitrate .mib-thought::before {
+    content: "ⅩⅢ";
+    position: absolute;
+    left: 6px;
+    top: 11px;
+
+    color: #777a77;
+    font-family: "Courier New", monospace;
+    font-size: 7px;
+    font-style: normal;
+}
+
+
+/* Monochrome relationship bars */
+
+.mib-theme-silvernitrate .mib-bar-affection-pos {
+    background: linear-gradient(90deg, #626662, #b4b5ad) !important;
+}
+
+.mib-theme-silvernitrate .mib-bar-affection-neg {
+    background: linear-gradient(90deg, #4c4140, #92716c) !important;
+}
+
+.mib-theme-silvernitrate .mib-bar-trust-pos {
+    background: linear-gradient(90deg, #565b5b, #a5aaa7) !important;
+}
+
+.mib-theme-silvernitrate .mib-bar-trust-neg {
+    background: linear-gradient(90deg, #494640, #958c7b) !important;
+}
+
+.mib-theme-silvernitrate .mib-bar-love-pos {
+    background: linear-gradient(90deg, #5d595d, #aaa4aa) !important;
+}
+
+.mib-theme-silvernitrate .mib-bar-love-neg {
+    background: linear-gradient(90deg, #493b3f, #8e6c75) !important;
+}
+
+
+/* Rosary becomes a strip of projector frames */
+
+.mib-theme-silvernitrate.mib-bars-rosary .mib-bar {
+    filter: grayscale(1);
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='19' viewBox='0 0 20 19'%3E%3Cpath d='M0 9.5h20' stroke='%235d605d' stroke-width='1.1' opacity='.65'/%3E%3Ccircle cx='10' cy='9.5' r='5.25' fill='%230d0f0f' stroke='%23818480' stroke-width='1.1' opacity='.93'/%3E%3Ccircle cx='8.3' cy='7.7' r='1.1' fill='%23deddd4' opacity='.13'/%3E%3C/svg%3E");
+}
+
+
+/* Presence states stay readable but nearly monochrome */
+
+.mib-theme-silvernitrate .mib-presence-focus,
+.mib-theme-silvernitrate .mib-presence-near,
+.mib-theme-silvernitrate .mib-presence-watch,
+.mib-theme-silvernitrate .mib-presence-background,
+.mib-theme-silvernitrate .mib-presence-left {
+    color: #c3c2b9;
+    background: rgba(195, 195, 185, 0.06);
+    border-color: rgba(195, 195, 185, 0.18);
+}
+
+@media (max-width: 760px) {
+    .mib-theme-aurum .mib-title,
+    .mib-theme-silvernitrate .mib-title {
+        font-size: 14px !important;
+        letter-spacing: 2px !important;
+    }
+
+    .mib-theme-aurum .mib-subtitle,
+    .mib-theme-silvernitrate .mib-subtitle {
+        font-size: 8px;
+        letter-spacing: 1.4px;
+    }
+
+    .mib-theme-aurum.mib-board::after {
+        right: -95px;
+        top: -78px;
+        opacity: 0.075;
+    }
+
+    .mib-theme-silvernitrate.mib-board::after {
+        opacity: 0.07;
+    }
+}
