@@ -8472,29 +8472,29 @@
 }
 
 
-/* Metric colours */
+/* Aurum palette applies only to Classic bars */
 
-.mib-theme-aurum .mib-bar-affection-pos {
+.mib-theme-aurum.mib-bars-classic .mib-bar-affection-pos {
     background: linear-gradient(90deg, #8c6d30, #d3ae58) !important;
 }
 
-.mib-theme-aurum .mib-bar-affection-neg {
+.mib-theme-aurum.mib-bars-classic .mib-bar-affection-neg {
     background: linear-gradient(90deg, #55251e, #a95e4b) !important;
 }
 
-.mib-theme-aurum .mib-bar-trust-pos {
+.mib-theme-aurum.mib-bars-classic .mib-bar-trust-pos {
     background: linear-gradient(90deg, #897851, #ddca95) !important;
 }
 
-.mib-theme-aurum .mib-bar-trust-neg {
+.mib-theme-aurum.mib-bars-classic .mib-bar-trust-neg {
     background: linear-gradient(90deg, #5b3b24, #b57b42) !important;
 }
 
-.mib-theme-aurum .mib-bar-love-pos {
+.mib-theme-aurum.mib-bars-classic .mib-bar-love-pos {
     background: linear-gradient(90deg, #815b4f, #d6a085) !important;
 }
 
-.mib-theme-aurum .mib-bar-love-neg {
+.mib-theme-aurum.mib-bars-classic .mib-bar-love-neg {
     background: linear-gradient(90deg, #51242f, #a55368) !important;
 }
 
@@ -8843,37 +8843,35 @@
 }
 
 
-/* Monochrome relationship bars */
+/* Monochrome palette applies only to Classic bars */
 
-.mib-theme-silvernitrate .mib-bar-affection-pos {
+.mib-theme-silvernitrate.mib-bars-classic .mib-bar-affection-pos {
     background: linear-gradient(90deg, #626662, #b4b5ad) !important;
 }
 
-.mib-theme-silvernitrate .mib-bar-affection-neg {
+.mib-theme-silvernitrate.mib-bars-classic .mib-bar-affection-neg {
     background: linear-gradient(90deg, #4c4140, #92716c) !important;
 }
 
-.mib-theme-silvernitrate .mib-bar-trust-pos {
+.mib-theme-silvernitrate.mib-bars-classic .mib-bar-trust-pos {
     background: linear-gradient(90deg, #565b5b, #a5aaa7) !important;
 }
 
-.mib-theme-silvernitrate .mib-bar-trust-neg {
+.mib-theme-silvernitrate.mib-bars-classic .mib-bar-trust-neg {
     background: linear-gradient(90deg, #494640, #958c7b) !important;
 }
 
-.mib-theme-silvernitrate .mib-bar-love-pos {
+.mib-theme-silvernitrate.mib-bars-classic .mib-bar-love-pos {
     background: linear-gradient(90deg, #5d595d, #aaa4aa) !important;
 }
 
-.mib-theme-silvernitrate .mib-bar-love-neg {
+.mib-theme-silvernitrate.mib-bars-classic .mib-bar-love-neg {
     background: linear-gradient(90deg, #493b3f, #8e6c75) !important;
 }
-
 
 /* Rosary becomes a strip of projector frames */
 
 .mib-theme-silvernitrate.mib-bars-rosary .mib-bar {
-    filter: grayscale(1);
 
     background-image:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='19' viewBox='0 0 20 19'%3E%3Cpath d='M0 9.5h20' stroke='%235d605d' stroke-width='1.1' opacity='.65'/%3E%3Ccircle cx='10' cy='9.5' r='5.25' fill='%230d0f0f' stroke='%23818480' stroke-width='1.1' opacity='.93'/%3E%3Ccircle cx='8.3' cy='7.7' r='1.1' fill='%23deddd4' opacity='.13'/%3E%3C/svg%3E");
@@ -8915,3 +8913,4 @@
         opacity: 0.07;
     }
 }
+
