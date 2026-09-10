@@ -814,6 +814,7 @@ silvernitrate: "🎞",
         hufflepuff: "🪶",
         spiderman: "🕷",
 venom: "◉"
+}
     };
 
     return map[theme] || "•";
@@ -841,6 +842,7 @@ silvernitrate: "✰",
         hufflepuff: "💛",
         spiderman: "♥️",
 venom: "🖤"
+}
     };
 
     return map[theme] || "♥";
@@ -970,6 +972,7 @@ silvernitrate: {
 venom: {
     main: "🕷️WE ARE",
     sub: "𝑽𝒆𝒏𝒐𝒎🕷️"
+}
     };
 
     return map[theme] || {
