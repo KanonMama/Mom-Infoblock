@@ -9181,3 +9181,8 @@
 }
 }
 
+/* TEMP: stylesheet loading check */
+.mib-board {
+    outline: 3px solid #ff00cc !important;
+    outline-offset: -3px !important;
+}
