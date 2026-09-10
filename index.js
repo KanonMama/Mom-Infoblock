@@ -786,7 +786,6 @@ silvernitrate: "◉",
         hufflepuff: "📜",
         spiderman: "🕸",
 venom: "◈"
-}
     };
 
     return map[theme] || "📍";
@@ -814,7 +813,6 @@ silvernitrate: "🎞",
         hufflepuff: "🪶",
         spiderman: "🕷",
 venom: "◉"
-}
     };
 
     return map[theme] || "•";
@@ -842,7 +840,6 @@ silvernitrate: "✰",
         hufflepuff: "💛",
         spiderman: "♥️",
 venom: "🖤"
-}
     };
 
     return map[theme] || "♥";
