@@ -4444,8 +4444,8 @@ kThemeOptions.push(
 );
 
 kBarStyleOptions.push(["web", "barWeb"]);
-kLangMap.ru.barWeb = "Паутина";
-kLangMap.en.barWeb = "Web Threads";
+kLangMap.ru.barWeb = "Spiderweb";
+kLangMap.en.barWeb = "Spiderweb";
 
 Object.assign(kThemePreviewMap, {
     spiderman: {
