@@ -786,6 +786,7 @@ silvernitrate: "◉",
         hufflepuff: "📜",
         spiderman: "🕸",
 venom: "◈"
+}
     };
 
     return map[theme] || "📍";
@@ -3914,6 +3915,7 @@ function RenderMobileDockPanel() {
 
 host.className = [
     `mib-theme-${gTheme}`,
+    `mib-bars-${gBarStyle}`,
     `mib-mobile-panel-${gDockSide === "left" ? "left" : "right"}`,
     open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
 ].join(" ");
