@@ -783,7 +783,9 @@ silvernitrate: "◉",
         gryffindor: "📜",
         slytherin: "📜",
         ravenclaw: "📜",
-        hufflepuff: "📜"
+        hufflepuff: "📜",
+        spiderman: "🕸",
+venom: "◈"
     };
 
     return map[theme] || "📍";
@@ -808,7 +810,9 @@ silvernitrate: "🎞",
         gryffindor: "🪶",
         slytherin: "🪶",
         ravenclaw: "🪶",
-        hufflepuff: "🪶"
+        hufflepuff: "🪶",
+        spiderman: "🕷",
+venom: "◉"
     };
 
     return map[theme] || "•";
@@ -833,7 +837,9 @@ silvernitrate: "✰",
         gryffindor: "❤️",
         slytherin: "💚",
         ravenclaw: "💙",
-        hufflepuff: "💛"
+        hufflepuff: "💛",
+        spiderman: "♥️",
+venom: "🖤"
     };
 
     return map[theme] || "♥";
@@ -955,7 +961,14 @@ silvernitrate: {
         hufflepuff: {
             main: "𓃮 ℌ𝔲𝔣𝔣𝔩𝔢𝔭𝔲𝔣𝔣 𓃮",
             sub: "-ˋˏ ༻❁🦡❀༺ ˎˊ-"
-        }
+        },
+        spiderman: {
+    main: "FRIENDLY NEIGHBORHOOD",
+    sub: "🕷️⋆｡°✩🕸️✩°｡⋆🕷️"
+},
+venom: {
+    main: "🕷️WE ARE",
+    sub: "𝑽𝒆𝒏𝒐𝒎🕷️"
     };
 
     return map[theme] || {
@@ -3673,8 +3686,9 @@ function RenderFloating() {
 
     const collapsed = IsFloatingCollapsed();
 
-    host.className = [
-        `mib-theme-${gTheme}`,
+host.className = [
+    `mib-theme-${gTheme}`,
+    `mib-bars-${gBarStyle}`,
         collapsed ? "mib-floating-collapsed" : "mib-floating-open"
     ].join(" ");
 
@@ -4420,6 +4434,43 @@ function OnChatChanged() {
         RenderFloatingOrDock();
     }
 }
+
+/* Spider-Man / Venom / Web bars */
+kThemeOptions.push(
+    ["spiderman", "Spider-Man"],
+    ["venom", "Venom"]
+);
+
+kBarStyleOptions.push(["web", "barWeb"]);
+kLangMap.ru.barWeb = "Паутина";
+kLangMap.en.barWeb = "Web Threads";
+
+Object.assign(kThemePreviewMap, {
+    spiderman: {
+        label: {
+            ru: "Красный костюм, ночной Нью-Йорк и паутина",
+            en: "Red suit, midnight New York and web threads"
+        },
+        bg: "#080f20",
+        bg2: "#122745",
+        accent: "#ff6572",
+        accent2: "#8dc8ff",
+        text: "#eef4ff",
+        danger: "#ff8d85"
+    },
+    venom: {
+        label: {
+            ru: "Чёрный симбиот, белые блики и бордовый след",
+            en: "Black symbiote, white highlights and burgundy"
+        },
+        bg: "#040507",
+        bg2: "#171b23",
+        accent: "#e4eaf2",
+        accent2: "#d47b8c",
+        text: "#f1f3f7",
+        danger: "#f18496"
+    }
+});
 
 jQuery(async () => {
     const stContext = GetContextSafe();
