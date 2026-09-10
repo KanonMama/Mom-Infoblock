@@ -8912,5 +8912,272 @@
     .mib-theme-silvernitrate.mib-board::after {
         opacity: 0.07;
     }
+
+    /* =====================================================
+   SPIDER-MAN + VENOM
+   ===================================================== */
+
+.mib-theme-spiderman {
+    --mib-bg-1: #080f20;
+    --mib-bg-2: #122745;
+    --mib-bg-3: #050916;
+    --mib-border: rgba(255, 101, 114, .36);
+    --mib-soft-border: rgba(141, 200, 255, .18);
+    --mib-text: #eef4ff;
+    --mib-muted: #b0c3df;
+    --mib-dim: #8ea3c2;
+    --mib-accent: #ff6572;
+    --mib-accent-2: #8dc8ff;
+    --mib-good: #93ddc6;
+    --mib-bad: #ff8d85;
+    --mib-warn: #f1c477;
+    --mib-shadow: 0 18px 42px rgba(0, 0, 0, .62);
+    --mib-super-rgb: 239, 58, 79;
+    --mib-super-surface: rgba(6, 15, 33, .64);
+}
+
+.mib-theme-venom {
+    --mib-bg-1: #040507;
+    --mib-bg-2: #171b23;
+    --mib-bg-3: #020304;
+    --mib-border: rgba(221, 232, 247, .30);
+    --mib-soft-border: rgba(189, 203, 225, .16);
+    --mib-text: #f1f3f7;
+    --mib-muted: #bec5d1;
+    --mib-dim: #949eaf;
+    --mib-accent: #e4eaf2;
+    --mib-accent-2: #d47b8c;
+    --mib-good: #b8dfd0;
+    --mib-bad: #f18496;
+    --mib-warn: #d9b78d;
+    --mib-shadow: 0 20px 46px rgba(0, 0, 0, .76);
+    --mib-super-rgb: 210, 224, 245;
+    --mib-super-surface: rgba(2, 4, 8, .72);
+}
+
+/* Inline, floating, desktop dock */
+:is(.mib-theme-spiderman, .mib-theme-venom).mib-board,
+#mib_floating_host:is(.mib-theme-spiderman, .mib-theme-venom) .mib-floating-shell,
+#mib_dock_host:is(.mib-theme-spiderman, .mib-theme-venom) .mib-dock-panel {
+    color: var(--mib-text);
+    background:
+        radial-gradient(ellipse at 0% 0%,
+            rgba(var(--mib-super-rgb), .18), transparent 44%),
+        linear-gradient(140deg,
+            var(--mib-bg-1), var(--mib-bg-2) 55%, var(--mib-bg-3));
+    border-color: var(--mib-border);
+}
+
+/* Web in the upper corner, behind the content */
+.mib-theme-spiderman.mib-board::before,
+.mib-theme-spiderman .mib-board::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .16;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='white' stroke-width='1'%3E%3Cpath d='M240 0H0M240 0L0 80M240 0L0 160M240 0L0 240M240 0L80 240M240 0L160 240M240 0V240'/%3E%3Cpath d='M200 0Q205 18 202 38Q222 36 240 40M160 0Q170 32 164 76Q205 70 240 80M120 0Q133 50 126 114Q188 104 240 120M80 0Q97 65 88 152Q170 138 240 160M40 0Q60 82 50 190Q155 174 240 200M0 0Q24 100 12 228Q138 208 240 240'/%3E%3C/g%3E%3C/svg%3E")
+        right top / 260px 260px no-repeat;
+}
+
+/* Organic silver tendrils rather than a geometric web */
+.mib-theme-venom.mib-board::before,
+.mib-theme-venom .mib-board::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .15;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'%3E%3Cg fill='none' stroke='%23dce7fa' stroke-linecap='round'%3E%3Cpath d='M310 -20C100 30 310 110 175 180S310 300 180 420' stroke-width='4'/%3E%3Cpath d='M270 -10C70 80 320 150 220 260S270 360 240 420' stroke-width='1.5'/%3E%3Cpath d='M175 180C115 170 115 240 75 255M220 260C135 285 205 340 130 370M244 80C180 75 177 115 140 120' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E")
+        right top / 300px 400px no-repeat;
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom)
+:is(.mib-header, .mib-section, .mib-char, .mib-rel,
+    .mib-compact-rel, .mib-mobile-head) {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.035), transparent 60%),
+        var(--mib-super-surface);
+    border-color: var(--mib-soft-border);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom) .mib-header {
+    position: relative;
+    border-left: 3px solid var(--mib-accent);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom)
+:is(.mib-title, .mib-compact-brand, .mib-floating-title,
+    .mib-dock-title, .mib-mobile-title) {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--mib-text);
+    text-shadow: 2px 2px 0 rgba(var(--mib-super-rgb), .30);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom) .mib-section-title {
+    color: var(--mib-accent);
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 800;
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom) .mib-subtitle {
+    color: var(--mib-accent-2);
+    font-family: ui-monospace, monospace;
+    letter-spacing: 1px;
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom) .mib-tabs {
+    background: rgba(0,0,0,.35);
+    border-color: var(--mib-soft-border);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom) .mib-tab-active {
+    color: var(--mib-text);
+    background: rgba(var(--mib-super-rgb), .17);
+    border-color: var(--mib-border);
+    box-shadow: inset 0 -2px 0 var(--mib-accent);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom)
+:is(.mib-chip, .mib-status-chip, .mib-char-icon) {
+    color: var(--mib-accent-2);
+    background: rgba(var(--mib-super-rgb), .07);
+    border-color: var(--mib-soft-border);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom) .mib-mood {
+    color: var(--mib-accent);
+    border-color: var(--mib-border);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom) .mib-thought {
+    background: rgba(0,0,0,.22);
+    border-color: var(--mib-soft-border);
+    border-left: 2px solid var(--mib-accent-2);
+    color: var(--mib-text);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom)
+:is(.mib-floating-header, .mib-dock-header) {
+    background: rgba(var(--mib-super-rgb), .07);
+    border-color: var(--mib-soft-border);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom)
+:is(.mib-floating-launcher, .mib-dock-handle) {
+    color: var(--mib-accent);
+    background: var(--mib-bg-1);
+    border-color: var(--mib-border);
+}
+
+:is(.mib-theme-spiderman, .mib-theme-venom)
+:is(button, select, textarea):focus-visible {
+    outline: 2px solid var(--mib-accent-2);
+    outline-offset: 2px;
+}
+
+/* =====================================================
+   WEB THREADS — independent bar style
+   A continuous web ribbon; width is still set by JS.
+   ===================================================== */
+
+.mib-bars-web {
+    --mib-web-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='20' viewBox='0 0 48 20'%3E%3Cg fill='none' stroke='white' stroke-width='1' stroke-linecap='round'%3E%3Cpath d='M0 10H48M0 0L24 10 48 0M0 20L24 10 48 20M24 0V20M0 0V20M48 0V20'/%3E%3Cpath d='M0 4Q12 10 24 4Q36 10 48 4M0 16Q12 10 24 16Q36 10 48 16'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.mib-bars-web .mib-bar {
+    height: 20px;
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: none;
+    background: none;
+    position: relative;
+    isolation: isolate;
+}
+
+/* Unfilled web: same pattern, dimmed */
+.mib-bars-web .mib-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--mib-web-pattern) left center / 48px 20px repeat-x;
+    opacity: .16;
+}
+
+.mib-bars-web .mib-bar-fill {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    border-radius: 0;
+    background: currentColor !important;
+    box-shadow: none !important;
+    filter: none;
+    opacity: 1;
+    -webkit-mask: var(--mib-web-pattern) left center / 48px 20px repeat-x;
+    mask: var(--mib-web-pattern) left center / 48px 20px repeat-x;
+}
+
+.mib-bars-web .mib-bar-fill::before,
+.mib-bars-web .mib-bar-fill::after {
+    content: none;
+    display: none;
+}
+
+/* Default palette when used with other themes */
+.mib-bars-web .mib-bar-fill.mib-bar-affection-pos { color: #91d8bc !important; }
+.mib-bars-web .mib-bar-fill.mib-bar-trust-pos { color: #91caff !important; }
+.mib-bars-web .mib-bar-fill.mib-bar-love-pos { color: #d2a7ed !important; }
+.mib-bars-web .mib-bar-fill.mib-bar-affection-neg { color: #ed958b !important; }
+.mib-bars-web .mib-bar-fill.mib-bar-trust-neg { color: #e5b17b !important; }
+.mib-bars-web .mib-bar-fill.mib-bar-love-neg { color: #e37d9d !important; }
+
+/* Spider-Man: red / blue / white */
+.mib-theme-spiderman .mib-bars-web .mib-bar-fill.mib-bar-affection-pos,
+.mib-theme-spiderman.mib-bars-web .mib-bar-fill.mib-bar-affection-pos {
+    color: #ff727e !important;
+}
+.mib-theme-spiderman .mib-bars-web .mib-bar-fill.mib-bar-trust-pos,
+.mib-theme-spiderman.mib-bars-web .mib-bar-fill.mib-bar-trust-pos {
+    color: #8dc8ff !important;
+}
+.mib-theme-spiderman .mib-bars-web .mib-bar-fill.mib-bar-love-pos,
+.mib-theme-spiderman.mib-bars-web .mib-bar-fill.mib-bar-love-pos {
+    color: #edf4ff !important;
+}
+
+/* Venom: cold silver, bone white, muted crimson */
+.mib-theme-venom .mib-bars-web .mib-bar-fill.mib-bar-affection-pos,
+.mib-theme-venom.mib-bars-web .mib-bar-fill.mib-bar-affection-pos {
+    color: #b8c6da !important;
+}
+.mib-theme-venom .mib-bars-web .mib-bar-fill.mib-bar-trust-pos,
+.mib-theme-venom.mib-bars-web .mib-bar-fill.mib-bar-trust-pos {
+    color: #edf2f7 !important;
+}
+.mib-theme-venom .mib-bars-web .mib-bar-fill.mib-bar-love-pos,
+.mib-theme-venom.mib-bars-web .mib-bar-fill.mib-bar-love-pos {
+    color: #d47b8c !important;
+}
+
+@media (max-width: 760px) {
+    .mib-bars-web .mib-bar {
+        height: 20px !important;
+    }
+
+    :is(.mib-theme-spiderman, .mib-theme-venom) .mib-subtitle {
+        font-size: 8px;
+        letter-spacing: .5px;
+    }
+}
 }
 
