@@ -1,6 +1,6 @@
 /* =========================================================
-   MOM INFOBLOCK — MASTER STYLESHEET (REMASTERED)
-   Clean architecture, zero duplicates, high-craft themes & bars
+   MOM INFOBLOCK — MASTER STYLESHEET (REMASTERED + TEXTURES)
+   Clean architecture, zero duplicates, CRT noise & film grain
    ========================================================= */
 
 :root {
@@ -8,6 +8,10 @@
     --mib-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --mib-font-serif: Georgia, "Times New Roman", Times, serif;
     --mib-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+
+    /* Reusable SVG Fractal Noise */
+    --mib-noise-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.68'/%3E%3C/svg%3E");
+    --mib-wood-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72 .12' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.72'/%3E%3C/svg%3E");
 
     /* Default Theme: Nocturne */
     --mib-bg-1: #111522;
@@ -1328,6 +1332,8 @@
 
 .mib-floating-shell,
 .mib-dock-panel {
+    position: relative;
+    isolation: isolate;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -1348,6 +1354,8 @@
 
 .mib-floating-header,
 .mib-dock-header {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1378,6 +1386,8 @@
 
 .mib-floating-body,
 .mib-dock-body {
+    position: relative;
+    z-index: 2;
     flex: 1;
     min-height: 0;
     overflow: auto;
@@ -2005,10 +2015,10 @@
 }
 
 /* =========================================================
-   THEMES CATALOG (28 THEMES)
+   THEMES CATALOG (28 THEMES + TEXTURE OVERLAYS)
    ========================================================= */
 
-/* 1. TERMINAL (Green CRT) */
+/* 1. TERMINAL (Green CRT + Noise + Scanlines) */
 .mib-theme-terminal {
     --mib-bg-1: #020b06;
     --mib-bg-2: #06170d;
@@ -2024,6 +2034,36 @@
     --mib-bad: #ff9b4a;
 }
 
+.mib-theme-terminal.mib-board::before,
+#mib_floating_host.mib-theme-terminal .mib-floating-shell::before,
+#mib_dock_host.mib-theme-terminal .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.16;
+    mix-blend-mode: screen;
+    background-image:
+        var(--mib-noise-svg),
+        repeating-linear-gradient(
+            180deg,
+            rgba(56, 255, 122, 0.05) 0,
+            rgba(56, 255, 122, 0.05) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+    background-size: 135px 135px, 100% 4px;
+}
+
+.mib-theme-terminal :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
+    background-color: rgba(0, 10, 4, 0.62);
+    background-image:
+        var(--mib-noise-svg),
+        linear-gradient(180deg, rgba(56, 255, 122, 0.03), rgba(255, 255, 255, 0.005));
+    background-size: 135px 135px, auto;
+}
+
 .mib-theme-terminal .mib-title,
 .mib-theme-terminal .mib-subtitle,
 .mib-theme-terminal .mib-section-title,
@@ -2033,7 +2073,55 @@
 
 .mib-theme-terminal .mib-mood::before { content: "> "; }
 
-/* 2. CASE FILE (Detective Noir & Evidence) */
+/* 2. SYSTEM LOG (Sci-Fi Telemetry + Scanlines + Noise) */
+.mib-theme-systemlog {
+    --mib-bg-1: #06090d;
+    --mib-bg-2: #0d141c;
+    --mib-bg-3: #040608;
+    --mib-border: rgba(107, 214, 255, 0.30);
+    --mib-soft-border: rgba(107, 214, 255, 0.14);
+    --mib-text: #deedf5;
+    --mib-muted: #96b2c2;
+    --mib-dim: #5f7682;
+    --mib-accent: #6bd6ff;
+    --mib-accent-2: #ff6f9f;
+    --mib-good: #55ff9a;
+    --mib-bad: #ff5e6c;
+}
+
+.mib-theme-systemlog.mib-board::before,
+#mib_floating_host.mib-theme-systemlog .mib-floating-shell::before,
+#mib_dock_host.mib-theme-systemlog .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.14;
+    mix-blend-mode: screen;
+    background-image:
+        var(--mib-noise-svg),
+        repeating-linear-gradient(
+            180deg,
+            rgba(107, 214, 255, 0.04) 0,
+            rgba(107, 214, 255, 0.04) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+    background-size: 140px 140px, 100% 4px;
+}
+
+.mib-theme-systemlog :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
+    background-color: rgba(4, 7, 11, 0.52);
+    background-image:
+        var(--mib-noise-svg),
+        linear-gradient(180deg, rgba(107, 214, 255, 0.03), rgba(255, 255, 255, 0.008));
+    background-size: 125px 125px, auto;
+}
+
+.mib-theme-systemlog .mib-mood::before { content: "! "; }
+
+/* 3. CASE FILE (Detective Noir, Paper Grain & Evidence Tape) */
 .mib-theme-casefile {
     --mib-bg-1: #161412;
     --mib-bg-2: #25211c;
@@ -2049,29 +2137,67 @@
     --mib-bad: #d65f4f;
 }
 
+.mib-theme-casefile.mib-board::before,
+#mib_floating_host.mib-theme-casefile .mib-floating-shell::before,
+#mib_dock_host.mib-theme-casefile .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.14;
+    mix-blend-mode: soft-light;
+    background-image: var(--mib-noise-svg);
+    background-size: 150px 150px;
+}
+
 .mib-theme-casefile .mib-title-row {
     position: relative;
-    padding-right: 112px;
+    padding-right: 118px;
 }
 
 .mib-theme-casefile .mib-title-row::before {
     content: "EVIDENCE";
     position: absolute;
-    right: 6px;
-    top: 0;
+    right: 8px;
+    top: -1px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 86px;
-    height: 22px;
-    font-size: 9.5px;
+    width: 88px;
+    height: 24px;
+    font-size: 10px;
     font-weight: 900;
-    letter-spacing: 1.3px;
+    letter-spacing: 1.2px;
     color: #151412;
     background: linear-gradient(135deg, #e0b84f, #a98228);
+    border: 1px solid rgba(0, 0, 0, 0.42);
     border-radius: 3px;
-    box-shadow: 0 2px 10px rgba(224, 184, 79, 0.25);
-    transform: rotate(-3.5deg);
+    box-shadow: 0 2px 10px rgba(224, 184, 79, 0.22);
+    transform: rotate(-4deg);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.mib-theme-casefile .mib-title-row::after {
+    content: "";
+    position: absolute;
+    right: -10px;
+    bottom: -2px;
+    width: 142px;
+    height: 14px;
+    background:
+        repeating-linear-gradient(
+            135deg,
+            #e0b84f 0,
+            #e0b84f 8px,
+            #17130a 8px,
+            #17130a 16px
+        );
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+    transform: rotate(-8deg);
+    opacity: 0.72;
     pointer-events: none;
 }
 
@@ -2083,7 +2209,7 @@
     opacity: 0.8;
 }
 
-/* 3. ORACLE MOON (Mystic Velvet & Gold) */
+/* 4. ORACLE MOON (Mystic Velvet & Gold) */
 .mib-theme-oraclemoon {
     --mib-bg-1: #171124;
     --mib-bg-2: #281b3b;
@@ -2101,7 +2227,7 @@
 
 .mib-theme-oraclemoon .mib-mood::before { content: "☾ "; }
 
-/* 4. BLOOD MOON (Gothic Crimson & Old Gold) */
+/* 5. BLOOD MOON (Gothic Crimson & Old Gold + Fine Grain) */
 .mib-theme-bloodmoon {
     --mib-bg-1: #1a080d;
     --mib-bg-2: #2c1018;
@@ -2117,9 +2243,22 @@
     --mib-bad: #eb5b68;
 }
 
+.mib-theme-bloodmoon.mib-board::before,
+#mib_floating_host.mib-theme-bloodmoon .mib-floating-shell::before,
+#mib_dock_host.mib-theme-bloodmoon .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.11;
+    mix-blend-mode: soft-light;
+    background-image: var(--mib-noise-svg);
+    background-size: 155px 155px;
+}
+
 .mib-theme-bloodmoon .mib-mood::before { content: "🩸 "; }
 
-/* 5. OBSIDIAN REGISTRY (Dark Archive & Emerald Gold) */
+/* 6. OBSIDIAN REGISTRY (Dark Archive & Emerald Gold) */
 .mib-theme-obsidianregistry {
     --mib-bg-1: #07130f;
     --mib-bg-2: #10241c;
@@ -2143,7 +2282,9 @@
     letter-spacing: 0.8px;
 }
 
-/* 6. NEON QUEST (Cyber HUD) */
+.mib-theme-obsidianregistry .mib-mood::before { content: "◆ "; }
+
+/* 7. NEON QUEST (Cyber HUD) */
 .mib-theme-neonquest {
     --mib-bg-1: #020817;
     --mib-bg-2: #061b36;
@@ -2164,22 +2305,6 @@
 .mib-theme-neonquest .mib-meta span,
 .mib-theme-neonquest .mib-mini-stat {
     border-radius: 4px;
-}
-
-/* 7. SYSTEM LOG (Sci-Fi Telemetry) */
-.mib-theme-systemlog {
-    --mib-bg-1: #06090d;
-    --mib-bg-2: #0d141c;
-    --mib-bg-3: #040608;
-    --mib-border: rgba(107, 214, 255, 0.30);
-    --mib-soft-border: rgba(107, 214, 255, 0.14);
-    --mib-text: #deedf5;
-    --mib-muted: #96b2c2;
-    --mib-dim: #5f7682;
-    --mib-accent: #6bd6ff;
-    --mib-accent-2: #ff6f9f;
-    --mib-good: #55ff9a;
-    --mib-bad: #ff5e6c;
 }
 
 /* 8. GENGAR (Ghostly Neon Violet) */
@@ -2208,7 +2333,7 @@
     --mib-border: rgba(185, 124, 255, 0.30);
     --mib-soft-border: rgba(185, 124, 255, 0.14);
     --mib-text: #f3edf9;
-    --mib-muted: #bbaonline;
+    --mib-muted: #bba9c9;
     --mib-dim: #78688a;
     --mib-accent: #c28aff;
     --mib-accent-2: #f26dff;
@@ -2216,7 +2341,7 @@
     --mib-bad: #ff6aa2;
 }
 
-/* 10. LOCKDOWN (Bounty Hunter Tactical HUD) */
+/* 10. LOCKDOWN (Bounty Hunter Tactical HUD + Interference Grid & Reticle) */
 .mib-theme-lockdown {
     --mib-bg-1: #0d1114;
     --mib-bg-2: #1c2428;
@@ -2232,20 +2357,45 @@
     --mib-bad: #d9876f;
 }
 
-.mib-theme-lockdown.mib-board::after {
+.mib-theme-lockdown.mib-board::before,
+#mib_floating_host.mib-theme-lockdown .mib-floating-shell::before,
+#mib_dock_host.mib-theme-lockdown .mib-dock-panel::before {
     content: "";
     position: absolute;
-    right: 16px;
-    top: 16px;
-    width: 76px;
-    height: 76px;
+    inset: 0;
     pointer-events: none;
-    opacity: 0.14;
-    border-radius: 50%;
-    border: 1px solid var(--mib-accent);
+    opacity: 0.20;
     background:
-        linear-gradient(90deg, transparent 49%, var(--mib-accent) 49% 51%, transparent 51%),
-        linear-gradient(180deg, transparent 49%, var(--mib-accent) 49% 51%, transparent 51%);
+        repeating-linear-gradient(
+            180deg,
+            rgba(134, 201, 138, 0.04) 0,
+            rgba(134, 201, 138, 0.04) 1px,
+            transparent 1px,
+            transparent 7px
+        ),
+        linear-gradient(90deg, transparent 0 49%, rgba(166, 178, 184, 0.06) 49% 50%, transparent 50% 100%),
+        linear-gradient(180deg, transparent 0 49%, rgba(166, 178, 184, 0.045) 49% 50%, transparent 50% 100%);
+    background-size: 100% 7px, 54px 54px, 54px 54px;
+    mix-blend-mode: screen;
+}
+
+.mib-theme-lockdown.mib-board::after,
+#mib_floating_host.mib-theme-lockdown .mib-floating-shell::after,
+#mib_dock_host.mib-theme-lockdown .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    width: 82px;
+    height: 82px;
+    pointer-events: none;
+    opacity: 0.16;
+    border-radius: 50%;
+    border: 1px solid rgba(134, 201, 138, 0.65);
+    background:
+        linear-gradient(90deg, transparent 49%, rgba(134, 201, 138, 0.55) 49% 51%, transparent 51%),
+        linear-gradient(180deg, transparent 49%, rgba(134, 201, 138, 0.55) 49% 51%, transparent 51%),
+        radial-gradient(circle, transparent 0 42%, rgba(134, 201, 138, 0.40) 43% 44%, transparent 45% 100%);
 }
 
 /* 11. HOT ROD (Turbo Flame & Carbon) */
@@ -2344,7 +2494,9 @@
     --mib-bad: #ff7f9f;
 }
 
-.mib-theme-pixel.mib-board {
+.mib-theme-pixel.mib-board,
+#mib_floating_host.mib-theme-pixel .mib-floating-shell,
+#mib_dock_host.mib-theme-pixel .mib-dock-panel {
     background-image:
         linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
         linear-gradient(180deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
@@ -2480,7 +2632,7 @@
     --mib-bad: #de8e6e;
 }
 
-/* 25. RELIQUARY (Blackened Wood, Aged Bronze & Oxidized Copper) */
+/* 25. RELIQUARY (Blackened Wood, Aged Bronze & Cathedral Arch) */
 .mib-theme-reliquary {
     --mib-bg-1: #080c0b;
     --mib-bg-2: #131b18;
@@ -2494,6 +2646,42 @@
     --mib-accent-2: #569685;
     --mib-good: #76a885;
     --mib-bad: #b55560;
+}
+
+.mib-theme-reliquary.mib-board::before,
+#mib_floating_host.mib-theme-reliquary .mib-floating-shell::before,
+#mib_dock_host.mib-theme-reliquary .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.12;
+    mix-blend-mode: soft-light;
+    background-image: var(--mib-wood-svg);
+    background-size: 180px 180px;
+}
+
+.mib-theme-reliquary.mib-board::after,
+#mib_floating_host.mib-theme-reliquary .mib-floating-shell::after,
+#mib_dock_host.mib-theme-reliquary .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    right: -34px;
+    top: 56px;
+    width: 230px;
+    height: 330px;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    background:
+        radial-gradient(ellipse at 50% 17%, transparent 0 28%, rgba(184, 154, 93, 0.72) 28.5% 29.4%, transparent 30%),
+        linear-gradient(90deg, transparent 49.5%, rgba(184, 154, 93, 0.58) 49.5% 50.5%, transparent 50.5%),
+        linear-gradient(45deg, transparent 49.5%, rgba(79, 139, 123, 0.48) 49.5% 50.5%, transparent 50.5%),
+        linear-gradient(-45deg, transparent 49.5%, rgba(79, 139, 123, 0.48) 49.5% 50.5%, transparent 50.5%);
+    border: 1px solid rgba(184, 154, 93, 0.48);
+    border-radius: 120px 120px 4px 4px;
+    transform: rotate(1.5deg);
 }
 
 .mib-theme-reliquary .mib-title,
@@ -2516,7 +2704,7 @@
     font-style: normal;
 }
 
-/* 26. AURUM (Art Deco Lacquer & Champagne Gold) */
+/* 26. AURUM (Art Deco Lacquer, Grain & Sunburst Fan) */
 .mib-theme-aurum {
     --mib-bg-1: #0f0c08;
     --mib-bg-2: #21180d;
@@ -2530,6 +2718,46 @@
     --mib-accent-2: #f2dc9e;
     --mib-good: #c8ae67;
     --mib-bad: #b5614d;
+}
+
+.mib-theme-aurum.mib-board::before,
+#mib_floating_host.mib-theme-aurum .mib-floating-shell::before,
+#mib_dock_host.mib-theme-aurum .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.10;
+    mix-blend-mode: screen;
+    background-image: var(--mib-noise-svg);
+    background-size: 160px 160px;
+}
+
+.mib-theme-aurum.mib-board::after,
+#mib_floating_host.mib-theme-aurum .mib-floating-shell::after,
+#mib_dock_host.mib-theme-aurum .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    right: -42px;
+    top: -54px;
+    width: 245px;
+    height: 245px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.12;
+    border: 1px solid rgba(240, 216, 154, 0.62);
+    border-radius: 50%;
+    background:
+        linear-gradient(90deg, transparent 49.5%, rgba(212, 175, 90, 0.72) 49.5% 50.5%, transparent 50.5%),
+        linear-gradient(67.5deg, transparent 49.5%, rgba(212, 175, 90, 0.62) 49.5% 50.5%, transparent 50.5%),
+        linear-gradient(112.5deg, transparent 49.5%, rgba(212, 175, 90, 0.62) 49.5% 50.5%, transparent 50.5%),
+        linear-gradient(45deg, transparent 49.5%, rgba(212, 175, 90, 0.42) 49.5% 50.5%, transparent 50.5%),
+        linear-gradient(135deg, transparent 49.5%, rgba(212, 175, 90, 0.42) 49.5% 50.5%, transparent 50.5%);
+    box-shadow:
+        inset 0 0 0 23px rgba(212, 175, 90, 0.14),
+        inset 0 0 0 49px rgba(212, 175, 90, 0.10);
+    transform: rotate(22.5deg);
 }
 
 .mib-theme-aurum .mib-title,
@@ -2548,7 +2776,7 @@
     );
 }
 
-/* 27. SILVER NITRATE (Analog Noir Cinema & Worn Silver) */
+/* 27. SILVER NITRATE (Analog Noir Cinema, Film Grain & Scratches) */
 .mib-theme-silvernitrate {
     --mib-bg-1: #111313;
     --mib-bg-2: #242625;
@@ -2562,6 +2790,50 @@
     --mib-accent-2: #8c918d;
     --mib-good: #82b89a;
     --mib-bad: #c47670;
+}
+
+.mib-theme-silvernitrate.mib-board::before,
+#mib_floating_host.mib-theme-silvernitrate .mib-floating-shell::before,
+#mib_dock_host.mib-theme-silvernitrate .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.22;
+    mix-blend-mode: soft-light;
+    background-image: var(--mib-noise-svg);
+    background-size: 140px 140px;
+}
+
+.mib-theme-silvernitrate.mib-board::after,
+#mib_floating_host.mib-theme-silvernitrate .mib-floating-shell::after,
+#mib_dock_host.mib-theme-silvernitrate .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.11;
+    background:
+        linear-gradient(
+            90deg,
+            transparent 7%,
+            rgba(255, 255, 245, 0.26) 7.08%,
+            transparent 7.18%,
+            transparent 73%,
+            rgba(0, 0, 0, 0.62) 73.12%,
+            transparent 73.28%,
+            transparent 91%,
+            rgba(255, 255, 245, 0.20) 91.06%,
+            transparent 91.15%
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 44px,
+            rgba(255, 255, 255, 0.045) 45px,
+            transparent 46px 83px
+        );
 }
 
 .mib-theme-silvernitrate .mib-title,
@@ -2622,26 +2894,26 @@
 }
 
 .mib-theme-spiderman.mib-board::before,
-.mib-theme-spiderman .mib-floating-shell::before,
-.mib-theme-spiderman .mib-dock-panel::before {
+#mib_floating_host.mib-theme-spiderman .mib-floating-shell::before,
+#mib_dock_host.mib-theme-spiderman .mib-dock-panel::before {
     content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.15;
+    opacity: 0.16;
     background:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='white' stroke-width='1'%3E%3Cpath d='M240 0H0M240 0L0 80M240 0L0 160M240 0L0 240M240 0L80 240M240 0L160 240M240 0V240'/%3E%3Cpath d='M200 0Q205 18 202 38Q222 36 240 40M160 0Q170 32 164 76Q205 70 240 80M120 0Q133 50 126 114Q188 104 240 120M80 0Q97 65 88 152Q170 138 240 160M40 0Q60 82 50 190Q155 174 240 200M0 0Q24 100 12 228Q138 208 240 240'/%3E%3C/g%3E%3C/svg%3E")
         right top / 250px 250px no-repeat;
 }
 
 .mib-theme-venom.mib-board::before,
-.mib-theme-venom .mib-floating-shell::before,
-.mib-theme-venom .mib-dock-panel::before {
+#mib_floating_host.mib-theme-venom .mib-floating-shell::before,
+#mib_dock_host.mib-theme-venom .mib-dock-panel::before {
     content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.15;
+    opacity: 0.16;
     background:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'%3E%3Cg fill='none' stroke='%23dce7fa' stroke-linecap='round'%3E%3Cpath d='M310 -20C100 30 310 110 175 180S310 300 180 420' stroke-width='4'/%3E%3Cpath d='M270 -10C70 80 320 150 220 260S270 360 240 420' stroke-width='1.5'/%3E%3Cpath d='M175 180C115 170 115 240 75 255M220 260C135 285 205 340 130 370M244 80C180 75 177 115 140 120' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E")
         right top / 280px 380px no-repeat;
@@ -2671,7 +2943,8 @@
         padding-right: 0;
     }
 
-    .mib-theme-casefile .mib-title-row::before {
+    .mib-theme-casefile .mib-title-row::before,
+    .mib-theme-casefile .mib-title-row::after {
         display: none;
     }
 
