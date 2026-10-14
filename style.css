@@ -3113,3 +3113,56 @@
         font-size: 10px;
     }
 }
+
+/* Удаление пунктов хроники и нитей */
+.mib-chronicle-item {
+    position: relative;
+    padding-right: 26px;
+    transition: color 0.15s ease;
+}
+
+.mib-chronicle-text {
+    display: inline;
+    overflow-wrap: anywhere;
+}
+
+.mib-chronicle-del {
+    appearance: none;
+    position: absolute;
+    right: 0;
+    top: 1px;
+    width: 19px;
+    height: 19px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--mib-dim);
+    font-size: 13px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.mib-chronicle-item:hover .mib-chronicle-del {
+    opacity: 1;
+    border-color: var(--mib-soft-border);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.mib-chronicle-del:hover {
+    color: var(--mib-bad) !important;
+    border-color: color-mix(in srgb, var(--mib-bad) 45%, transparent) !important;
+    background: color-mix(in srgb, var(--mib-bad) 14%, transparent) !important;
+}
+
+@media (max-width: 760px) {
+    .mib-chronicle-del {
+        opacity: 0.75;
+        border-color: var(--mib-soft-border);
+    }
+}
