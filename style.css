@@ -3166,3 +3166,514 @@
         border-color: var(--mib-soft-border);
     }
 }
+
+/* =========================================================
+   NEW BAR STYLES: BRUSH, HEARTBEAT ECG, MOON PHASES
+   ========================================================= */
+
+/* 19. BRUSH STROKE (Oil Paint Swatch) */
+.mib-bars-brush {
+    --mib-brush-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='14' viewBox='0 0 160 14' preserveAspectRatio='none'%3E%3Cpath d='M0 3 Q20 1 45 2.5 T95 1.5 T140 3 L160 2 L158 6.5 L160 11.5 Q130 13 95 11.8 T40 12.8 T0 11 Z' fill='black'/%3E%3C/svg%3E");
+}
+
+.mib-bars-brush .mib-bar {
+    height: 12px;
+    border: 0;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.38);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.mib-bars-brush .mib-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.08) 0px,
+            transparent 2px,
+            rgba(0, 0, 0, 0.12) 5px
+        ),
+        linear-gradient(90deg, color-mix(in srgb, currentColor 70%, #1a120b), currentColor) !important;
+    -webkit-mask: var(--mib-brush-mask) left center / 100% 100% no-repeat;
+    mask: var(--mib-brush-mask) left center / 100% 100% no-repeat;
+    filter: drop-shadow(0 1px 4px color-mix(in srgb, currentColor 45%, transparent));
+}
+
+/* 20. HEARTBEAT ECG (Pulse Monitor) */
+.mib-bars-heartbeat {
+    --mib-ecg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='18' viewBox='0 0 64 18'%3E%3Cpath d='M0 10 H18 L22 10 L25 4 L29 15 L33 2 L37 13 L40 8 L43 10 H64' fill='none' stroke='black' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.mib-bars-heartbeat .mib-bar {
+    height: 18px;
+    border: 0;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+.mib-bars-heartbeat .mib-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: currentColor;
+    opacity: 0.18;
+    -webkit-mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
+    mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
+}
+
+.mib-bars-heartbeat .mib-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    background: currentColor !important;
+    filter: brightness(1.15) drop-shadow(0 0 4px currentColor) drop-shadow(0 0 9px currentColor);
+    -webkit-mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
+    mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
+}
+
+/* 21. MOON PHASES (Lunar Cycle) */
+.mib-bars-moonphases {
+    --mib-moon-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='18' viewBox='0 0 72 18'%3E%3Cpath d='M11 3.5 A5.5 5.5 0 1 0 11 14.5 A4.2 5.5 0 1 1 11 3.5 Z' fill='black'/%3E%3Ccircle cx='27' cy='9' r='5' fill='black'/%3E%3Cpath d='M43 3.5 A5.5 5.5 0 1 1 43 14.5 A4.2 5.5 0 1 0 43 3.5 Z' fill='black'/%3E%3Cpath d='M63 3.5 L64.3 7.5 L68.5 9 L64.3 10.5 L63 14.5 L61.7 10.5 L57.5 9 L61.7 7.5 Z' fill='black'/%3E%3C/svg%3E");
+}
+
+.mib-bars-moonphases .mib-bar {
+    height: 18px;
+    border: 0;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+.mib-bars-moonphases .mib-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--mib-muted);
+    opacity: 0.22;
+    -webkit-mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
+    mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
+}
+
+.mib-bars-moonphases .mib-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    background: linear-gradient(90deg, var(--mib-accent), var(--mib-accent-2), currentColor) !important;
+    filter: brightness(1.1) drop-shadow(0 0 5px currentColor);
+    -webkit-mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
+    mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
+}
+
+/* =========================================================
+   NEW THEMES: DISCO, VHS 1994, PORCELAIN, ABYSS, TAROT
+   ========================================================= */
+
+/* 29. REVACHOL DISCO (Disco Elysium Expressionist Oil & Ochre) */
+.mib-theme-disco {
+    --mib-bg-1: #161311;
+    --mib-bg-2: #261f1a;
+    --mib-bg-3: #0d0b09;
+    --mib-border: rgba(224, 109, 59, 0.36);
+    --mib-soft-border: rgba(212, 180, 140, 0.15);
+    --mib-text: #f0e7d8;
+    --mib-muted: #bfb09c;
+    --mib-dim: #7d7061;
+    --mib-accent: #e06d3b;
+    --mib-accent-2: #7fa69b;
+    --mib-good: #8ab893;
+    --mib-bad: #d94e41;
+}
+
+.mib-theme-disco.mib-board,
+#mib_floating_host.mib-theme-disco .mib-floating-shell,
+#mib_dock_host.mib-theme-disco .mib-dock-panel {
+    background:
+        radial-gradient(ellipse at 92% 8%, rgba(224, 109, 59, 0.20), transparent 42%),
+        radial-gradient(ellipse at 8% 92%, rgba(127, 166, 155, 0.15), transparent 46%),
+        radial-gradient(circle at 50% 45%, rgba(189, 138, 62, 0.06), transparent 60%),
+        linear-gradient(140deg, #161311 0%, #261f1a 52%, #0d0b09 100%);
+}
+
+.mib-theme-disco.mib-board::before,
+#mib_floating_host.mib-theme-disco .mib-floating-shell::before,
+#mib_dock_host.mib-theme-disco .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: soft-light;
+    background-image: var(--mib-wood-svg);
+    background-size: 200px 200px;
+}
+
+.mib-theme-disco .mib-title,
+.mib-theme-disco .mib-location,
+.mib-theme-disco .mib-char-name,
+.mib-theme-disco .mib-rel-name,
+.mib-theme-disco .mib-thought {
+    font-family: var(--mib-font-serif);
+}
+
+.mib-theme-disco .mib-header,
+.mib-theme-disco .mib-section {
+    border-left: 3px solid var(--mib-accent);
+    border-radius: 4px 12px 12px 4px;
+    background:
+        linear-gradient(95deg, rgba(224, 109, 59, 0.06), transparent 38%),
+        rgba(12, 10, 8, 0.58);
+}
+
+.mib-theme-disco .mib-thought {
+    background:
+        linear-gradient(90deg, rgba(127, 166, 155, 0.10), rgba(0, 0, 0, 0.35));
+    border-left: 3px solid var(--mib-accent-2);
+    font-style: normal;
+    letter-spacing: 0.15px;
+}
+
+.mib-theme-disco .mib-thought::before {
+    content: "INLAND EMPIRE — ";
+    font-family: var(--mib-font-sans);
+    font-size: 9.5px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    color: var(--mib-accent-2);
+}
+
+/* 30. VHS 1994 (Analog Tape Glitch, RGB Shift & Camcorder HUD) */
+.mib-theme-vhs {
+    --mib-bg-1: #090817;
+    --mib-bg-2: #151230;
+    --mib-bg-3: #05040d;
+    --mib-border: rgba(255, 216, 77, 0.34);
+    --mib-soft-border: rgba(5, 217, 232, 0.18);
+    --mib-text: #f2f0fa;
+    --mib-muted: #a9a4c9;
+    --mib-dim: #69638c;
+    --mib-accent: #ffd84d;
+    --mib-accent-2: #05d9e8;
+    --mib-good: #05f29b;
+    --mib-bad: #ff2a6d;
+}
+
+.mib-theme-vhs.mib-board::before,
+#mib_floating_host.mib-theme-vhs .mib-floating-shell::before,
+#mib_dock_host.mib-theme-vhs .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.14;
+    mix-blend-mode: screen;
+    background-image:
+        var(--mib-noise-svg),
+        repeating-linear-gradient(
+            180deg,
+            rgba(5, 217, 232, 0.06) 0,
+            rgba(5, 217, 232, 0.06) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+    background-size: 130px 130px, 100% 3px;
+}
+
+.mib-theme-vhs .mib-title,
+.mib-theme-vhs .mib-subtitle,
+.mib-theme-vhs .mib-section-title,
+.mib-theme-vhs .mib-tab,
+.mib-theme-vhs .mib-meta span {
+    font-family: var(--mib-font-mono);
+}
+
+.mib-theme-vhs .mib-title {
+    color: #ffd84d;
+    text-shadow:
+        -1.5px 0 rgba(255, 42, 109, 0.85),
+        1.5px 0 rgba(5, 217, 232, 0.85),
+        0 0 10px rgba(255, 216, 77, 0.35);
+}
+
+.mib-theme-vhs .mib-subtitle {
+    color: #ff2a6d;
+    font-weight: 800;
+    text-shadow: 0 0 8px rgba(255, 42, 109, 0.5);
+}
+
+.mib-theme-vhs :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
+    border-radius: 4px;
+    background: rgba(6, 5, 16, 0.65);
+    box-shadow:
+        -1px 0 0 rgba(255, 42, 109, 0.25),
+        1px 0 0 rgba(5, 217, 232, 0.25);
+}
+
+.mib-theme-vhs .mib-thought {
+    color: #ffd84d;
+    background: rgba(0, 0, 0, 0.58);
+    border: 1px solid rgba(255, 216, 77, 0.28);
+    border-left: 3px solid #ffd84d;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* 31. KINTSUGI PORCELAIN (Warm Ivory, Gold Crack Seams & Cinnabar Stamp) */
+.mib-theme-porcelain {
+    --mib-bg-1: #ece5d8;
+    --mib-bg-2: #e0d6c3;
+    --mib-bg-3: #d4c8b2;
+    --mib-surface: rgba(255, 252, 245, 0.65);
+    --mib-surface-deep: rgba(185, 168, 142, 0.32);
+
+    --mib-border: rgba(184, 137, 40, 0.45);
+    --mib-soft-border: rgba(160, 125, 60, 0.24);
+    --mib-highlight: rgba(255, 255, 255, 0.75);
+
+    --mib-text: #241e1a;
+    --mib-muted: #5c5046;
+    --mib-dim: #8a7b6d;
+
+    --mib-accent: #b8332a;
+    --mib-accent-2: #b88928;
+    --mib-good: #2d7a53;
+    --mib-bad: #b8332a;
+    --mib-shadow:
+        0 18px 42px rgba(36, 26, 16, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.mib-theme-porcelain.mib-board,
+#mib_floating_host.mib-theme-porcelain .mib-floating-shell,
+#mib_dock_host.mib-theme-porcelain .mib-dock-panel {
+    background:
+        radial-gradient(circle at 88% 8%, rgba(184, 137, 40, 0.16), transparent 36%),
+        radial-gradient(circle at 12% 92%, rgba(184, 51, 42, 0.09), transparent 38%),
+        linear-gradient(140deg, #f2ece1 0%, #e4dac8 54%, #d6cbb6 100%);
+}
+
+/* Gold Kintsugi Crack Lines in Corner */
+.mib-theme-porcelain.mib-board::after,
+#mib_floating_host.mib-theme-porcelain .mib-floating-shell::after,
+#mib_dock_host.mib-theme-porcelain .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 220px;
+    height: 220px;
+    pointer-events: none;
+    opacity: 0.55;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23c4972f' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M200 25 L155 42 L132 76 L95 88 L68 130 L20 145' stroke-width='1.8'/%3E%3Cpath d='M155 42 L170 85 L148 122' stroke-width='1.1'/%3E%3Cpath d='M132 76 L108 45 L75 30' stroke-width='1'/%3E%3Cpath d='M95 88 L112 135 L98 178' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E")
+        right top / 220px 220px no-repeat;
+}
+
+.mib-theme-porcelain .mib-title,
+.mib-theme-porcelain .mib-section-title,
+.mib-theme-porcelain .mib-location,
+.mib-theme-porcelain .mib-thought {
+    font-family: var(--mib-font-serif);
+}
+
+.mib-theme-porcelain .mib-title {
+    color: #241e1a;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.mib-theme-porcelain :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(242, 234, 218, 0.55));
+    border-color: rgba(184, 137, 40, 0.34);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 4px 12px rgba(60, 45, 25, 0.07);
+}
+
+/* Red Japanese Hanko Stamp for Character Icons */
+.mib-theme-porcelain .mib-char-icon {
+    border-radius: 5px;
+    background: rgba(184, 51, 42, 0.12);
+    border: 1.5px solid #b8332a;
+    color: #b8332a;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+.mib-theme-porcelain :is(.mib-meta span, .mib-chip, .mib-status-chip, .mib-mini-stat, .mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-pin-btn) {
+    background: rgba(255, 252, 246, 0.78);
+    border-color: rgba(184, 137, 40, 0.35);
+    color: #4a3e35;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.mib-theme-porcelain .mib-chip {
+    color: #b8332a;
+}
+
+.mib-theme-porcelain .mib-mood {
+    color: #8c6210;
+    background: rgba(184, 137, 40, 0.14);
+    border-color: rgba(184, 137, 40, 0.4);
+}
+
+.mib-theme-porcelain .mib-thought {
+    background: rgba(255, 252, 245, 0.82);
+    color: #2b231d;
+    border-color: rgba(184, 137, 40, 0.32);
+    border-left: 3px solid #b8332a;
+}
+
+.mib-theme-porcelain .mib-bar {
+    background: rgba(60, 45, 30, 0.16);
+    border-color: rgba(184, 137, 40, 0.28);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.mib-theme-porcelain .mib-notes-input,
+.mib-theme-porcelain .mib-xml-editor {
+    background: rgba(255, 252, 246, 0.85);
+    color: #241e1a;
+    border-color: rgba(184, 137, 40, 0.38);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.mib-theme-porcelain :is(.mib-style-menu, .mib-dossier-panel, .mib-xml-inspector) {
+    background: rgba(244, 238, 227, 0.96);
+    color: #241e1a;
+    border-color: rgba(184, 137, 40, 0.45);
+}
+
+.mib-theme-porcelain .mib-style-menu select {
+    background: #fffdf9;
+    color: #241e1a;
+    border-color: rgba(184, 137, 40, 0.4);
+}
+
+/* 32. BIO-ABYSS (Deep Trench Bioluminescence) */
+.mib-theme-abyss {
+    --mib-bg-1: #020810;
+    --mib-bg-2: #061829;
+    --mib-bg-3: #010408;
+    --mib-border: rgba(0, 245, 212, 0.32);
+    --mib-soft-border: rgba(0, 245, 212, 0.14);
+    --mib-text: #dcfaf7;
+    --mib-muted: #84c7c0;
+    --mib-dim: #467d7a;
+    --mib-accent: #00f5d4;
+    --mib-accent-2: #9b5de5;
+    --mib-good: #00f5d4;
+    --mib-bad: #ff4d7d;
+}
+
+.mib-theme-abyss.mib-board,
+#mib_floating_host.mib-theme-abyss .mib-floating-shell,
+#mib_dock_host.mib-theme-abyss .mib-dock-panel {
+    background:
+        radial-gradient(circle at 85% 12%, rgba(0, 245, 212, 0.15), transparent 36%),
+        radial-gradient(circle at 15% 88%, rgba(155, 93, 229, 0.16), transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(0, 180, 216, 0.06), transparent 60%),
+        linear-gradient(150deg, #020810 0%, #061829 54%, #010408 100%);
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.78),
+        0 0 28px rgba(0, 245, 212, 0.08),
+        inset 0 0 32px rgba(0, 245, 212, 0.04);
+}
+
+/* Bioluminescent Spores Overlay */
+.mib-theme-abyss.mib-board::after,
+#mib_floating_host.mib-theme-abyss .mib-floating-shell::after,
+#mib_dock_host.mib-theme-abyss .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.45;
+    background-image:
+        radial-gradient(circle at 18% 22%, rgba(0, 245, 212, 0.55) 0 1.2px, transparent 2.5px),
+        radial-gradient(circle at 82% 30%, rgba(155, 93, 229, 0.55) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 64% 76%, rgba(0, 245, 212, 0.45) 0 1px, transparent 2.2px),
+        radial-gradient(circle at 28% 84%, rgba(0, 187, 249, 0.5) 0 1.4px, transparent 2.8px);
+}
+
+.mib-theme-abyss :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
+    border-radius: 14px;
+    background:
+        radial-gradient(circle at top left, rgba(0, 245, 212, 0.05), transparent 55%),
+        rgba(2, 11, 20, 0.62);
+    box-shadow:
+        inset 0 1px 0 rgba(0, 245, 212, 0.10),
+        0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* 33. ARCANA TAROT (Golden Dawn Grimoire & Celestial Geometry) */
+.mib-theme-tarot {
+    --mib-bg-1: #0d0b12;
+    --mib-bg-2: #1b1626;
+    --mib-bg-3: #060509;
+    --mib-border: rgba(217, 180, 100, 0.38);
+    --mib-soft-border: rgba(217, 180, 100, 0.18);
+    --mib-text: #f5eedc;
+    --mib-muted: #c4b699;
+    --mib-dim: #7d715c;
+    --mib-accent: #d9b464;
+    --mib-accent-2: #9b84c9;
+    --mib-good: #82c49b;
+    --mib-bad: #cf5f6e;
+}
+
+.mib-theme-tarot.mib-board,
+#mib_floating_host.mib-theme-tarot .mib-floating-shell,
+#mib_dock_host.mib-theme-tarot .mib-dock-panel {
+    box-shadow:
+        0 20px 48px rgba(0, 0, 0, 0.75),
+        inset 0 0 0 3px #0d0b12,
+        inset 0 0 0 4px rgba(217, 180, 100, 0.32);
+}
+
+/* Celestial Compass / Tarot Sunburst in Corner */
+.mib-theme-tarot.mib-board::after,
+#mib_floating_host.mib-theme-tarot .mib-floating-shell::after,
+#mib_dock_host.mib-theme-tarot .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    right: -36px;
+    top: -36px;
+    width: 190px;
+    height: 190px;
+    pointer-events: none;
+    opacity: 0.16;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23d9b464' stroke-width='1.1'%3E%3Ccircle cx='100' cy='100' r='86'/%3E%3Ccircle cx='100' cy='100' r='70' stroke-dasharray='3 3'/%3E%3Ccircle cx='100' cy='100' r='44'/%3E%3Cpath d='M100 4 L112 88 L196 100 L112 112 L100 196 L88 112 L4 100 L88 88 Z'/%3E%3Cpath d='M32 32 L92 92 M168 32 L108 92 M168 168 L108 108 M32 168 L92 108'/%3E%3C/g%3E%3C/svg%3E")
+        center / contain no-repeat;
+}
+
+.mib-theme-tarot .mib-title,
+.mib-theme-tarot .mib-section-title,
+.mib-theme-tarot .mib-location,
+.mib-theme-tarot .mib-char-name,
+.mib-theme-tarot .mib-rel-name,
+.mib-theme-tarot .mib-thought {
+    font-family: var(--mib-font-serif);
+}
+
+.mib-theme-tarot .mib-title {
+    letter-spacing: 3px;
+    color: #f5e6c4;
+}
+
+.mib-theme-tarot :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
+    border: 1px solid rgba(217, 180, 100, 0.24);
+    box-shadow:
+        inset 0 0 0 2px rgba(13, 11, 18, 0.85),
+        inset 0 0 0 3px rgba(217, 180, 100, 0.10),
+        0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.mib-theme-tarot .mib-mood::before {
+    content: "✦ ";
+    color: var(--mib-accent);
+    font-style: normal;
+}
