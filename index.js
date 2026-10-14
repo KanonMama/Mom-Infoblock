@@ -4513,6 +4513,146 @@ Object.assign(kThemePreviewMap, {
     }
 });
 
+/* =========================================================
+   EXPANSION PACK: 5 Themes + 3 Bar Styles
+   (Revachol Disco, VHS 1994, Kintsugi Porcelain, Bio-Abyss, Arcana Tarot)
+   ========================================================= */
+
+kThemeOptions.push(
+    ["disco", "Revachol Disco"],
+    ["vhs", "VHS 1994"],
+    ["porcelain", "Kintsugi Porcelain"],
+    ["abyss", "Bio-Abyss"],
+    ["tarot", "Arcana Tarot"]
+);
+
+kBarStyleOptions.push(
+    ["brush", "barBrush"],
+    ["heartbeat", "barHeartbeat"],
+    ["moonphases", "barMoonphases"]
+);
+
+Object.assign(kLangMap.ru, {
+    barBrush: "Brush Stroke",
+    barHeartbeat: "Heartbeat ECG",
+    barMoonphases: "Moon Phases"
+});
+
+Object.assign(kLangMap.en, {
+    barBrush: "Brush Stroke",
+    barHeartbeat: "Heartbeat ECG",
+    barMoonphases: "Moon Phases"
+});
+
+Object.assign(kThemePreviewMap, {
+    disco: {
+        label: {
+            ru: "Масляные мазки, ржавая охра и нуар Ревашоля",
+            en: "Oil brushstrokes, rusty ochre and Revachol noir"
+        },
+        bg: "#161311",
+        bg2: "#261f1a",
+        accent: "#e06d3b",
+        accent2: "#7fa69b",
+        text: "#efe6d8",
+        danger: "#d94e41"
+    },
+    vhs: {
+        label: {
+            ru: "Ночной эфир 1994, кассетный глитч и жёлтые субтитры",
+            en: "Late night 1994, tape glitch and yellow subtitles"
+        },
+        bg: "#090817",
+        bg2: "#161233",
+        accent: "#ffd84d",
+        accent2: "#05d9e8",
+        text: "#f0eff7",
+        danger: "#ff2a6d"
+    },
+    porcelain: {
+        label: {
+            ru: "Тёплый фарфор, золотые швы кинцуги и красная тушь",
+            en: "Warm porcelain, gold kintsugi seams and cinnabar ink"
+        },
+        bg: "#ece5d8",
+        bg2: "#dfd6c5",
+        accent: "#b8332a",
+        accent2: "#b88928",
+        text: "#241f1c",
+        danger: "#c92a2a"
+    },
+    abyss: {
+        label: {
+            ru: "Марианская впадина и биолюминесцентный планктон",
+            en: "Mariana trench and bioluminescent plankton"
+        },
+        bg: "#020810",
+        bg2: "#061829",
+        accent: "#00f5d4",
+        accent2: "#9b5de5",
+        text: "#dcfaf7",
+        danger: "#ff4d7d"
+    },
+    tarot: {
+        label: {
+            ru: "Старинная гравюра, арканы Таро и античное золото",
+            en: "Old engraving, Tarot arcana and antique gold"
+        },
+        bg: "#0d0b12",
+        bg2: "#1b1626",
+        accent: "#d9b464",
+        accent2: "#8f79b8",
+        text: "#f2ead8",
+        danger: "#c75866"
+    }
+});
+
+// Дополняем иконки и заголовки для новых тем
+const _origLocIcon = GetThemeLocationIcon;
+GetThemeLocationIcon = function(theme = gTheme) {
+    const extra = { disco: "🥃", vhs: "📼", porcelain: "⛩️", abyss: "🪼", tarot: "🎴" };
+    return extra[theme] || _origLocIcon(theme);
+};
+
+const _origCharsIcon = GetThemeCharsIcon;
+GetThemeCharsIcon = function(theme = gTheme) {
+    const extra = { disco: "🎭", vhs: "📺", porcelain: "印", abyss: "◈", tarot: "Ⅰ" };
+    return extra[theme] || _origCharsIcon(theme);
+};
+
+const _origRelsIcon = GetThemeRelationsIcon;
+GetThemeRelationsIcon = function(theme = gTheme) {
+    const extra = { disco: "🚬", vhs: "📡", porcelain: "糸", abyss: "🫧", tarot: "Ⅱ" };
+    return extra[theme] || _origRelsIcon(theme);
+};
+
+const _origTitleData = GetThemeTitleData;
+GetThemeTitleData = function(theme = gTheme) {
+    const extra = {
+        disco: {
+            main: "REVACHOL // INLAND EMPIRE",
+            sub: "── ⋆⋅ 🥃 ⋅⋆ ── [ Volition: Easy ]"
+        },
+        vhs: {
+            main: "PLAY ▷ 00:42:19",
+            sub: "● REC // SP MODE // CH-03"
+        },
+        porcelain: {
+            main: "金継ぎ // KINTSUGI",
+            sub: "──  朱印 · 黄金 · 陶器 ──"
+        },
+        abyss: {
+            main: "HADAL ZONE // -10,994m",
+            sub: "∘˚˳° 𓆝 𓆟 𓆞 °˳˚∘"
+        },
+        tarot: {
+            main: "✦ LIBER ARCANORUM ✦",
+            sub: "Ⅰ · Ⅱ · Ⅲ · Ⅳ · Ⅴ · Ⅵ · Ⅶ"
+        }
+    };
+    return extra[theme] || _origTitleData(theme);
+};
+
 jQuery(async () => {
     const stContext = GetContextSafe();
 
