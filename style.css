@@ -11,7 +11,7 @@
 
     /* Reusable SVG Fractal Noise */
     --mib-noise-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.68'/%3E%3C/svg%3E");
-    --mib-wood-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72 .12' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.72'/%3E%3C/svg%3E");
+    --mib-noise-soft-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
 
     /* Default Theme: Nocturne */
     --mib-bg-1: #111522;
@@ -2018,7 +2018,7 @@
    THEMES CATALOG (28 THEMES + TEXTURE OVERLAYS)
    ========================================================= */
 
-/* 1. TERMINAL (Green CRT + Noise + Scanlines) */
+/* 1. TERMINAL (Green CRT + Subtle Noise + Scanlines) */
 .mib-theme-terminal {
     --mib-bg-1: #020b06;
     --mib-bg-2: #06170d;
@@ -2042,26 +2042,30 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.16;
-    mix-blend-mode: screen;
+    opacity: 0.08;
+    mix-blend-mode: soft-light;
     background-image:
         var(--mib-noise-svg),
         repeating-linear-gradient(
             180deg,
-            rgba(56, 255, 122, 0.05) 0,
-            rgba(56, 255, 122, 0.05) 1px,
+            rgba(56, 255, 122, 0.06) 0,
+            rgba(56, 255, 122, 0.06) 1px,
             transparent 1px,
             transparent 4px
         );
-    background-size: 135px 135px, 100% 4px;
+    background-size: 140px 140px, 100% 4px;
 }
 
-.mib-theme-terminal :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
-    background-color: rgba(0, 10, 4, 0.62);
+.mib-theme-terminal :is(.mib-header, .mib-section) {
+    background-color: rgba(0, 10, 4, 0.68);
     background-image:
-        var(--mib-noise-svg),
-        linear-gradient(180deg, rgba(56, 255, 122, 0.03), rgba(255, 255, 255, 0.005));
+        var(--mib-noise-soft-svg),
+        linear-gradient(180deg, rgba(56, 255, 122, 0.025), rgba(0, 0, 0, 0.15));
     background-size: 135px 135px, auto;
+}
+
+.mib-theme-terminal :is(.mib-char, .mib-rel, .mib-compact-rel) {
+    background-color: rgba(0, 7, 3, 0.55);
 }
 
 .mib-theme-terminal .mib-title,
@@ -2073,7 +2077,7 @@
 
 .mib-theme-terminal .mib-mood::before { content: "> "; }
 
-/* 2. SYSTEM LOG (Sci-Fi Telemetry + Scanlines + Noise) */
+/* 2. SYSTEM LOG (Sci-Fi Telemetry + Scanlines + Subtle Noise) */
 .mib-theme-systemlog {
     --mib-bg-1: #06090d;
     --mib-bg-2: #0d141c;
@@ -2097,26 +2101,30 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.14;
-    mix-blend-mode: screen;
+    opacity: 0.08;
+    mix-blend-mode: soft-light;
     background-image:
         var(--mib-noise-svg),
         repeating-linear-gradient(
             180deg,
-            rgba(107, 214, 255, 0.04) 0,
-            rgba(107, 214, 255, 0.04) 1px,
+            rgba(107, 214, 255, 0.05) 0,
+            rgba(107, 214, 255, 0.05) 1px,
             transparent 1px,
             transparent 4px
         );
     background-size: 140px 140px, 100% 4px;
 }
 
-.mib-theme-systemlog :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
-    background-color: rgba(4, 7, 11, 0.52);
+.mib-theme-systemlog :is(.mib-header, .mib-section) {
+    background-color: rgba(4, 7, 11, 0.62);
     background-image:
-        var(--mib-noise-svg),
-        linear-gradient(180deg, rgba(107, 214, 255, 0.03), rgba(255, 255, 255, 0.008));
+        var(--mib-noise-soft-svg),
+        linear-gradient(180deg, rgba(107, 214, 255, 0.025), rgba(0, 0, 0, 0.15));
     background-size: 125px 125px, auto;
+}
+
+.mib-theme-systemlog :is(.mib-char, .mib-rel, .mib-compact-rel) {
+    background-color: rgba(3, 5, 8, 0.55);
 }
 
 .mib-theme-systemlog .mib-mood::before { content: "! "; }
