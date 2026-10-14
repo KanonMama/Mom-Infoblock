@@ -1997,14 +1997,22 @@ function RenderChronicleTab(state) {
         <div class="mib-section">
             <div class="mib-section-title">${EscapeHtml(T("chronicle"))}</div>
             ${events.length
-                ? `<ol class="mib-chronicle-list">${events.map(event => `<li>${EscapeHtml(event)}</li>`).join("")}</ol>`
+                ? `<ol class="mib-chronicle-list">${events.map((event, idx) => `
+                    <li class="mib-chronicle-item">
+                        <span class="mib-chronicle-text">${EscapeHtml(event)}</span>
+                        <button type="button" class="mib-chronicle-del" data-mib-del-event="${idx}" title="Удалить">×</button>
+                    </li>`).join("")}</ol>`
                 : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`}
         </div>
 
         <div class="mib-section">
             <div class="mib-section-title">${EscapeHtml(T("openThreads"))}</div>
             ${threads.length
-                ? `<ul class="mib-thread-list">${threads.map(thread => `<li>${EscapeHtml(thread)}</li>`).join("")}</ul>`
+                ? `<ul class="mib-thread-list">${threads.map((thread, idx) => `
+                    <li class="mib-chronicle-item">
+                        <span class="mib-chronicle-text">${EscapeHtml(thread)}</span>
+                        <button type="button" class="mib-chronicle-del" data-mib-del-thread="${idx}" title="Удалить">×</button>
+                    </li>`).join("")}</ul>`
                 : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`}
         </div>`;
 }
@@ -2615,6 +2623,36 @@ root.querySelectorAll("[data-mib-panel-mode]").forEach(button => {
         ToggleXmlInspector(root);
     });
 });
+
+        root.querySelectorAll("[data-mib-del-event]").forEach(button => {
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const idx = parseInt(button.dataset.mibDelEvent, 10);
+            if (Number.isNaN(idx) || !gState.chronicle?.events) return;
+
+            gState.chronicle.events.splice(idx, 1);
+            SaveState();
+            InjectPrompt();
+            RerenderAllPanels();
+        });
+    });
+
+    root.querySelectorAll("[data-mib-del-thread]").forEach(button => {
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const idx = parseInt(button.dataset.mibDelThread, 10);
+            if (Number.isNaN(idx) || !gState.chronicle?.threads) return;
+
+            gState.chronicle.threads.splice(idx, 1);
+            SaveState();
+            InjectPrompt();
+            RerenderAllPanels();
+        });
+    });
 }
 
 function GetInspectorHost(root) {
@@ -2735,6 +2773,7 @@ function ToggleStyleMenu(root) {
 
     if (existing) {
         existing.remove();
+        gStyleMenuOpen = false;
         return;
     }
 
