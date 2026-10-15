@@ -1,6 +1,6 @@
 /* =========================================================
-   MOM INFOBLOCK — MASTER STYLESHEET (REMASTERED + TEXTURES)
-   Clean architecture, zero duplicates, CRT noise & film grain
+   MOM INFOBLOCK — MASTER STYLESHEET (v2.1 KANON EDITION)
+   Clean architecture, 34 Themes, 22 Bar Styles, Corner System
    ========================================================= */
 
 :root {
@@ -12,6 +12,7 @@
     /* Reusable SVG Fractal Noise */
     --mib-noise-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.68'/%3E%3C/svg%3E");
     --mib-noise-soft-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    --mib-wood-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72 .12' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.72'/%3E%3C/svg%3E");
 
     /* Default Theme: Nocturne */
     --mib-bg-1: #111522;
@@ -60,6 +61,11 @@
     gap: 10px;
     margin-bottom: 10px;
     flex-wrap: wrap;
+}
+
+.mib-settings .mib-setting-row input[type="checkbox"] + label {
+    flex: 1;
+    cursor: pointer;
 }
 
 .mib-settings select {
@@ -206,7 +212,7 @@
     position: relative;
     overflow: hidden;
     isolation: isolate;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, border-radius 0.18s ease;
 }
 
 .mib-board::before {
@@ -332,7 +338,7 @@
 }
 
 /* =========================================================
-   TABS NAVIGATION
+   TABS NAVIGATION & BADGES
    ========================================================= */
 
 .mib-tabs {
@@ -344,6 +350,7 @@
     background: var(--mib-surface-deep);
     border: 1px solid var(--mib-soft-border);
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+    transition: border-radius 0.18s ease;
 }
 
 .mib-tab {
@@ -352,13 +359,17 @@
     background: transparent;
     color: var(--mib-muted);
     border-radius: var(--mib-radius-sm);
-    padding: 8px 12px;
+    padding: 8px 10px;
     font-size: calc(12px * var(--mib-font-scale));
     font-weight: 700;
     letter-spacing: 0.4px;
     line-height: 1;
     cursor: pointer;
     flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     transition: all 0.18s ease;
 }
 
@@ -378,6 +389,34 @@
         0 2px 10px rgba(0, 0, 0, 0.25),
         0 0 12px color-mix(in srgb, var(--mib-accent) 14%, transparent);
     text-shadow: 0 0 8px color-mix(in srgb, var(--mib-accent) 30%, transparent);
+}
+
+.mib-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 15px;
+    padding: 0 5px;
+    border-radius: 999px;
+    font-size: 9.5px;
+    font-weight: 800;
+    color: var(--mib-text);
+    background: color-mix(in srgb, var(--mib-accent) 26%, rgba(0, 0, 0, 0.3));
+    border: 1px solid color-mix(in srgb, var(--mib-accent) 45%, transparent);
+}
+
+.mib-tab-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--mib-accent);
+    box-shadow: 0 0 6px var(--mib-accent);
+}
+
+.mib-tab-dot-injected {
+    background: var(--mib-good);
+    box-shadow: 0 0 8px var(--mib-good);
 }
 
 .mib-tab-body {
@@ -402,6 +441,7 @@
         inset 0 1px 0 var(--mib-highlight),
         0 6px 16px rgba(0, 0, 0, 0.18);
     overflow: hidden;
+    transition: border-radius 0.18s ease, border-color 0.18s ease;
 }
 
 .mib-section:last-child {
@@ -450,6 +490,7 @@
     font-size: calc(11px * var(--mib-font-scale));
     font-weight: 600;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: border-radius 0.18s ease;
 }
 
 .mib-section-title {
@@ -485,7 +526,7 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.045),
         0 3px 8px rgba(0, 0, 0, 0.14);
     flex-wrap: wrap;
-    transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+    transition: border-color 0.16s ease, background 0.16s ease, border-radius 0.18s ease;
 }
 
 .mib-char:last-child {
@@ -523,6 +564,7 @@
         0 0 10px color-mix(in srgb, var(--mib-accent) 14%, transparent);
     font-size: 13px;
     flex-shrink: 0;
+    transition: border-radius 0.18s ease;
 }
 
 .mib-char-name {
@@ -604,6 +646,7 @@
     font-weight: 600;
     line-height: 1.25;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: border-radius 0.18s ease;
 }
 
 .mib-mood {
@@ -626,6 +669,7 @@
     letter-spacing: 0.25px;
     border: 1px solid transparent;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    transition: border-radius 0.18s ease;
 }
 
 .mib-presence-focus {
@@ -660,7 +704,7 @@
 }
 
 /* =========================================================
-   RELATIONSHIPS & ACCORDION
+   RELATIONSHIPS, ACCORDION & BIG DELTA SURGES
    ========================================================= */
 
 .mib-rel {
@@ -674,7 +718,7 @@
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.045),
         0 4px 12px rgba(0, 0, 0, 0.16);
-    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, border-radius 0.18s ease;
 }
 
 .mib-rel:last-child {
@@ -747,6 +791,7 @@
     font-size: calc(10px * var(--mib-font-scale));
     line-height: 1;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: border-radius 0.18s ease, box-shadow 0.2s ease;
 }
 
 .mib-mini-label {
@@ -779,6 +824,39 @@
         radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 55%),
         color-mix(in srgb, var(--mib-bad) 11%, rgba(0, 0, 0, 0.25));
     border-color: color-mix(in srgb, var(--mib-bad) 28%, transparent);
+}
+
+/* Big Delta Surge Highlight (±4 or more) */
+.mib-delta-big-pos {
+    border-color: color-mix(in srgb, var(--mib-good) 75%, #fff) !important;
+    box-shadow:
+        0 0 10px color-mix(in srgb, var(--mib-good) 38%, transparent),
+        inset 0 0 6px color-mix(in srgb, var(--mib-good) 25%, transparent) !important;
+}
+
+.mib-delta-big-neg {
+    border-color: color-mix(in srgb, var(--mib-bad) 75%, #fff) !important;
+    box-shadow:
+        0 0 10px color-mix(in srgb, var(--mib-bad) 42%, transparent),
+        inset 0 0 6px color-mix(in srgb, var(--mib-bad) 25%, transparent) !important;
+}
+
+.mib-delta-big .mib-mini-delta {
+    font-size: 10px;
+    font-weight: 900;
+    text-shadow: 0 0 6px currentColor;
+}
+
+.mib-meter-surge-pos .mib-meter-top span:last-child {
+    color: var(--mib-good);
+    font-weight: 800;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--mib-good) 45%, transparent);
+}
+
+.mib-meter-surge-neg .mib-meter-top span:last-child {
+    color: var(--mib-bad);
+    font-weight: 800;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--mib-bad) 45%, transparent);
 }
 
 .mib-delta-pos { color: var(--mib-good); }
@@ -901,7 +979,7 @@
 }
 
 /* =========================================================
-   THOUGHTS, CHRONICLE, NOTES & NSFW
+   THOUGHTS, CHRONICLE (+ MANUAL ADD), NOTES & NSFW
    ========================================================= */
 
 .mib-thought {
@@ -919,6 +997,7 @@
     line-height: 1.48;
     font-style: italic;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: border-radius 0.18s ease;
 }
 
 .mib-thought:last-child {
@@ -969,6 +1048,103 @@
     font-weight: 700;
 }
 
+.mib-chronicle-item {
+    position: relative;
+    padding-right: 26px;
+    transition: color 0.15s ease;
+}
+
+.mib-chronicle-text {
+    display: inline;
+    overflow-wrap: anywhere;
+}
+
+.mib-chronicle-del {
+    appearance: none;
+    position: absolute;
+    right: 0;
+    top: 1px;
+    width: 19px;
+    height: 19px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--mib-dim);
+    font-size: 13px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.mib-chronicle-item:hover .mib-chronicle-del {
+    opacity: 1;
+    border-color: var(--mib-soft-border);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.mib-chronicle-del:hover {
+    color: var(--mib-bad) !important;
+    border-color: color-mix(in srgb, var(--mib-bad) 45%, transparent) !important;
+    background: color-mix(in srgb, var(--mib-bad) 14%, transparent) !important;
+}
+
+.mib-chronicle-add-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--mib-soft-border);
+}
+
+.mib-chronicle-input {
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--mib-soft-border);
+    background: rgba(0, 0, 0, 0.26);
+    color: var(--mib-text);
+    font: inherit;
+    font-size: calc(11.5px * var(--mib-font-scale));
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.mib-chronicle-input:focus {
+    border-color: var(--mib-accent);
+}
+
+.mib-chronicle-add-btn {
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--mib-soft-border);
+    background: color-mix(in srgb, var(--mib-accent) 14%, rgba(0, 0, 0, 0.25));
+    color: var(--mib-accent);
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.mib-chronicle-add-btn:hover {
+    color: var(--mib-text);
+    border-color: var(--mib-accent);
+    background: color-mix(in srgb, var(--mib-accent) 26%, rgba(0, 0, 0, 0.3));
+}
+
 .mib-notes-section {
     padding: 12px;
 }
@@ -985,7 +1161,7 @@
     font: inherit;
     line-height: 1.48;
     box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
-    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, border-radius 0.18s ease;
 }
 
 .mib-notes-input:focus {
@@ -1045,6 +1221,7 @@
         linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.12)),
         rgba(0, 0, 0, 0.2);
     border: 1px solid var(--mib-soft-border);
+    transition: border-radius 0.18s ease;
 }
 
 .mib-compact-rel-top {
@@ -1100,6 +1277,7 @@
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.06),
         0 10px 26px rgba(0, 0, 0, 0.38);
+    transition: border-radius 0.18s ease;
 }
 
 .mib-style-menu-row {
@@ -1118,6 +1296,24 @@
     color: var(--mib-muted);
     font-size: 11px;
     font-weight: 600;
+}
+
+.mib-style-bind-row {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--mib-soft-border);
+}
+
+.mib-style-bind-label {
+    justify-content: flex-start !important;
+    cursor: pointer;
+    gap: 8px !important;
+    color: var(--mib-text) !important;
+}
+
+.mib-style-bind-check {
+    accent-color: var(--mib-accent);
+    cursor: pointer;
 }
 
 .mib-style-menu select {
@@ -1252,6 +1448,7 @@
     font-size: 11px;
     line-height: 1.45;
     white-space: pre;
+    transition: border-radius 0.18s ease;
 }
 
 .mib-xml-editor:focus {
@@ -1298,7 +1495,7 @@
     min-height: 0;
     resize: none;
     overflow: visible;
-    border-radius: 999px;
+    border-radius: 999px !important;
     box-shadow: none;
 }
 
@@ -1346,6 +1543,7 @@
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     overflow: hidden;
+    transition: border-radius 0.18s ease;
 }
 
 .mib-floating-shell {
@@ -1397,7 +1595,7 @@
 #mib_dock_host .mib-board {
     margin: 0;
     border: 0;
-    border-radius: 0;
+    border-radius: 0 !important;
     box-shadow: none;
     background: transparent;
 }
@@ -1494,8 +1692,66 @@
 }
 
 /* =========================================================
-   BAR STYLES CATALOG (18 STYLES)
+   BAR STYLES CATALOG (22 STYLES)
    ========================================================= */
+
+/* 0. KANON SOULS (Signature "SOULS COLLECTED IIIIIIII" Tick Meter) */
+.mib-bars-kanon .mib-bar {
+    height: 13px;
+    border-radius: 2px;
+    padding: 2px;
+    border: 1px solid rgba(92, 225, 255, 0.36);
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(92, 225, 255, 0.10) 0px,
+            rgba(92, 225, 255, 0.10) 4px,
+            transparent 4px,
+            transparent 6px
+        ) content-box,
+        rgba(3, 9, 18, 0.82) !important;
+    box-shadow:
+        inset 0 0 8px rgba(0, 0, 0, 0.75),
+        0 0 8px rgba(92, 225, 255, 0.10);
+    overflow: visible;
+}
+
+.mib-bars-kanon .mib-bar-fill {
+    height: 100%;
+    border-radius: 1px;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            currentColor 0px,
+            currentColor 4px,
+            rgba(3, 10, 20, 0.85) 4px,
+            rgba(3, 10, 20, 0.85) 6px
+        ) !important;
+    filter: brightness(1.12) drop-shadow(0 0 5px currentColor);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.mib-bars-kanon .mib-bar-fill::after {
+    content: "✿";
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-52%);
+    font-size: 11px;
+    line-height: 1;
+    color: #e6f8ff;
+    text-shadow:
+        0 0 6px currentColor,
+        0 0 12px #5ce1ff;
+    pointer-events: none;
+}
+
+.mib-bars-kanon .mib-bar-fill.mib-bar-affection-pos { color: #5ce1ff !important; }
+.mib-bars-kanon .mib-bar-fill.mib-bar-trust-pos     { color: #3b8bff !important; }
+.mib-bars-kanon .mib-bar-fill.mib-bar-love-pos      { color: #a3c6ff !important; }
+.mib-bars-kanon .mib-bar-fill.mib-bar-affection-neg { color: #ff3e7f !important; }
+.mib-bars-kanon .mib-bar-fill.mib-bar-trust-neg     { color: #ff8a47 !important; }
+.mib-bars-kanon .mib-bar-fill.mib-bar-love-neg      { color: #e02868 !important; }
 
 /* 1. CLASSIC */
 .mib-bars-classic .mib-bar {
@@ -2014,9 +2270,257 @@
     mask: var(--mib-web-pattern) left center / 48px 20px repeat-x;
 }
 
+/* 19. BRUSH STROKE (Oil Paint Swatch) */
+.mib-bars-brush {
+    --mib-brush-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='14' viewBox='0 0 160 14' preserveAspectRatio='none'%3E%3Cpath d='M0 3 Q20 1 45 2.5 T95 1.5 T140 3 L160 2 L158 6.5 L160 11.5 Q130 13 95 11.8 T40 12.8 T0 11 Z' fill='black'/%3E%3C/svg%3E");
+}
+
+.mib-bars-brush .mib-bar {
+    height: 12px;
+    border: 0;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.38);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.mib-bars-brush .mib-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.08) 0px,
+            transparent 2px,
+            rgba(0, 0, 0, 0.12) 5px
+        ),
+        linear-gradient(90deg, color-mix(in srgb, currentColor 70%, #1a120b), currentColor) !important;
+    -webkit-mask: var(--mib-brush-mask) left center / 100% 100% no-repeat;
+    mask: var(--mib-brush-mask) left center / 100% 100% no-repeat;
+    filter: drop-shadow(0 1px 4px color-mix(in srgb, currentColor 45%, transparent));
+}
+
+/* 20. HEARTBEAT ECG (Pulse Monitor) */
+.mib-bars-heartbeat {
+    --mib-ecg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='18' viewBox='0 0 64 18'%3E%3Cpath d='M0 10 H18 L22 10 L25 4 L29 15 L33 2 L37 13 L40 8 L43 10 H64' fill='none' stroke='black' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.mib-bars-heartbeat .mib-bar {
+    height: 18px;
+    border: 0;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+.mib-bars-heartbeat .mib-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: currentColor;
+    opacity: 0.18;
+    -webkit-mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
+    mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
+}
+
+.mib-bars-heartbeat .mib-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    background: currentColor !important;
+    filter: brightness(1.15) drop-shadow(0 0 4px currentColor) drop-shadow(0 0 9px currentColor);
+    -webkit-mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
+    mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
+}
+
+/* 21. MOON PHASES (Lunar Cycle) */
+.mib-bars-moonphases {
+    --mib-moon-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='18' viewBox='0 0 72 18'%3E%3Cpath d='M11 3.5 A5.5 5.5 0 1 0 11 14.5 A4.2 5.5 0 1 1 11 3.5 Z' fill='black'/%3E%3Ccircle cx='27' cy='9' r='5' fill='black'/%3E%3Cpath d='M43 3.5 A5.5 5.5 0 1 1 43 14.5 A4.2 5.5 0 1 0 43 3.5 Z' fill='black'/%3E%3Cpath d='M63 3.5 L64.3 7.5 L68.5 9 L64.3 10.5 L63 14.5 L61.7 10.5 L57.5 9 L61.7 7.5 Z' fill='black'/%3E%3C/svg%3E");
+}
+
+.mib-bars-moonphases .mib-bar {
+    height: 18px;
+    border: 0;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+.mib-bars-moonphases .mib-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--mib-muted);
+    opacity: 0.22;
+    -webkit-mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
+    mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
+}
+
+.mib-bars-moonphases .mib-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    background: linear-gradient(90deg, var(--mib-accent), var(--mib-accent-2), currentColor) !important;
+    filter: brightness(1.1) drop-shadow(0 0 5px currentColor);
+    -webkit-mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
+    mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
+}
+
 /* =========================================================
-   THEMES CATALOG (28 THEMES + TEXTURE OVERLAYS)
+   THEMES CATALOG (34 THEMES)
    ========================================================= */
+
+/* 0. KANON.EXE (Signature Theme: Lighthouse, Blue Poppies & Pixel Eldritch) */
+.mib-theme-kanon {
+    --mib-bg-1: #050c16;
+    --mib-bg-2: #0b1c33;
+    --mib-bg-3: #03070d;
+    --mib-border: rgba(92, 225, 255, 0.42);
+    --mib-soft-border: rgba(92, 225, 255, 0.20);
+    --mib-text: #eaf7ff;
+    --mib-muted: #8ec5e8;
+    --mib-dim: #4c7c9e;
+    --mib-accent: #5ce1ff;
+    --mib-accent-2: #2e7bff;
+    --mib-good: #5ce1ff;
+    --mib-bad: #ff3e7f;
+    --mib-warn: #ffd166;
+}
+
+.mib-theme-kanon.mib-board,
+#mib_floating_host.mib-theme-kanon .mib-floating-shell,
+#mib_dock_host.mib-theme-kanon .mib-dock-panel {
+    background:
+        /* Lighthouse beam from top-right */
+        conic-gradient(from 242deg at 92% 10%, transparent 0deg, rgba(92, 225, 255, 0.14) 18deg, rgba(46, 123, 255, 0.05) 36deg, transparent 50deg),
+        radial-gradient(circle at 12% 92%, rgba(46, 123, 255, 0.18), transparent 40%),
+        linear-gradient(90deg, rgba(92, 225, 255, 0.025) 1px, transparent 1px) 0 0 / 16px 16px,
+        linear-gradient(180deg, rgba(92, 225, 255, 0.025) 1px, transparent 1px) 0 0 / 16px 16px,
+        linear-gradient(145deg, #050c16 0%, #0b1c33 52%, #03070d 100%);
+    border-color: rgba(92, 225, 255, 0.48);
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.78),
+        0 0 24px rgba(92, 225, 255, 0.14),
+        inset 0 0 0 1px rgba(92, 225, 255, 0.12);
+}
+
+/* CRT scanline & fine static on Kanon.exe */
+.mib-theme-kanon.mib-board::before,
+#mib_floating_host.mib-theme-kanon .mib-floating-shell::before,
+#mib_dock_host.mib-theme-kanon .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.12;
+    mix-blend-mode: screen;
+    background-image:
+        var(--mib-noise-soft-svg),
+        repeating-linear-gradient(
+            180deg,
+            rgba(92, 225, 255, 0.08) 0,
+            rgba(92, 225, 255, 0.08) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+    background-size: 140px 140px, 100% 3px;
+}
+
+/* Pixel Eldritch Tentacle + Blue Poppies in Corner */
+.mib-theme-kanon.mib-board::after,
+#mib_floating_host.mib-theme-kanon .mib-floating-shell::after,
+#mib_dock_host.mib-theme-kanon .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    right: -6px;
+    bottom: -8px;
+    width: 195px;
+    height: 230px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.24;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 190' shape-rendering='crispEdges'%3E%3C!-- Pixel Tentacle --%3E%3Cpath d='M120 190 H148 V165 H140 V140 H128 V115 H112 V95 H100 V75 H112 V55 H128 V40 H140 V28 H124 V36 H108 V50 H92 V70 H80 V95 H88 V120 H100 V145 H112 V170 H120 Z' fill='%23164e78'/%3E%3Cpath d='M124 185 H142 V168 H134 V144 H122 V120 H108 V98 H96 V76 H108 V56 H124 V42 H134 V32 H126 V40 H112 V54 H96 V74 H86 V96 H94 V118 H106 V142 H118 V166 H124 Z' fill='%2339b8e6'/%3E%3C!-- Tentacle Suckers --%3E%3Crect x='82' y='78' width='8' height='8' fill='%237ce8ff'/%3E%3Crect x='88' y='102' width='10' height='10' fill='%237ce8ff'/%3E%3Crect x='100' y='128' width='10' height='10' fill='%237ce8ff'/%3E%3Crect x='110' y='154' width='12' height='12' fill='%237ce8ff'/%3E%3C!-- Blue Poppy 1 --%3E%3Cg transform='translate(28,136)'%3E%3Crect x='8' y='0' width='16' height='8' fill='%232e7bff'/%3E%3Crect x='0' y='8' width='32' height='16' fill='%234da6ff'/%3E%3Crect x='8' y='24' width='16' height='8' fill='%232e7bff'/%3E%3Crect x='12' y='12' width='8' height='8' fill='%23050c16'/%3E%3Crect x='14' y='14' width='4' height='4' fill='%235ce1ff'/%3E%3C/g%3E%3C!-- Blue Poppy 2 --%3E%3Cg transform='translate(64,154)'%3E%3Crect x='6' y='0' width='12' height='6' fill='%2339b8e6'/%3E%3Crect x='0' y='6' width='24' height='12' fill='%235ce1ff'/%3E%3Crect x='6' y='18' width='12' height='6' fill='%232e7bff'/%3E%3Crect x='9' y='9' width='6' height='6' fill='%23050c16'/%3E%3C/g%3E%3C/svg%3E")
+        right bottom / contain no-repeat;
+}
+
+.mib-theme-kanon .mib-title,
+.mib-theme-kanon .mib-subtitle,
+.mib-theme-kanon .mib-section-title,
+.mib-theme-kanon .mib-tab,
+.mib-theme-kanon .mib-compact-brand {
+    font-family: var(--mib-font-mono);
+}
+
+.mib-theme-kanon .mib-title {
+    color: #eaf7ff;
+    letter-spacing: 2.2px;
+    text-shadow:
+        0 0 10px rgba(92, 225, 255, 0.55),
+        2px 2px 0 rgba(46, 123, 255, 0.45);
+}
+
+.mib-theme-kanon .mib-subtitle {
+    color: #5ce1ff;
+    text-shadow: 0 0 8px rgba(92, 225, 255, 0.4);
+}
+
+/* Salvage Registry Style Cards with Diagonal Hazard Stripe at Bottom */
+.mib-theme-kanon :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
+    background:
+        repeating-linear-gradient(
+            -45deg,
+            rgba(92, 225, 255, 0.14) 0px,
+            rgba(92, 225, 255, 0.14) 5px,
+            transparent 5px,
+            transparent 10px
+        ) left bottom / 100% 3px no-repeat,
+        linear-gradient(180deg, rgba(92, 225, 255, 0.05), rgba(4, 10, 20, 0.72));
+    border-color: rgba(92, 225, 255, 0.28);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 14px rgba(92, 225, 255, 0.06);
+}
+
+.mib-theme-kanon .mib-tab-active {
+    background: linear-gradient(180deg, #5ce1ff, #2e9aff);
+    color: #040b14 !important;
+    font-weight: 900;
+    border-color: #8eeaff;
+    text-shadow: none;
+    box-shadow: 0 0 14px rgba(92, 225, 255, 0.45);
+}
+
+.mib-theme-kanon .mib-mood {
+    color: #ff7aa8;
+    background: rgba(255, 62, 127, 0.14);
+    border-color: rgba(255, 62, 127, 0.38);
+    font-style: normal;
+    font-family: var(--mib-font-mono);
+}
+
+.mib-theme-kanon .mib-mood::before {
+    content: "✿ ";
+    color: #5ce1ff;
+}
+
+.mib-theme-kanon .mib-thought {
+    font-family: var(--mib-font-mono);
+    font-style: normal;
+    background: rgba(3, 9, 18, 0.78);
+    border: 1px solid rgba(92, 225, 255, 0.30);
+    border-left: 3px solid #ff3e7f;
+}
+
+.mib-theme-kanon .mib-thought::before {
+    content: "KEEPER LOG // ";
+    color: #5ce1ff;
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+}
 
 /* 1. TERMINAL (Green CRT + Subtle Noise + Scanlines) */
 .mib-theme-terminal {
@@ -2306,13 +2810,6 @@
     --mib-accent-2: #ff4f9a;
     --mib-good: #20ff9a;
     --mib-bad: #ff4f9a;
-}
-
-.mib-theme-neonquest .mib-chip,
-.mib-theme-neonquest .mib-status-chip,
-.mib-theme-neonquest .mib-meta span,
-.mib-theme-neonquest .mib-mini-stat {
-    border-radius: 4px;
 }
 
 /* 8. GENGAR (Ghostly Neon Violet) */
@@ -2927,6 +3424,406 @@
         right top / 280px 380px no-repeat;
 }
 
+/* 29. REVACHOL DISCO (Disco Elysium Expressionist Oil & Ochre) */
+.mib-theme-disco {
+    --mib-bg-1: #161311;
+    --mib-bg-2: #261f1a;
+    --mib-bg-3: #0d0b09;
+    --mib-border: rgba(224, 109, 59, 0.36);
+    --mib-soft-border: rgba(212, 180, 140, 0.15);
+    --mib-text: #f0e7d8;
+    --mib-muted: #bfb09c;
+    --mib-dim: #7d7061;
+    --mib-accent: #e06d3b;
+    --mib-accent-2: #7fa69b;
+    --mib-good: #8ab893;
+    --mib-bad: #d94e41;
+}
+
+.mib-theme-disco.mib-board,
+#mib_floating_host.mib-theme-disco .mib-floating-shell,
+#mib_dock_host.mib-theme-disco .mib-dock-panel {
+    background:
+        radial-gradient(ellipse at 92% 8%, rgba(224, 109, 59, 0.20), transparent 42%),
+        radial-gradient(ellipse at 8% 92%, rgba(127, 166, 155, 0.15), transparent 46%),
+        radial-gradient(circle at 50% 45%, rgba(189, 138, 62, 0.06), transparent 60%),
+        linear-gradient(140deg, #161311 0%, #261f1a 52%, #0d0b09 100%);
+}
+
+.mib-theme-disco.mib-board::before,
+#mib_floating_host.mib-theme-disco .mib-floating-shell::before,
+#mib_dock_host.mib-theme-disco .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: soft-light;
+    background-image: var(--mib-wood-svg);
+    background-size: 200px 200px;
+}
+
+.mib-theme-disco .mib-title,
+.mib-theme-disco .mib-location,
+.mib-theme-disco .mib-char-name,
+.mib-theme-disco .mib-rel-name,
+.mib-theme-disco .mib-thought {
+    font-family: var(--mib-font-serif);
+}
+
+.mib-theme-disco .mib-header,
+.mib-theme-disco .mib-section {
+    border-left: 3px solid var(--mib-accent);
+    background:
+        linear-gradient(95deg, rgba(224, 109, 59, 0.06), transparent 38%),
+        rgba(12, 10, 8, 0.58);
+}
+
+.mib-theme-disco .mib-thought {
+    background:
+        linear-gradient(90deg, rgba(127, 166, 155, 0.10), rgba(0, 0, 0, 0.35));
+    border-left: 3px solid var(--mib-accent-2);
+    font-style: normal;
+    letter-spacing: 0.15px;
+}
+
+.mib-theme-disco .mib-thought::before {
+    content: "INLAND EMPIRE — ";
+    font-family: var(--mib-font-sans);
+    font-size: 9.5px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    color: var(--mib-accent-2);
+}
+
+/* 30. VHS 1994 (Analog Tape Glitch, RGB Shift & Camcorder HUD) */
+.mib-theme-vhs {
+    --mib-bg-1: #090817;
+    --mib-bg-2: #151230;
+    --mib-bg-3: #05040d;
+    --mib-border: rgba(255, 216, 77, 0.34);
+    --mib-soft-border: rgba(5, 217, 232, 0.18);
+    --mib-text: #f2f0fa;
+    --mib-muted: #a9a4c9;
+    --mib-dim: #69638c;
+    --mib-accent: #ffd84d;
+    --mib-accent-2: #05d9e8;
+    --mib-good: #05f29b;
+    --mib-bad: #ff2a6d;
+}
+
+.mib-theme-vhs.mib-board::before,
+#mib_floating_host.mib-theme-vhs .mib-floating-shell::before,
+#mib_dock_host.mib-theme-vhs .mib-dock-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.14;
+    mix-blend-mode: screen;
+    background-image:
+        var(--mib-noise-svg),
+        repeating-linear-gradient(
+            180deg,
+            rgba(5, 217, 232, 0.06) 0,
+            rgba(5, 217, 232, 0.06) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+    background-size: 130px 130px, 100% 3px;
+}
+
+.mib-theme-vhs .mib-title,
+.mib-theme-vhs .mib-subtitle,
+.mib-theme-vhs .mib-section-title,
+.mib-theme-vhs .mib-tab,
+.mib-theme-vhs .mib-meta span {
+    font-family: var(--mib-font-mono);
+}
+
+.mib-theme-vhs .mib-title {
+    color: #ffd84d;
+    text-shadow:
+        -1.5px 0 rgba(255, 42, 109, 0.85),
+        1.5px 0 rgba(5, 217, 232, 0.85),
+        0 0 10px rgba(255, 216, 77, 0.35);
+}
+
+.mib-theme-vhs .mib-subtitle {
+    color: #ff2a6d;
+    font-weight: 800;
+    text-shadow: 0 0 8px rgba(255, 42, 109, 0.5);
+}
+
+.mib-theme-vhs :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
+    background: rgba(6, 5, 16, 0.65);
+    box-shadow:
+        -1px 0 0 rgba(255, 42, 109, 0.25),
+        1px 0 0 rgba(5, 217, 232, 0.25);
+}
+
+.mib-theme-vhs .mib-thought {
+    color: #ffd84d;
+    background: rgba(0, 0, 0, 0.58);
+    border: 1px solid rgba(255, 216, 77, 0.28);
+    border-left: 3px solid #ffd84d;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* 31. KINTSUGI PORCELAIN (Warm Ivory, Gold Crack Seams & Cinnabar Stamp) */
+.mib-theme-porcelain {
+    --mib-bg-1: #ece5d8;
+    --mib-bg-2: #e0d6c3;
+    --mib-bg-3: #d4c8b2;
+    --mib-surface: rgba(255, 252, 245, 0.65);
+    --mib-surface-deep: rgba(185, 168, 142, 0.32);
+
+    --mib-border: rgba(184, 137, 40, 0.45);
+    --mib-soft-border: rgba(160, 125, 60, 0.24);
+    --mib-highlight: rgba(255, 255, 255, 0.75);
+
+    --mib-text: #241e1a;
+    --mib-muted: #5c5046;
+    --mib-dim: #8a7b6d;
+
+    --mib-accent: #b8332a;
+    --mib-accent-2: #b88928;
+    --mib-good: #2d7a53;
+    --mib-bad: #b8332a;
+    --mib-shadow:
+        0 18px 42px rgba(36, 26, 16, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.mib-theme-porcelain.mib-board,
+#mib_floating_host.mib-theme-porcelain .mib-floating-shell,
+#mib_dock_host.mib-theme-porcelain .mib-dock-panel {
+    background:
+        radial-gradient(circle at 88% 8%, rgba(184, 137, 40, 0.16), transparent 36%),
+        radial-gradient(circle at 12% 92%, rgba(184, 51, 42, 0.09), transparent 38%),
+        linear-gradient(140deg, #f2ece1 0%, #e4dac8 54%, #d6cbb6 100%);
+}
+
+.mib-theme-porcelain.mib-board::after,
+#mib_floating_host.mib-theme-porcelain .mib-floating-shell::after,
+#mib_dock_host.mib-theme-porcelain .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 220px;
+    height: 220px;
+    pointer-events: none;
+    opacity: 0.55;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23c4972f' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M200 25 L155 42 L132 76 L95 88 L68 130 L20 145' stroke-width='1.8'/%3E%3Cpath d='M155 42 L170 85 L148 122' stroke-width='1.1'/%3E%3Cpath d='M132 76 L108 45 L75 30' stroke-width='1'/%3E%3Cpath d='M95 88 L112 135 L98 178' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E")
+        right top / 220px 220px no-repeat;
+}
+
+.mib-theme-porcelain .mib-title,
+.mib-theme-porcelain .mib-section-title,
+.mib-theme-porcelain .mib-location,
+.mib-theme-porcelain .mib-thought {
+    font-family: var(--mib-font-serif);
+}
+
+.mib-theme-porcelain .mib-title {
+    color: #241e1a;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.mib-theme-porcelain :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(242, 234, 218, 0.55));
+    border-color: rgba(184, 137, 40, 0.34);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 4px 12px rgba(60, 45, 25, 0.07);
+}
+
+.mib-theme-porcelain .mib-char-icon {
+    background: rgba(184, 51, 42, 0.12);
+    border: 1.5px solid #b8332a;
+    color: #b8332a;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+.mib-theme-porcelain :is(.mib-meta span, .mib-chip, .mib-status-chip, .mib-mini-stat, .mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-pin-btn) {
+    background: rgba(255, 252, 246, 0.78);
+    border-color: rgba(184, 137, 40, 0.35);
+    color: #4a3e35;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.mib-theme-porcelain .mib-chip { color: #b8332a; }
+
+.mib-theme-porcelain .mib-mood {
+    color: #8c6210;
+    background: rgba(184, 137, 40, 0.14);
+    border-color: rgba(184, 137, 40, 0.4);
+}
+
+.mib-theme-porcelain .mib-thought {
+    background: rgba(255, 252, 245, 0.82);
+    color: #2b231d;
+    border-color: rgba(184, 137, 40, 0.32);
+    border-left: 3px solid #b8332a;
+}
+
+.mib-theme-porcelain .mib-bar {
+    background: rgba(60, 45, 30, 0.16);
+    border-color: rgba(184, 137, 40, 0.28);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.mib-theme-porcelain .mib-notes-input,
+.mib-theme-porcelain .mib-xml-editor,
+.mib-theme-porcelain .mib-chronicle-input {
+    background: rgba(255, 252, 246, 0.85);
+    color: #241e1a;
+    border-color: rgba(184, 137, 40, 0.38);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.mib-theme-porcelain :is(.mib-style-menu, .mib-dossier-panel, .mib-xml-inspector) {
+    background: rgba(244, 238, 227, 0.96);
+    color: #241e1a;
+    border-color: rgba(184, 137, 40, 0.45);
+}
+
+.mib-theme-porcelain .mib-style-menu select {
+    background: #fffdf9;
+    color: #241e1a;
+    border-color: rgba(184, 137, 40, 0.4);
+}
+
+/* 32. BIO-ABYSS (Deep Trench Bioluminescence + Rising Bubbles) */
+.mib-theme-abyss {
+    --mib-bg-1: #020810;
+    --mib-bg-2: #061829;
+    --mib-bg-3: #010408;
+    --mib-border: rgba(0, 245, 212, 0.32);
+    --mib-soft-border: rgba(0, 245, 212, 0.14);
+    --mib-text: #dcfaf7;
+    --mib-muted: #84c7c0;
+    --mib-dim: #467d7a;
+    --mib-accent: #00f5d4;
+    --mib-accent-2: #9b5de5;
+    --mib-good: #00f5d4;
+    --mib-bad: #ff4d7d;
+}
+
+.mib-theme-abyss.mib-board,
+#mib_floating_host.mib-theme-abyss .mib-floating-shell,
+#mib_dock_host.mib-theme-abyss .mib-dock-panel {
+    background:
+        radial-gradient(circle at 85% 12%, rgba(0, 245, 212, 0.15), transparent 36%),
+        radial-gradient(circle at 15% 88%, rgba(155, 93, 229, 0.16), transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(0, 180, 216, 0.06), transparent 60%),
+        linear-gradient(150deg, #020810 0%, #061829 54%, #010408 100%);
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.78),
+        0 0 28px rgba(0, 245, 212, 0.08),
+        inset 0 0 32px rgba(0, 245, 212, 0.04);
+}
+
+/* Underwater Bubbles & Bioluminescent Spores Overlay */
+.mib-theme-abyss.mib-board::after,
+#mib_floating_host.mib-theme-abyss .mib-floating-shell::after,
+#mib_dock_host.mib-theme-abyss .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.42;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='rgba(0,245,212,0.05)' stroke='%2300f5d4' stroke-opacity='0.42'%3E%3Ccircle cx='34' cy='180' r='9' stroke-width='1.1'/%3E%3Ccircle cx='31' cy='177' r='2' fill='%23ffffff' fill-opacity='0.45' stroke='none'/%3E%3Ccircle cx='46' cy='148' r='4.5' stroke-width='0.9'/%3E%3Ccircle cx='38' cy='124' r='2.5' stroke-width='0.8'/%3E%3Ccircle cx='178' cy='192' r='12' stroke-width='1.2'/%3E%3Ccircle cx='174' cy='188' r='2.8' fill='%23ffffff' fill-opacity='0.45' stroke='none'/%3E%3Ccircle cx='192' cy='154' r='6.5' stroke-width='1'/%3E%3Ccircle cx='190' cy='152' r='1.5' fill='%23ffffff' fill-opacity='0.4' stroke='none'/%3E%3Ccircle cx='172' cy='122' r='3.5' stroke-width='0.9'/%3E%3Ccircle cx='184' cy='96' r='2' stroke-width='0.8'/%3E%3Ccircle cx='116' cy='62' r='7.5' stroke='%239b5de5' stroke-opacity='0.45' stroke-width='1'/%3E%3Ccircle cx='113' cy='59' r='1.8' fill='%23ffffff' fill-opacity='0.4' stroke='none'/%3E%3Ccircle cx='126' cy='38' r='3.5' stroke='%239b5de5' stroke-opacity='0.4' stroke-width='0.8'/%3E%3C/g%3E%3C/svg%3E"),
+        radial-gradient(circle at 18% 22%, rgba(0, 245, 212, 0.55) 0 1.2px, transparent 2.5px),
+        radial-gradient(circle at 82% 30%, rgba(155, 93, 229, 0.55) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 64% 76%, rgba(0, 245, 212, 0.45) 0 1px, transparent 2.2px);
+    background-size: 220px 220px, auto, auto, auto;
+}
+
+.mib-theme-abyss :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
+    background:
+        radial-gradient(circle at top left, rgba(0, 245, 212, 0.05), transparent 55%),
+        rgba(2, 11, 20, 0.62);
+    box-shadow:
+        inset 0 1px 0 rgba(0, 245, 212, 0.10),
+        0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* 33. ARCANA TAROT (Golden Dawn Grimoire & Celestial Geometry) */
+.mib-theme-tarot {
+    --mib-bg-1: #0d0b12;
+    --mib-bg-2: #1b1626;
+    --mib-bg-3: #060509;
+    --mib-border: rgba(217, 180, 100, 0.38);
+    --mib-soft-border: rgba(217, 180, 100, 0.18);
+    --mib-text: #f5eedc;
+    --mib-muted: #c4b699;
+    --mib-dim: #7d715c;
+    --mib-accent: #d9b464;
+    --mib-accent-2: #9b84c9;
+    --mib-good: #82c49b;
+    --mib-bad: #cf5f6e;
+}
+
+.mib-theme-tarot.mib-board,
+#mib_floating_host.mib-theme-tarot .mib-floating-shell,
+#mib_dock_host.mib-theme-tarot .mib-dock-panel {
+    box-shadow:
+        0 20px 48px rgba(0, 0, 0, 0.75),
+        inset 0 0 0 3px #0d0b12,
+        inset 0 0 0 4px rgba(217, 180, 100, 0.32);
+}
+
+.mib-theme-tarot.mib-board::after,
+#mib_floating_host.mib-theme-tarot .mib-floating-shell::after,
+#mib_dock_host.mib-theme-tarot .mib-dock-panel::after {
+    content: "";
+    position: absolute;
+    right: -36px;
+    top: -36px;
+    width: 190px;
+    height: 190px;
+    pointer-events: none;
+    opacity: 0.16;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23d9b464' stroke-width='1.1'%3E%3Ccircle cx='100' cy='100' r='86'/%3E%3Ccircle cx='100' cy='100' r='70' stroke-dasharray='3 3'/%3E%3Ccircle cx='100' cy='100' r='44'/%3E%3Cpath d='M100 4 L112 88 L196 100 L112 112 L100 196 L88 112 L4 100 L88 88 Z'/%3E%3Cpath d='M32 32 L92 92 M168 32 L108 92 M168 168 L108 108 M32 168 L92 108'/%3E%3C/g%3E%3C/svg%3E")
+        center / contain no-repeat;
+}
+
+.mib-theme-tarot .mib-title,
+.mib-theme-tarot .mib-section-title,
+.mib-theme-tarot .mib-location,
+.mib-theme-tarot .mib-char-name,
+.mib-theme-tarot .mib-rel-name,
+.mib-theme-tarot .mib-thought {
+    font-family: var(--mib-font-serif);
+}
+
+.mib-theme-tarot .mib-title {
+    letter-spacing: 3px;
+    color: #f5e6c4;
+}
+
+.mib-theme-tarot :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
+    border: 1px solid rgba(217, 180, 100, 0.24);
+    box-shadow:
+        inset 0 0 0 2px rgba(13, 11, 18, 0.85),
+        inset 0 0 0 3px rgba(217, 180, 100, 0.10),
+        0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.mib-theme-tarot .mib-mood::before {
+    content: "✦ ";
+    color: var(--mib-accent);
+    font-style: normal;
+}
+
 /* =========================================================
    MOBILE PANEL & RESPONSIVE BREAKPOINTS
    ========================================================= */
@@ -2938,7 +3835,6 @@
 @media (max-width: 760px) {
     .mib-board {
         padding: 10px;
-        border-radius: 12px;
     }
 
     .mib-title-row {
@@ -2991,6 +3887,11 @@
         justify-content: flex-start;
     }
 
+    .mib-chronicle-del {
+        opacity: 0.75;
+        border-color: var(--mib-soft-border);
+    }
+
     #mib_floating_host {
         left: 10px;
         right: 10px;
@@ -3004,7 +3905,7 @@
     #mib_mobile_panel_host {
         position: fixed !important;
         top: 68px !important;
-        width: min(82vw, 360px) !important;
+        width: min(84vw, 370px) !important;
         height: calc(100dvh - 150px) !important;
         z-index: 999999 !important;
         display: block !important;
@@ -3099,583 +4000,37 @@
         border: 1px solid var(--mib-soft-border);
     }
 
+    .mib-mobile-head-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .mib-mobile-titles {
+        min-width: 0;
+        flex: 1;
+    }
+
     .mib-mobile-title {
         color: var(--mib-text);
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 800;
         letter-spacing: 1px;
         text-transform: uppercase;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .mib-mobile-subtitle {
-        margin-top: 3px;
+        margin-top: 2px;
         color: var(--mib-accent);
         font-size: 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
-}
-
-/* Удаление пунктов хроники и нитей */
-.mib-chronicle-item {
-    position: relative;
-    padding-right: 26px;
-    transition: color 0.15s ease;
-}
-
-.mib-chronicle-text {
-    display: inline;
-    overflow-wrap: anywhere;
-}
-
-.mib-chronicle-del {
-    appearance: none;
-    position: absolute;
-    right: 0;
-    top: 1px;
-    width: 19px;
-    height: 19px;
-    border-radius: 6px;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--mib-dim);
-    font-size: 13px;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transition: all 0.15s ease;
-    padding: 0;
-}
-
-.mib-chronicle-item:hover .mib-chronicle-del {
-    opacity: 1;
-    border-color: var(--mib-soft-border);
-    background: rgba(255, 255, 255, 0.04);
-}
-
-.mib-chronicle-del:hover {
-    color: var(--mib-bad) !important;
-    border-color: color-mix(in srgb, var(--mib-bad) 45%, transparent) !important;
-    background: color-mix(in srgb, var(--mib-bad) 14%, transparent) !important;
-}
-
-@media (max-width: 760px) {
-    .mib-chronicle-del {
-        opacity: 0.75;
-        border-color: var(--mib-soft-border);
-    }
-}
-
-/* =========================================================
-   NEW BAR STYLES: BRUSH, HEARTBEAT ECG, MOON PHASES
-   ========================================================= */
-
-/* 19. BRUSH STROKE (Oil Paint Swatch) */
-.mib-bars-brush {
-    --mib-brush-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='14' viewBox='0 0 160 14' preserveAspectRatio='none'%3E%3Cpath d='M0 3 Q20 1 45 2.5 T95 1.5 T140 3 L160 2 L158 6.5 L160 11.5 Q130 13 95 11.8 T40 12.8 T0 11 Z' fill='black'/%3E%3C/svg%3E");
-}
-
-.mib-bars-brush .mib-bar {
-    height: 12px;
-    border: 0;
-    border-radius: 2px;
-    background: rgba(0, 0, 0, 0.38);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55);
-}
-
-.mib-bars-brush .mib-bar-fill {
-    height: 100%;
-    border-radius: 0;
-    background:
-        repeating-linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.08) 0px,
-            transparent 2px,
-            rgba(0, 0, 0, 0.12) 5px
-        ),
-        linear-gradient(90deg, color-mix(in srgb, currentColor 70%, #1a120b), currentColor) !important;
-    -webkit-mask: var(--mib-brush-mask) left center / 100% 100% no-repeat;
-    mask: var(--mib-brush-mask) left center / 100% 100% no-repeat;
-    filter: drop-shadow(0 1px 4px color-mix(in srgb, currentColor 45%, transparent));
-}
-
-/* 20. HEARTBEAT ECG (Pulse Monitor) */
-.mib-bars-heartbeat {
-    --mib-ecg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='18' viewBox='0 0 64 18'%3E%3Cpath d='M0 10 H18 L22 10 L25 4 L29 15 L33 2 L37 13 L40 8 L43 10 H64' fill='none' stroke='black' stroke-width='1.85' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-}
-
-.mib-bars-heartbeat .mib-bar {
-    height: 18px;
-    border: 0;
-    border-radius: 0;
-    background: transparent !important;
-    box-shadow: none !important;
-    position: relative;
-}
-
-.mib-bars-heartbeat .mib-bar::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: currentColor;
-    opacity: 0.18;
-    -webkit-mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
-    mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
-}
-
-.mib-bars-heartbeat .mib-bar-fill {
-    height: 100%;
-    border-radius: 0;
-    background: currentColor !important;
-    filter: brightness(1.15) drop-shadow(0 0 4px currentColor) drop-shadow(0 0 9px currentColor);
-    -webkit-mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
-    mask: var(--mib-ecg-pattern) left center / 64px 18px repeat-x;
-}
-
-/* 21. MOON PHASES (Lunar Cycle) */
-.mib-bars-moonphases {
-    --mib-moon-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='18' viewBox='0 0 72 18'%3E%3Cpath d='M11 3.5 A5.5 5.5 0 1 0 11 14.5 A4.2 5.5 0 1 1 11 3.5 Z' fill='black'/%3E%3Ccircle cx='27' cy='9' r='5' fill='black'/%3E%3Cpath d='M43 3.5 A5.5 5.5 0 1 1 43 14.5 A4.2 5.5 0 1 0 43 3.5 Z' fill='black'/%3E%3Cpath d='M63 3.5 L64.3 7.5 L68.5 9 L64.3 10.5 L63 14.5 L61.7 10.5 L57.5 9 L61.7 7.5 Z' fill='black'/%3E%3C/svg%3E");
-}
-
-.mib-bars-moonphases .mib-bar {
-    height: 18px;
-    border: 0;
-    border-radius: 0;
-    background: transparent !important;
-    box-shadow: none !important;
-    position: relative;
-}
-
-.mib-bars-moonphases .mib-bar::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: var(--mib-muted);
-    opacity: 0.22;
-    -webkit-mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
-    mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
-}
-
-.mib-bars-moonphases .mib-bar-fill {
-    height: 100%;
-    border-radius: 0;
-    background: linear-gradient(90deg, var(--mib-accent), var(--mib-accent-2), currentColor) !important;
-    filter: brightness(1.1) drop-shadow(0 0 5px currentColor);
-    -webkit-mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
-    mask: var(--mib-moon-pattern) left center / 72px 18px repeat-x;
-}
-
-/* =========================================================
-   NEW THEMES: DISCO, VHS 1994, PORCELAIN, ABYSS, TAROT
-   ========================================================= */
-
-/* 29. REVACHOL DISCO (Disco Elysium Expressionist Oil & Ochre) */
-.mib-theme-disco {
-    --mib-bg-1: #161311;
-    --mib-bg-2: #261f1a;
-    --mib-bg-3: #0d0b09;
-    --mib-border: rgba(224, 109, 59, 0.36);
-    --mib-soft-border: rgba(212, 180, 140, 0.15);
-    --mib-text: #f0e7d8;
-    --mib-muted: #bfb09c;
-    --mib-dim: #7d7061;
-    --mib-accent: #e06d3b;
-    --mib-accent-2: #7fa69b;
-    --mib-good: #8ab893;
-    --mib-bad: #d94e41;
-}
-
-.mib-theme-disco.mib-board,
-#mib_floating_host.mib-theme-disco .mib-floating-shell,
-#mib_dock_host.mib-theme-disco .mib-dock-panel {
-    background:
-        radial-gradient(ellipse at 92% 8%, rgba(224, 109, 59, 0.20), transparent 42%),
-        radial-gradient(ellipse at 8% 92%, rgba(127, 166, 155, 0.15), transparent 46%),
-        radial-gradient(circle at 50% 45%, rgba(189, 138, 62, 0.06), transparent 60%),
-        linear-gradient(140deg, #161311 0%, #261f1a 52%, #0d0b09 100%);
-}
-
-.mib-theme-disco.mib-board::before,
-#mib_floating_host.mib-theme-disco .mib-floating-shell::before,
-#mib_dock_host.mib-theme-disco .mib-dock-panel::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.14;
-    mix-blend-mode: soft-light;
-    background-image: var(--mib-wood-svg);
-    background-size: 200px 200px;
-}
-
-.mib-theme-disco .mib-title,
-.mib-theme-disco .mib-location,
-.mib-theme-disco .mib-char-name,
-.mib-theme-disco .mib-rel-name,
-.mib-theme-disco .mib-thought {
-    font-family: var(--mib-font-serif);
-}
-
-.mib-theme-disco .mib-header,
-.mib-theme-disco .mib-section {
-    border-left: 3px solid var(--mib-accent);
-    border-radius: 4px 12px 12px 4px;
-    background:
-        linear-gradient(95deg, rgba(224, 109, 59, 0.06), transparent 38%),
-        rgba(12, 10, 8, 0.58);
-}
-
-.mib-theme-disco .mib-thought {
-    background:
-        linear-gradient(90deg, rgba(127, 166, 155, 0.10), rgba(0, 0, 0, 0.35));
-    border-left: 3px solid var(--mib-accent-2);
-    font-style: normal;
-    letter-spacing: 0.15px;
-}
-
-.mib-theme-disco .mib-thought::before {
-    content: "INLAND EMPIRE — ";
-    font-family: var(--mib-font-sans);
-    font-size: 9.5px;
-    font-weight: 900;
-    letter-spacing: 1.2px;
-    color: var(--mib-accent-2);
-}
-
-/* 30. VHS 1994 (Analog Tape Glitch, RGB Shift & Camcorder HUD) */
-.mib-theme-vhs {
-    --mib-bg-1: #090817;
-    --mib-bg-2: #151230;
-    --mib-bg-3: #05040d;
-    --mib-border: rgba(255, 216, 77, 0.34);
-    --mib-soft-border: rgba(5, 217, 232, 0.18);
-    --mib-text: #f2f0fa;
-    --mib-muted: #a9a4c9;
-    --mib-dim: #69638c;
-    --mib-accent: #ffd84d;
-    --mib-accent-2: #05d9e8;
-    --mib-good: #05f29b;
-    --mib-bad: #ff2a6d;
-}
-
-.mib-theme-vhs.mib-board::before,
-#mib_floating_host.mib-theme-vhs .mib-floating-shell::before,
-#mib_dock_host.mib-theme-vhs .mib-dock-panel::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.14;
-    mix-blend-mode: screen;
-    background-image:
-        var(--mib-noise-svg),
-        repeating-linear-gradient(
-            180deg,
-            rgba(5, 217, 232, 0.06) 0,
-            rgba(5, 217, 232, 0.06) 1px,
-            transparent 1px,
-            transparent 3px
-        );
-    background-size: 130px 130px, 100% 3px;
-}
-
-.mib-theme-vhs .mib-title,
-.mib-theme-vhs .mib-subtitle,
-.mib-theme-vhs .mib-section-title,
-.mib-theme-vhs .mib-tab,
-.mib-theme-vhs .mib-meta span {
-    font-family: var(--mib-font-mono);
-}
-
-.mib-theme-vhs .mib-title {
-    color: #ffd84d;
-    text-shadow:
-        -1.5px 0 rgba(255, 42, 109, 0.85),
-        1.5px 0 rgba(5, 217, 232, 0.85),
-        0 0 10px rgba(255, 216, 77, 0.35);
-}
-
-.mib-theme-vhs .mib-subtitle {
-    color: #ff2a6d;
-    font-weight: 800;
-    text-shadow: 0 0 8px rgba(255, 42, 109, 0.5);
-}
-
-.mib-theme-vhs :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
-    border-radius: 4px;
-    background: rgba(6, 5, 16, 0.65);
-    box-shadow:
-        -1px 0 0 rgba(255, 42, 109, 0.25),
-        1px 0 0 rgba(5, 217, 232, 0.25);
-}
-
-.mib-theme-vhs .mib-thought {
-    color: #ffd84d;
-    background: rgba(0, 0, 0, 0.58);
-    border: 1px solid rgba(255, 216, 77, 0.28);
-    border-left: 3px solid #ffd84d;
-    text-shadow: 1px 1px 0 #000;
-}
-
-/* 31. KINTSUGI PORCELAIN (Warm Ivory, Gold Crack Seams & Cinnabar Stamp) */
-.mib-theme-porcelain {
-    --mib-bg-1: #ece5d8;
-    --mib-bg-2: #e0d6c3;
-    --mib-bg-3: #d4c8b2;
-    --mib-surface: rgba(255, 252, 245, 0.65);
-    --mib-surface-deep: rgba(185, 168, 142, 0.32);
-
-    --mib-border: rgba(184, 137, 40, 0.45);
-    --mib-soft-border: rgba(160, 125, 60, 0.24);
-    --mib-highlight: rgba(255, 255, 255, 0.75);
-
-    --mib-text: #241e1a;
-    --mib-muted: #5c5046;
-    --mib-dim: #8a7b6d;
-
-    --mib-accent: #b8332a;
-    --mib-accent-2: #b88928;
-    --mib-good: #2d7a53;
-    --mib-bad: #b8332a;
-    --mib-shadow:
-        0 18px 42px rgba(36, 26, 16, 0.24),
-        inset 0 1px 0 rgba(255, 255, 255, 0.85);
-}
-
-.mib-theme-porcelain.mib-board,
-#mib_floating_host.mib-theme-porcelain .mib-floating-shell,
-#mib_dock_host.mib-theme-porcelain .mib-dock-panel {
-    background:
-        radial-gradient(circle at 88% 8%, rgba(184, 137, 40, 0.16), transparent 36%),
-        radial-gradient(circle at 12% 92%, rgba(184, 51, 42, 0.09), transparent 38%),
-        linear-gradient(140deg, #f2ece1 0%, #e4dac8 54%, #d6cbb6 100%);
-}
-
-/* Gold Kintsugi Crack Lines in Corner */
-.mib-theme-porcelain.mib-board::after,
-#mib_floating_host.mib-theme-porcelain .mib-floating-shell::after,
-#mib_dock_host.mib-theme-porcelain .mib-dock-panel::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 220px;
-    height: 220px;
-    pointer-events: none;
-    opacity: 0.55;
-    background:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23c4972f' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M200 25 L155 42 L132 76 L95 88 L68 130 L20 145' stroke-width='1.8'/%3E%3Cpath d='M155 42 L170 85 L148 122' stroke-width='1.1'/%3E%3Cpath d='M132 76 L108 45 L75 30' stroke-width='1'/%3E%3Cpath d='M95 88 L112 135 L98 178' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E")
-        right top / 220px 220px no-repeat;
-}
-
-.mib-theme-porcelain .mib-title,
-.mib-theme-porcelain .mib-section-title,
-.mib-theme-porcelain .mib-location,
-.mib-theme-porcelain .mib-thought {
-    font-family: var(--mib-font-serif);
-}
-
-.mib-theme-porcelain .mib-title {
-    color: #241e1a;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.mib-theme-porcelain :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
-    background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(242, 234, 218, 0.55));
-    border-color: rgba(184, 137, 40, 0.34);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.9),
-        0 4px 12px rgba(60, 45, 25, 0.07);
-}
-
-/* Red Japanese Hanko Stamp for Character Icons */
-.mib-theme-porcelain .mib-char-icon {
-    border-radius: 5px;
-    background: rgba(184, 51, 42, 0.12);
-    border: 1.5px solid #b8332a;
-    color: #b8332a;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-}
-
-.mib-theme-porcelain :is(.mib-meta span, .mib-chip, .mib-status-chip, .mib-mini-stat, .mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-pin-btn) {
-    background: rgba(255, 252, 246, 0.78);
-    border-color: rgba(184, 137, 40, 0.35);
-    color: #4a3e35;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-.mib-theme-porcelain .mib-chip {
-    color: #b8332a;
-}
-
-.mib-theme-porcelain .mib-mood {
-    color: #8c6210;
-    background: rgba(184, 137, 40, 0.14);
-    border-color: rgba(184, 137, 40, 0.4);
-}
-
-.mib-theme-porcelain .mib-thought {
-    background: rgba(255, 252, 245, 0.82);
-    color: #2b231d;
-    border-color: rgba(184, 137, 40, 0.32);
-    border-left: 3px solid #b8332a;
-}
-
-.mib-theme-porcelain .mib-bar {
-    background: rgba(60, 45, 30, 0.16);
-    border-color: rgba(184, 137, 40, 0.28);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
-}
-
-.mib-theme-porcelain .mib-notes-input,
-.mib-theme-porcelain .mib-xml-editor {
-    background: rgba(255, 252, 246, 0.85);
-    color: #241e1a;
-    border-color: rgba(184, 137, 40, 0.38);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-}
-
-.mib-theme-porcelain :is(.mib-style-menu, .mib-dossier-panel, .mib-xml-inspector) {
-    background: rgba(244, 238, 227, 0.96);
-    color: #241e1a;
-    border-color: rgba(184, 137, 40, 0.45);
-}
-
-.mib-theme-porcelain .mib-style-menu select {
-    background: #fffdf9;
-    color: #241e1a;
-    border-color: rgba(184, 137, 40, 0.4);
-}
-
-/* 32. BIO-ABYSS (Deep Trench Bioluminescence) */
-.mib-theme-abyss {
-    --mib-bg-1: #020810;
-    --mib-bg-2: #061829;
-    --mib-bg-3: #010408;
-    --mib-border: rgba(0, 245, 212, 0.32);
-    --mib-soft-border: rgba(0, 245, 212, 0.14);
-    --mib-text: #dcfaf7;
-    --mib-muted: #84c7c0;
-    --mib-dim: #467d7a;
-    --mib-accent: #00f5d4;
-    --mib-accent-2: #9b5de5;
-    --mib-good: #00f5d4;
-    --mib-bad: #ff4d7d;
-}
-
-.mib-theme-abyss.mib-board,
-#mib_floating_host.mib-theme-abyss .mib-floating-shell,
-#mib_dock_host.mib-theme-abyss .mib-dock-panel {
-    background:
-        radial-gradient(circle at 85% 12%, rgba(0, 245, 212, 0.15), transparent 36%),
-        radial-gradient(circle at 15% 88%, rgba(155, 93, 229, 0.16), transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(0, 180, 216, 0.06), transparent 60%),
-        linear-gradient(150deg, #020810 0%, #061829 54%, #010408 100%);
-    box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.78),
-        0 0 28px rgba(0, 245, 212, 0.08),
-        inset 0 0 32px rgba(0, 245, 212, 0.04);
-}
-
-/* Bioluminescent Spores Overlay */
-.mib-theme-abyss.mib-board::after,
-#mib_floating_host.mib-theme-abyss .mib-floating-shell::after,
-#mib_dock_host.mib-theme-abyss .mib-dock-panel::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.45;
-    background-image:
-        radial-gradient(circle at 18% 22%, rgba(0, 245, 212, 0.55) 0 1.2px, transparent 2.5px),
-        radial-gradient(circle at 82% 30%, rgba(155, 93, 229, 0.55) 0 1.5px, transparent 3px),
-        radial-gradient(circle at 64% 76%, rgba(0, 245, 212, 0.45) 0 1px, transparent 2.2px),
-        radial-gradient(circle at 28% 84%, rgba(0, 187, 249, 0.5) 0 1.4px, transparent 2.8px);
-}
-
-.mib-theme-abyss :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
-    border-radius: 14px;
-    background:
-        radial-gradient(circle at top left, rgba(0, 245, 212, 0.05), transparent 55%),
-        rgba(2, 11, 20, 0.62);
-    box-shadow:
-        inset 0 1px 0 rgba(0, 245, 212, 0.10),
-        0 6px 18px rgba(0, 0, 0, 0.35);
-}
-
-/* 33. ARCANA TAROT (Golden Dawn Grimoire & Celestial Geometry) */
-.mib-theme-tarot {
-    --mib-bg-1: #0d0b12;
-    --mib-bg-2: #1b1626;
-    --mib-bg-3: #060509;
-    --mib-border: rgba(217, 180, 100, 0.38);
-    --mib-soft-border: rgba(217, 180, 100, 0.18);
-    --mib-text: #f5eedc;
-    --mib-muted: #c4b699;
-    --mib-dim: #7d715c;
-    --mib-accent: #d9b464;
-    --mib-accent-2: #9b84c9;
-    --mib-good: #82c49b;
-    --mib-bad: #cf5f6e;
-}
-
-.mib-theme-tarot.mib-board,
-#mib_floating_host.mib-theme-tarot .mib-floating-shell,
-#mib_dock_host.mib-theme-tarot .mib-dock-panel {
-    box-shadow:
-        0 20px 48px rgba(0, 0, 0, 0.75),
-        inset 0 0 0 3px #0d0b12,
-        inset 0 0 0 4px rgba(217, 180, 100, 0.32);
-}
-
-/* Celestial Compass / Tarot Sunburst in Corner */
-.mib-theme-tarot.mib-board::after,
-#mib_floating_host.mib-theme-tarot .mib-floating-shell::after,
-#mib_dock_host.mib-theme-tarot .mib-dock-panel::after {
-    content: "";
-    position: absolute;
-    right: -36px;
-    top: -36px;
-    width: 190px;
-    height: 190px;
-    pointer-events: none;
-    opacity: 0.16;
-    background:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23d9b464' stroke-width='1.1'%3E%3Ccircle cx='100' cy='100' r='86'/%3E%3Ccircle cx='100' cy='100' r='70' stroke-dasharray='3 3'/%3E%3Ccircle cx='100' cy='100' r='44'/%3E%3Cpath d='M100 4 L112 88 L196 100 L112 112 L100 196 L88 112 L4 100 L88 88 Z'/%3E%3Cpath d='M32 32 L92 92 M168 32 L108 92 M168 168 L108 108 M32 168 L92 108'/%3E%3C/g%3E%3C/svg%3E")
-        center / contain no-repeat;
-}
-
-.mib-theme-tarot .mib-title,
-.mib-theme-tarot .mib-section-title,
-.mib-theme-tarot .mib-location,
-.mib-theme-tarot .mib-char-name,
-.mib-theme-tarot .mib-rel-name,
-.mib-theme-tarot .mib-thought {
-    font-family: var(--mib-font-serif);
-}
-
-.mib-theme-tarot .mib-title {
-    letter-spacing: 3px;
-    color: #f5e6c4;
-}
-
-.mib-theme-tarot :is(.mib-header, .mib-section, .mib-char, .mib-rel) {
-    border: 1px solid rgba(217, 180, 100, 0.24);
-    box-shadow:
-        inset 0 0 0 2px rgba(13, 11, 18, 0.85),
-        inset 0 0 0 3px rgba(217, 180, 100, 0.10),
-        0 6px 16px rgba(0, 0, 0, 0.3);
-}
-
-.mib-theme-tarot .mib-mood::before {
-    content: "✦ ";
-    color: var(--mib-accent);
-    font-style: normal;
 }
 
 /* =========================================================
@@ -3696,13 +4051,13 @@
     border-radius: 12px !important;
 }
 
-.mib-board :is(.mib-char, .mib-compact-rel, .mib-thought, .mib-tab, .mib-notes-input, .mib-xml-editor),
-.mib-corners-round :is(.mib-char, .mib-compact-rel, .mib-thought, .mib-tab, .mib-notes-input, .mib-xml-editor) {
+.mib-board :is(.mib-char, .mib-compact-rel, .mib-thought, .mib-tab, .mib-notes-input, .mib-xml-editor, .mib-chronicle-input),
+.mib-corners-round :is(.mib-char, .mib-compact-rel, .mib-thought, .mib-tab, .mib-notes-input, .mib-xml-editor, .mib-chronicle-input) {
     border-radius: 9px !important;
 }
 
-.mib-board :is(.mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-floating-close),
-.mib-corners-round :is(.mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-floating-close) {
+.mib-board :is(.mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-floating-close, .mib-chronicle-add-btn),
+.mib-corners-round :is(.mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-floating-close, .mib-chronicle-add-btn) {
     border-radius: 8px !important;
 }
 
@@ -3716,10 +4071,11 @@
     border-radius: 5px !important;
 }
 
-/* 2. Острые углы: принудительно (.mib-corners-sharp) ИЛИ Авто для брутальных/ретро тем */
+/* 2. Острые углы: принудительно (.mib-corners-sharp) ИЛИ Авто для брутальных/ретро тем (включая Kanon.exe) */
 :is(
     .mib-corners-sharp,
     .mib-corners-auto:is(
+        .mib-theme-kanon,
         .mib-theme-disco,
         .mib-theme-terminal,
         .mib-theme-systemlog,
@@ -3734,6 +4090,7 @@
 :is(
     .mib-corners-sharp,
     .mib-corners-auto:is(
+        .mib-theme-kanon,
         .mib-theme-disco,
         .mib-theme-terminal,
         .mib-theme-systemlog,
@@ -3751,6 +4108,7 @@
 :is(
     .mib-corners-sharp,
     .mib-corners-auto:is(
+        .mib-theme-kanon,
         .mib-theme-disco,
         .mib-theme-terminal,
         .mib-theme-systemlog,
@@ -3772,6 +4130,8 @@
     .mib-thought,
     .mib-notes-input,
     .mib-xml-editor,
+    .mib-chronicle-input,
+    .mib-chronicle-add-btn,
     .mib-style-menu,
     .mib-dossier-panel,
     .mib-xml-inspector,
