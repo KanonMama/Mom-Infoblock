@@ -2624,35 +2624,6 @@ root.querySelectorAll("[data-mib-panel-mode]").forEach(button => {
     });
 });
 
-        root.querySelectorAll("[data-mib-del-event]").forEach(button => {
-        button.addEventListener("click", event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const idx = parseInt(button.dataset.mibDelEvent, 10);
-            if (Number.isNaN(idx) || !gState.chronicle?.events) return;
-
-            gState.chronicle.events.splice(idx, 1);
-            SaveState();
-            InjectPrompt();
-            RerenderAllPanels();
-        });
-    });
-
-    root.querySelectorAll("[data-mib-del-thread]").forEach(button => {
-        button.addEventListener("click", event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const idx = parseInt(button.dataset.mibDelThread, 10);
-            if (Number.isNaN(idx) || !gState.chronicle?.threads) return;
-
-            gState.chronicle.threads.splice(idx, 1);
-            SaveState();
-            InjectPrompt();
-            RerenderAllPanels();
-        });
-    });
 }
 
 function GetInspectorHost(root) {
@@ -4651,6 +4622,172 @@ GetThemeTitleData = function(theme = gTheme) {
         }
     };
     return extra[theme] || _origTitleData(theme);
+};
+
+/* =========================================================
+   PATCH: Working Chronicle Deletion + Corner Shape Switcher
+   ========================================================= */
+
+const kCornerStyleKey = `${kStoragePrefix}CornerStyle`;
+const kDismissedChroniclePrefix = `${kStoragePrefix}DismissedChronicle_`;
+let gCornerStyle = localStorage.getItem(kCornerStyleKey) || "auto";
+
+Object.assign(kLangMap.ru, {
+    cornerStyle: "Форма углов",
+    cornerAuto: "Авто (по теме)",
+    cornerRound: "Мягкие (круглые)",
+    cornerSharp: "Острые (квадратные)"
+});
+
+Object.assign(kLangMap.en, {
+    cornerStyle: "Corner Shape",
+    cornerAuto: "Auto (by theme)",
+    cornerRound: "Rounded",
+    cornerSharp: "Sharp (square)"
+});
+
+function GetDismissedChronicleKey() {
+    return kDismissedChroniclePrefix + GetChatId();
+}
+
+function GetDismissedChronicleSet() {
+    try {
+        const raw = localStorage.getItem(GetDismissedChronicleKey());
+        const arr = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(arr) ? arr : []);
+    } catch {
+        return new Set();
+    }
+}
+
+function AddDismissedChronicleItem(text) {
+    const norm = NormalizeText(text);
+    if (!norm) return;
+    const set = GetDismissedChronicleSet();
+    set.add(norm);
+    try {
+        localStorage.setItem(GetDismissedChronicleKey(), JSON.stringify([...set]));
+    } catch {}
+}
+
+// Фильтруем удалённые пользователем события и нити при любом парсинге чата
+const _origApplyParsedToState = ApplyParsedToState;
+ApplyParsedToState = function(parsed, baseState = gState) {
+    const next = _origApplyParsedToState(parsed, baseState);
+    if (next?.chronicle) {
+        const dismissed = GetDismissedChronicleSet();
+        if (dismissed.size > 0) {
+            next.chronicle.events = (next.chronicle.events || []).filter(
+                item => !dismissed.has(NormalizeText(item))
+            );
+            next.chronicle.threads = (next.chronicle.threads || []).filter(
+                item => !dismissed.has(NormalizeText(item))
+            );
+        }
+    }
+    return next;
+};
+
+// При сбросе состояния чата очищаем и список удалённых записей
+$(document).on("click", "#mib_reset_state", () => {
+    setTimeout(() => {
+        if (!gState.chronicle.events.length && !gState.chronicle.threads.length) {
+            localStorage.removeItem(GetDismissedChronicleKey());
+        }
+    }, 50);
+});
+
+// Применяем класс углов ко всем доскам
+function ApplyCornerStyleToDom() {
+    const classes = ["mib-corners-auto", "mib-corners-round", "mib-corners-sharp"];
+    const targetClass = `mib-corners-${gCornerStyle || "auto"}`;
+
+    document.querySelectorAll(".mib-board, #mib_floating_host, #mib_dock_host, #mib_mobile_panel_host").forEach(el => {
+        el.classList.remove(...classes);
+        el.classList.add(targetClass);
+    });
+}
+
+// Переопределяем WirePanel, чтобы навешивать удаление хроники и углы
+const _origWirePanel = WirePanel;
+WirePanel = function(root) {
+    _origWirePanel(root);
+    ApplyCornerStyleToDom();
+
+    if (!root) return;
+
+    root.querySelectorAll("[data-mib-del-event]").forEach(button => {
+        button.onclick = event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const idx = parseInt(button.dataset.mibDelEvent, 10);
+            const itemText = gState.chronicle?.events?.[idx];
+            if (itemText === undefined) return;
+
+            AddDismissedChronicleItem(itemText);
+            gState.chronicle.events.splice(idx, 1);
+            SaveState();
+            InjectPrompt();
+            RerenderAllPanels();
+        };
+    });
+
+    root.querySelectorAll("[data-mib-del-thread]").forEach(button => {
+        button.onclick = event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const idx = parseInt(button.dataset.mibDelThread, 10);
+            const itemText = gState.chronicle?.threads?.[idx];
+            if (itemText === undefined) return;
+
+            AddDismissedChronicleItem(itemText);
+            gState.chronicle.threads.splice(idx, 1);
+            SaveState();
+            InjectPrompt();
+            RerenderAllPanels();
+        };
+    });
+};
+
+// Дополняем меню стиля (ромбик ◈) выбором формы углов и чиним закрытие
+const _origToggleStyleMenu = ToggleStyleMenu;
+ToggleStyleMenu = function(root) {
+    const board = root.querySelector?.("[data-mib-board]") || root.closest?.("[data-mib-board]") || root;
+    if (!board) return;
+
+    const existing = board.querySelector(".mib-style-menu");
+    if (existing) {
+        existing.remove();
+        gStyleMenuOpen = false;
+        return;
+    }
+
+    _origToggleStyleMenu(root);
+
+    const menu = board.querySelector(".mib-style-menu");
+    if (menu && !menu.querySelector(".mib-style-corner-select")) {
+        const row = document.createElement("div");
+        row.className = "mib-style-menu-row";
+        row.innerHTML = `
+            <label>
+                <span>${EscapeHtml(T("cornerStyle"))}</span>
+                <select class="mib-style-corner-select">
+                    <option value="auto" ${gCornerStyle === "auto" ? "selected" : ""}>${EscapeHtml(T("cornerAuto"))}</option>
+                    <option value="round" ${gCornerStyle === "round" ? "selected" : ""}>${EscapeHtml(T("cornerRound"))}</option>
+                    <option value="sharp" ${gCornerStyle === "sharp" ? "selected" : ""}>${EscapeHtml(T("cornerSharp"))}</option>
+                </select>
+            </label>
+        `;
+        menu.appendChild(row);
+
+        row.querySelector(".mib-style-corner-select")?.addEventListener("change", event => {
+            gCornerStyle = event.target.value || "auto";
+            localStorage.setItem(kCornerStyleKey, gCornerStyle);
+            ApplyCornerStyleToDom();
+        });
+    }
 };
 
 jQuery(async () => {
