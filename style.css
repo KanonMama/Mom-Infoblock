@@ -3677,3 +3677,116 @@
     color: var(--mib-accent);
     font-style: normal;
 }
+
+/* =========================================================
+   CORNER SHAPE SYSTEM (AUTO BY THEME / ROUND / SHARP)
+   Protects borders from external SillyTavern CSS overrides
+   ========================================================= */
+
+/* 1. Мягкие углы по умолчанию (и при принудительном выборе Round) */
+.mib-board,
+.mib-floating-shell,
+.mib-corners-round.mib-board,
+.mib-corners-round .mib-floating-shell {
+    border-radius: 16px !important;
+}
+
+.mib-board :is(.mib-header, .mib-section, .mib-rel, .mib-tabs, .mib-style-menu, .mib-dossier-panel, .mib-xml-inspector),
+.mib-corners-round :is(.mib-header, .mib-section, .mib-rel, .mib-tabs, .mib-style-menu, .mib-dossier-panel, .mib-xml-inspector) {
+    border-radius: 12px !important;
+}
+
+.mib-board :is(.mib-char, .mib-compact-rel, .mib-thought, .mib-tab, .mib-notes-input, .mib-xml-editor),
+.mib-corners-round :is(.mib-char, .mib-compact-rel, .mib-thought, .mib-tab, .mib-notes-input, .mib-xml-editor) {
+    border-radius: 9px !important;
+}
+
+.mib-board :is(.mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-floating-close),
+.mib-corners-round :is(.mib-style-btn, .mib-dossier-btn, .mib-panel-mode-btn, .mib-debug-btn, .mib-floating-close) {
+    border-radius: 8px !important;
+}
+
+.mib-board :is(.mib-meta span, .mib-chip, .mib-status-chip, .mib-presence-chip, .mib-mini-stat, .mib-char-icon, .mib-pin-btn),
+.mib-corners-round :is(.mib-meta span, .mib-chip, .mib-status-chip, .mib-presence-chip, .mib-mini-stat, .mib-char-icon, .mib-pin-btn) {
+    border-radius: 999px !important;
+}
+
+/* В режиме Авто сохраняем квадратную печать-ханко у Porcelain */
+.mib-corners-auto.mib-theme-porcelain .mib-char-icon {
+    border-radius: 5px !important;
+}
+
+/* 2. Острые углы: принудительно (.mib-corners-sharp) ИЛИ Авто для брутальных/ретро тем */
+:is(
+    .mib-corners-sharp,
+    .mib-corners-auto:is(
+        .mib-theme-disco,
+        .mib-theme-terminal,
+        .mib-theme-systemlog,
+        .mib-theme-casefile,
+        .mib-theme-vhs,
+        .mib-theme-neonquest,
+        .mib-theme-lockdown,
+        .mib-theme-silvernitrate,
+        .mib-theme-pixel
+    )
+):is(.mib-board, #mib_floating_host, #mib_dock_host, #mib_mobile_panel_host),
+:is(
+    .mib-corners-sharp,
+    .mib-corners-auto:is(
+        .mib-theme-disco,
+        .mib-theme-terminal,
+        .mib-theme-systemlog,
+        .mib-theme-casefile,
+        .mib-theme-vhs,
+        .mib-theme-neonquest,
+        .mib-theme-lockdown,
+        .mib-theme-silvernitrate,
+        .mib-theme-pixel
+    )
+) .mib-floating-shell {
+    border-radius: 4px !important;
+}
+
+:is(
+    .mib-corners-sharp,
+    .mib-corners-auto:is(
+        .mib-theme-disco,
+        .mib-theme-terminal,
+        .mib-theme-systemlog,
+        .mib-theme-casefile,
+        .mib-theme-vhs,
+        .mib-theme-neonquest,
+        .mib-theme-lockdown,
+        .mib-theme-silvernitrate,
+        .mib-theme-pixel
+    )
+) :is(
+    .mib-header,
+    .mib-section,
+    .mib-rel,
+    .mib-tabs,
+    .mib-tab,
+    .mib-char,
+    .mib-compact-rel,
+    .mib-thought,
+    .mib-notes-input,
+    .mib-xml-editor,
+    .mib-style-menu,
+    .mib-dossier-panel,
+    .mib-xml-inspector,
+    .mib-style-btn,
+    .mib-dossier-btn,
+    .mib-panel-mode-btn,
+    .mib-debug-btn,
+    .mib-floating-close,
+    .mib-meta span,
+    .mib-chip,
+    .mib-status-chip,
+    .mib-presence-chip,
+    .mib-mini-stat,
+    .mib-char-icon,
+    .mib-pin-btn
+) {
+    border-radius: 3px !important;
+}
