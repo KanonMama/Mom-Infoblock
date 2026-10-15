@@ -2,195 +2,150 @@
 
 **Mom Infoblock** is a SillyTavern extension that turns structured XML from assistant replies into a live roleplay dashboard.
 
-It tracks scene state, characters, relationship meters, private NPC thoughts, chronicle events, open plot threads, notes, and optional intimate context — all in a compact visual panel with themes, bar styles, floating mode, dock mode, and inline rendering.
+It tracks scene state, characters, relationship meters, private NPC thoughts, chronicle events, open plot threads, notes, and optional intimate context — all in a customizable visual panel with **34 built-in themes**, **22 bar styles**, corner geometry controls, floating mode, dock mode, and inline rendering.
 
 Yes, it is extra. That is the point.
 
 ---
 
-## Features
+## ✨ Features
 
-- Parses `<mom_infoblock>` XML from assistant replies.
-- Renders an in-chat infoblock with:
-  - scene location, time, date, weather;
-  - characters currently in scene;
-  - relationship meters;
-  - NPC private thoughts;
-  - chronicle events;
-  - open plot threads;
-  - optional NSFW context.
-- Supports multiple display modes:
-  - inline in messages;
-  - floating window;
-  - side dock;
-  - inline + side dock.
-- Includes compact/full panel modes.
-- Includes relationship filtering:
-  - top 3;
-  - top 1;
-  - changed only;
-  - all.
-- Supports pinned NPCs.
-- Includes a local per-chat notepad.
-- Includes XML inspector/editor for debugging and correction.
-- Supports custom CSS and visual presets.
-- Includes many built-in themes and bar styles.
+- **Live Scene Dashboard** parsed automatically from `<mom_infoblock>` XML:
+  - Scene location, time, date, and weather;
+  - Characters currently in the scene (with presence badges, tags, and moods);
+  - Relationship meters (`Affection`, `Trust`, `Love` + negative counterparts) with delta tracking;
+  - Surge highlights when relationship stats jump significantly (`±4` or more) in a single turn;
+  - Private NPC thoughts (kept out of visible narrative);
+  - Interactive Chronicle events & Open Plot Threads;
+  - Character Dossier quick-viewer (`☰`);
+  - Optional NSFW context section.
+- **Multiple Display Modes:**
+  - **Inline** — inside assistant messages;
+  - **Floating Window** — draggable, resizable, and collapsible;
+  - **Side Dock** — collapsible left/right drawer (with a dedicated mobile slide-out panel);
+  - **Inline + Side Dock** — both at once.
+- **Deep Visual Customization (`◈` Style Menu):**
+  - **34 Themes** (including dark, retro CRT, noir, gothic, cyberpunk, and light porcelain);
+  - **22 Bar Styles** (from classic gradients and neon rails to lunar phases, oil brushstrokes, rosary chains, and ECG heartbeats);
+  - **Corner Shape Switcher** (`Auto by theme` / `Rounded` / `Sharp`) protected from external SillyTavern theme overrides;
+  - **Per-Character Style Binding** — lock a specific theme, bar style, and corner geometry to an individual character card;
+  - **Full / Compact** panel view modes;
+  - **Custom CSS** editor with built-in quick presets and font scaling (`Small` / `Normal` / `Large` / `Extra Large`).
+- **Interactive Memory & QoL:**
+  - **Manual Chronicle Control** — add your own events or plot threads with `+`, or delete unwanted model entries with `×` (deleted items are remembered and won't be re-added on chat re-parse);
+  - **Per-Chat Notepad** with optional prompt injection (`Inject notes into prompt`);
+  - **Pinned NPCs** (`☆ / ★`) to keep key characters at the top;
+  - **Persistent Accordion State** — collapsed relationship cards stay collapsed across turns;
+  - **XML Inspector (`</>`)** to view, copy, or live-edit raw XML.
 
 ---
 
-## Installation
+## 📦 Installation
 
-Install like any regular extension or download/clone this repository into your SillyTavern third-party extensions folder:
+Install via SillyTavern's built-in extension installer using the repository URL, or clone/download it into your third-party extensions folder:
 
 `SillyTavern/public/scripts/extensions/third-party/Mom-Infoblock`
 
 Then:
-
 1. Restart SillyTavern or reload the page.
-2. Open **Extensions**.
-3. Enable **Mom Infoblock**.
-4. Configure display mode, language, theme, and bar style.
+2. Open **Extensions** → **Mom Infoblock**.
+3. Check **Enable Mom Infoblock**.
+4. Choose your preferred language (`RU` / `EN`), display mode, and open the `◈` menu on the board to pick your theme and bar style.
 
 ---
 
-## XML Fields
+## 🧩 XML Structure & Fields
 
-- Scene
+The extension automatically injects instructions for the model to append a `<mom_infoblock>` block at the end of each reply.
 
-*time — current time.
-date — current date.
-weather — current weather or environment.
-loc — current location.*
+### Scene
+- `time` — current time.
+- `date` — current date.
+- `weather` — current weather or environment.
+- `loc` — current location.
 
-- Characters
+### Characters (`<chars>`)
+- `icon` — emoji or short visual marker.
+- `name` — exact full NPC name.
+- `tags` — 1–4 short labels separated by `|`.
+- `mood` — short visible emotional state (1–3 words).
+- **Supported Presence Tags:**
+  `focus` | `рядом` / `near` | `наблюдает` / `watching` | `на периферии` / `background` | `вышел` / `left`
 
-*icon — small visual marker.
-name — full NPC name.
-tags — short tags separated by |.
-mood — short visible emotional state.*
+### Relationships (`<rels>`)
+- `a` — Affection (`-100` to `100`). Negative values represent **Aversion / Dislike**.
+- `ac` — Affection change in this message.
+- `tr` — Trust (`-100` to `100`). Negative values represent **Distrust / Suspicion**.
+- `tc` — Trust change in this message.
+- `l` — Love / Attachment (`-100` to `100`). Negative values represent **Hatred / Destructive Attachment**.
+- `lc` — Love change in this message.
+- `status` — short relationship phase (1–3 words).
 
-- 5 presence tags are supported:
+### Chronicle (`<chronicle>`)
+- `<event>` — important new event from the current turn.
+- `<thread>` — unresolved plot hook or active storyline.
+- **Manual Editing:** In the **Chronicle** tab, you can delete any entry using the `×` button or add custom events and threads via the `+` input field. Both automatic and manual entries are included in the state prompt.
 
-*focus | рядом | near | наблюдает | watching | на периферии | background | вышел | left*
-
-- Relationships
-
-*a — affection, from -100 to 100.
-ac — affection change this message.
-tr — trust, from -100 to 100.
-tc — trust change this message.
-l — love/attachment, from -100 to 100.
-lc — love change this message.
-status — short relationship status.*
-
-Negative values are interpreted as:
-
-*negative affection — dislike / aversion;
-negative trust — distrust / suspicion;
-negative love — hatred / destructive attachment / anti-attachment.*
+### NPC Thoughts (`<thk>`)
+- `<t name="EXACT FULL NPC NAME">Private thought</t>`
+- Private thoughts are displayed inside the character's relationship card (or in a separate section) and are automatically stripped if they leak into visible narration.
 
 ---
 
-## Chronicle
+## 📝 Notepad (Notes Tab)
 
-- event — important new event.
-- thread — unresolved plot hook.
+The **Notes** tab is a local per-chat scratchpad.
 
-## NPC Thoughts
+- By default, notes are stored **only in your browser** and do **not** consume prompt tokens.
+- If you enable **Inject notes into prompt** (`Отправлять блокнот модели`) in the settings, non-empty notes are injected into the extension prompt as persistent user memory (indicated by a green dot on the Notes tab).
 
-Private thoughts are displayed inside the infoblock if enabled.
-They should not appear in visible narration outside the XML.
-
-Notes
-The Notes tab is a local per-chat notepad.
-
-**Important:**
-
-The **Notes** tab is a local per-chat notepad.
-By default, notes are stored only in your browser and do **not** get sent to the model.
-This means you can use the notepad for personal reminders, scene planning, references, or random scratch notes without wasting tokens.
-If you want, you can enable a separate setting:
-`Inject notes into prompt`
-When this option is enabled, non-empty notes are added to the extension prompt as user memory.
-
-So the behavior is:
-- notes are always stored locally;
-- notes do not consume tokens by default;
-- notes only affect context if **Inject notes into prompt** is turned on;
-- longer injected notes will use more prompt space.
-- 
 In short:
-- **Notes off prompt** = private local notepad;
-- **Notes in prompt** = manual memory injection.
+- **Inject Notes OFF** = private local scratchpad (0 tokens).
+- **Inject Notes ON** = manual memory injection.
 
 ---
 
-## Display Modes
+## 🎨 Themes & Bar Styles Catalog
 
-- Available display modes:
+### 34 Built-in Themes
+- **Signature & Atmospheric:** `Kanon.exe`, `Nocturne`, `Revachol Disco`, `VHS 1994`, `Kintsugi Porcelain` *(Light)*, `Bio-Abyss`, `Arcana Tarot`, `Reliquary`, `Aurum`, `Silver Nitrate`, `Case File`, `Obsidian Registry`, `Oracle Moon`, `Blood Moon`.
+- **Sci-Fi, Retro & HUD:** `Terminal`, `System Log`, `Neon Quest`, `Pixel Neon`, `Shockwave`, `Lockdown`, `Hot Rod`.
+- **Aesthetic & Palette:** `Burgundy`, `Ash Rose`, `Cold Steel`, `Frost White`, `Pink Bite`, `Violet Glass`, `Verdant Grove`, `Sandalwood`.
+- **Fandom & Pop-Culture:** `Gengar`, `Spider-Man`, `Venom`, `Gryffindor`, `Slytherin`, `Ravenclaw`, `Hufflepuff`.
 
-- Inline — renders the infoblock inside assistant messages.
-- Floating Window — renders a movable floating panel.
-- Side Dock — renders a collapsible side panel.
-- Inline + Side Dock — renders both inline panels and dock panel.
-- Floating and dock modes use the latest known infoblock state.
+### 22 Bar Styles
+`Kanon Souls`, `Classic`, `Deep Neon`, `Glass Needle`, `Soft Matte`, `Pixel Blocks`, `Candy Gloss`, `Prism Glass`, `Neon Rails`, `Terminal Segments`, `Heart Meter`, `Constellation Stars`, `Vials`, `Evidence Tape`, `Runic Shards`, `Rosary Chain`, `Sigil Bands`, `Energon`, `Spiderweb`, `Brush Stroke`, `Heartbeat ECG`, `Moon Phases`.
 
-## Themes
-
-Mom Infoblock includes a large theme catalog.
-
-*Current themes include:*
-
-Nocturne, Burgundy, Ash Rose, Cold Steel, Frost White, Pixel Neon, Pink Bite, Violet Glass, Verdant Grove, Sandalwood,
-Gengar, System Log, Terminal, Oracle Moon, Blood Moon, Case File, Obsidian Registry, Neon Quest,
-Shockwave, Lockdown, Hot Rod, Gryffindor, Slytherin, Ravenclaw, Hufflepuff.
-
-
-*Bar Styles*
-Relationship meters support multiple visual styles:
-
-Classic, Deep Neon, Glass Needle, Soft Matte, Pixel Blocks, Candy Gloss, Prism Glass, Neon Rails, Terminal Segments
-Heart Meter, Constellation Stars, Vials, Evidence Tape, Runic Shards, Sigil Bands, Energon
+### Corner Geometry (`◈` Menu)
+- **Auto (by theme):** automatically applies crisp, sharp corners to retro/brutalist themes (`Kanon.exe`, `Revachol Disco`, `Terminal`, `System Log`, `Case File`, `VHS 1994`, `Neon Quest`, `Lockdown`, `Silver Nitrate`, `Pixel Neon`) and smooth rounded corners to others.
+- **Rounded:** forces soft, rounded cards and pill-shaped tags on any theme.
+- **Sharp:** forces crisp, square-edged geometry on any theme.
 
 ---
 
-## XML Inspector
+## 🛠️ XML Inspector & Custom CSS
 
-The XML inspector allows you to:
+- **XML Inspector (`</>`):** View, copy, or manually edit the raw `<mom_infoblock>` XML and apply changes to the current or latest message.
+- **Custom CSS:** Write your own CSS rules in the extension settings or insert built-in presets (`Compact thin`, `Bigger text`, `Transparent`, `High contrast`, `Purple glow`).
 
-view the raw XML;
-copy XML;
-edit XML;
-apply corrected XML to the current or latest infoblock message.
-This is useful when the model outputs malformed XML or when you want to manually fix relationship values.
-
-## Custom CSS
-
-Mom Infoblock supports custom CSS from extension settings.
-
-*Example:*
-
-`Css
+```css
+/* Example Custom CSS */
 .mib-board {
-    border-color: red;
+    border-color: #5ce1ff;
 }
-Custom CSS is stored locally in the browser.`
+```
 
-Built-in presets are also available:
+---
 
-compact thin;
-bigger text;
-more transparent;
-high contrast;
-purple glow.
+## 🔒 Privacy & Security
 
-## Local Storage
-The extension stores data locally in the browser via localStorage.
+- **100% Local & Offline:** All state data, notes, and settings are stored strictly in your browser's `localStorage` (with full JSON Export / Import support).
+- **Zero External Requests:** The extension makes **no** external network calls, loads no remote scripts or trackers, and never accesses API keys or connection secrets. All textures and icons are embedded directly as inline SVGs.
 
-## Export / Import
-The extension supports exporting and importing data.
+---
 
-## !! I recommend checking the settings; many things, such as Thoughts, Chronicle, etc., can be turned off if you're saving tokens or don't use them. 
+## 💡 Tips & Standalone Tools
 
-## You can also use the extension separately for Dossier and Notepad. I made it an additional extension, finding it useful overall. (Notepad in this version doesn't have the ability to send to Prompt.)
-https://github.com/KanonMama/KanonNotes
+- **Saving Tokens:** If you want to save context tokens, you can disable **NPC Thoughts** or **Chronicle** in the extension settings at any time — the prompt will automatically adjust.
+- **Standalone Dossier & Notepad:** If you only want the Dossier viewer and local Notepad without the XML dashboard, check out the standalone lightweight extension:
+  👉 **[KanonNotes](https://github.com/KanonMama/KanonNotes)**
