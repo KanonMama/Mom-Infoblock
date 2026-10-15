@@ -2,17 +2,20 @@ const kExtensionName = "Mom-Infoblock";
 const kExtensionFolderPath = `scripts/extensions/third-party/${kExtensionName}`;
 const kSettingsFile = `${kExtensionFolderPath}/settings.html`;
 
-const kVersion = "2.0.0";
+const kVersion = "2.1.0";
 const kPromptInjectionId = "MIB_PromptInjection";
 
 const kStoragePrefix = "MIB_";
 const kStatePrefix = `${kStoragePrefix}State_`;
 const kNotesPrefix = `${kStoragePrefix}Notes_`;
+const kDismissedChroniclePrefix = `${kStoragePrefix}DismissedChronicle_`;
+const kCharStylePrefix = `${kStoragePrefix}CharStyle_`;
 
 const kEnabledKey = `${kStoragePrefix}Enabled`;
 const kLangKey = `${kStoragePrefix}Lang`;
 const kThemeKey = `${kStoragePrefix}Theme`;
 const kBarStyleKey = `${kStoragePrefix}BarStyle`;
+const kCornerStyleKey = `${kStoragePrefix}CornerStyle`;
 const kDisplayModeKey = `${kStoragePrefix}DisplayMode`;
 const kDockSideKey = `${kStoragePrefix}DockSide`;
 const kHideRawKey = `${kStoragePrefix}HideRaw`;
@@ -36,6 +39,7 @@ let gEnabled = false;
 let gLang = "ru";
 let gTheme = "nocturne";
 let gBarStyle = "classic";
+let gCornerStyle = "auto";
 let gDisplayMode = "inline";
 let gDockSide = "right";
 let gHideRaw = true;
@@ -54,6 +58,7 @@ let gFontSize = "normal";
 let gThoughtsEnabled = true;
 let gStyleMenuOpen = false;
 let gInjectNotes = false;
+let gCollapsedRels = new Set();
 
 const kDefaultState = {
     scene: {
@@ -67,7 +72,9 @@ const kDefaultState = {
     thoughts: [],
     chronicle: {
         events: [],
-        threads: []
+        threads: [],
+        manualEvents: [],
+        manualThreads: []
     },
     nsfw: null
 };
@@ -129,68 +136,82 @@ const kLangMap = {
         distrust: "Недоверие",
         hatred: "Ненависть",
         debugXml: "XML",
-copyXml: "Копировать",
-applyXml: "Применить XML",
-closeXml: "Закрыть",
-xmlApplied: "XML применён",
-xmlInvalid: "XML не распознан. Проверь <mom_infoblock>.",
-xmlNoMessage: "Не удалось найти сообщение для правки.",
+        copyXml: "Копировать",
+        applyXml: "Применить XML",
+        closeXml: "Закрыть",
+        xmlApplied: "XML применён",
+        xmlInvalid: "XML не распознан. Проверь <mom_infoblock>.",
+        xmlNoMessage: "Не удалось найти сообщение для правки.",
         sceneFull: "Полный",
-sceneCompact: "Компакт",
+        sceneCompact: "Компакт",
         relationFilter: "Фильтр отношений",
-relationTop3: "Топ 3",
-relationTop1: "Топ 1",
-relationChanged: "Только изменившиеся",
-relationAll: "Все",
-noRelationChanges: "Изменений нет",
+        relationTop3: "Топ 3",
+        relationTop1: "Топ 1",
+        relationChanged: "Только изменившиеся",
+        relationAll: "Все",
+        noRelationChanges: "Изменений нет",
         applyLatestXml: "Применить к последнему",
-xmlLatestNotFound: "Не найдено последнее сообщение с <mom_infoblock>.",
+        xmlLatestNotFound: "Не найдено последнее сообщение с <mom_infoblock>.",
         customCss: "Custom CSS",
-customCssPlaceholder: "Пиши CSS для Mom Infoblock. Например: .mib-board { border-color: red; }",
-saveCustomCss: "Сохранить CSS",
-clearCustomCss: "Очистить CSS",
+        customCssPlaceholder: "Пиши CSS для Mom Infoblock. Например: .mib-board { border-color: red; }",
+        saveCustomCss: "Сохранить CSS",
+        clearCustomCss: "Очистить CSS",
         fontSize: "Размер текста",
-fontSmall: "Мелкий",
-fontNormal: "Обычный",
-fontLarge: "Крупный",
-fontXLarge: "Очень крупный",
+        fontSmall: "Мелкий",
+        fontNormal: "Обычный",
+        fontLarge: "Крупный",
+        fontXLarge: "Очень крупный",
         thoughtsEnabled: "Включить мысли NPC",
         cssPresetCompactThin: "Тоньше и плотнее",
-cssPresetBiggerText: "Крупнее текст",
-cssPresetTransparent: "Прозрачнее",
-cssPresetHighContrast: "Контрастнее",
-cssPresetPurpleGlow: "Фиолетовое свечение",
-insertPreset: "Вставить пресет",
+        cssPresetBiggerText: "Крупнее текст",
+        cssPresetTransparent: "Прозрачнее",
+        cssPresetHighContrast: "Контрастнее",
+        cssPresetPurpleGlow: "Фиолетовое свечение",
+        insertPreset: "Вставить пресет",
         dossier: "Досье",
-dossierEmpty: "Описание персонажа не найдено.",
-dossierClose: "Закрыть",
+        dossierEmpty: "Описание персонажа не найдено.",
+        dossierClose: "Закрыть",
         focus: "в фокусе",
-nearby: "рядом",
-watching: "наблюдает",
-background: "на периферии",
-leftScene: "вышел",
+        nearby: "рядом",
+        watching: "наблюдает",
+        background: "на периферии",
+        leftScene: "вышел",
         styleMenu: "Стиль",
-barStyle: "Стиль полос",
-barClassic: "Classic",
-barGlass: "Glass Needle",
-barNeon: "Neon Rails",
-barTerminal: "Terminal Segments",
-barHearts: "Heart Meter",
-barConstellation: "Constellation Stars",
-barVials: "Vials",
-barEvidence: "Evidence Tape",
-barRunic: "Runic Shards",
-barEnergon: "Energon",
+        barStyle: "Стиль полос",
+        barClassic: "Classic",
+        barGlass: "Glass Needle",
+        barNeon: "Neon Rails",
+        barTerminal: "Terminal Segments",
+        barHearts: "Heart Meter",
+        barConstellation: "Constellation Stars",
+        barVials: "Vials",
+        barEvidence: "Evidence Tape",
+        barRunic: "Runic Shards",
+        barEnergon: "Energon",
         barDeep: "Deep Neon",
-barSoft: "Soft Matte",
-barPixel: "Pixel Blocks",
-barCandy: "Candy Gloss",
-barPrism: "Prism Glass",
-barSigil: "Sigil Bands",
+        barSoft: "Soft Matte",
+        barPixel: "Pixel Blocks",
+        barCandy: "Candy Gloss",
+        barPrism: "Prism Glass",
+        barSigil: "Sigil Bands",
         barRosary: "Rosary Chain",
+        barWeb: "Spiderweb",
+        barBrush: "Brush Stroke",
+        barHeartbeat: "Heartbeat ECG",
+        barMoonphases: "Moon Phases",
+        barKanon: "Kanon Souls",
+        cornerStyle: "Форма углов",
+        cornerAuto: "Авто (по теме)",
+        cornerRound: "Мягкие (круглые)",
+        cornerSharp: "Острые (квадратные)",
+        bindCharStyle: "Закрепить стиль за персонажем",
+        addEventPlaceholder: "Добавить событие в хронику...",
+        addThreadPlaceholder: "Добавить открытую нить...",
+        addBtn: "+",
+        deleteItem: "Удалить",
         themePreview: "Палитра темы",
-themePreviewMissing: "Превью недоступно",
-        injectNotes: "Отправлять блокнот модели",
+        themePreviewMissing: "Превью недоступно",
+        injectNotes: "Отправлять блокнот модели"
     },
     en: {
         enable: "Enable Mom Infoblock",
@@ -246,68 +267,82 @@ themePreviewMissing: "Превью недоступно",
         distrust: "Distrust",
         hatred: "Hatred",
         debugXml: "XML",
-copyXml: "Copy",
-applyXml: "Apply XML",
-closeXml: "Close",
-xmlApplied: "XML applied",
-xmlInvalid: "XML was not recognized. Check <mom_infoblock>.",
-xmlNoMessage: "Could not find message to edit.",
+        copyXml: "Copy",
+        applyXml: "Apply XML",
+        closeXml: "Close",
+        xmlApplied: "XML applied",
+        xmlInvalid: "XML was not recognized. Check <mom_infoblock>.",
+        xmlNoMessage: "Could not find message to edit.",
         sceneFull: "Full",
-sceneCompact: "Compact",
+        sceneCompact: "Compact",
         relationFilter: "Relationship Filter",
-relationTop3: "Top 3",
-relationTop1: "Top 1",
-relationChanged: "Changed only",
-relationAll: "All",
-noRelationChanges: "No changes",
+        relationTop3: "Top 3",
+        relationTop1: "Top 1",
+        relationChanged: "Changed only",
+        relationAll: "All",
+        noRelationChanges: "No changes",
         applyLatestXml: "Apply to latest",
-xmlLatestNotFound: "No latest message with <mom_infoblock> found.",
+        xmlLatestNotFound: "No latest message with <mom_infoblock> found.",
         customCss: "Custom CSS",
-customCssPlaceholder: "Write CSS for Mom Infoblock. Example: .mib-board { border-color: red; }",
-saveCustomCss: "Save CSS",
-clearCustomCss: "Clear CSS",
+        customCssPlaceholder: "Write CSS for Mom Infoblock. Example: .mib-board { border-color: red; }",
+        saveCustomCss: "Save CSS",
+        clearCustomCss: "Clear CSS",
         fontSize: "Font Size",
-fontSmall: "Small",
-fontNormal: "Normal",
-fontLarge: "Large",
-fontXLarge: "Extra large",
+        fontSmall: "Small",
+        fontNormal: "Normal",
+        fontLarge: "Large",
+        fontXLarge: "Extra large",
         thoughtsEnabled: "Enable NPC Thoughts",
         cssPresetCompactThin: "Compact thin",
-cssPresetBiggerText: "Bigger text",
-cssPresetTransparent: "More transparent",
-cssPresetHighContrast: "High contrast",
-cssPresetPurpleGlow: "Purple glow",
-insertPreset: "Insert preset",
+        cssPresetBiggerText: "Bigger text",
+        cssPresetTransparent: "More transparent",
+        cssPresetHighContrast: "High contrast",
+        cssPresetPurpleGlow: "Purple glow",
+        insertPreset: "Insert preset",
         dossier: "Dossier",
-dossierEmpty: "Character description not found.",
-dossierClose: "Close",
+        dossierEmpty: "Character description not found.",
+        dossierClose: "Close",
         focus: "focus",
-nearby: "nearby",
-watching: "watching",
-background: "background",
-leftScene: "left",
+        nearby: "nearby",
+        watching: "watching",
+        background: "background",
+        leftScene: "left",
         styleMenu: "Style",
-barStyle: "Bar Style",
-barClassic: "Classic",
-barGlass: "Glass Needle",
-barNeon: "Neon Rails",
-barTerminal: "Terminal Segments",
-barHearts: "Heart Meter",
-barConstellation: "Constellation Stars",
-barVials: "Vials",
-barEvidence: "Evidence Tape",
-barRunic: "Runic Shards",
-barEnergon: "Energon",
+        barStyle: "Bar Style",
+        barClassic: "Classic",
+        barGlass: "Glass Needle",
+        barNeon: "Neon Rails",
+        barTerminal: "Terminal Segments",
+        barHearts: "Heart Meter",
+        barConstellation: "Constellation Stars",
+        barVials: "Vials",
+        barEvidence: "Evidence Tape",
+        barRunic: "Runic Shards",
+        barEnergon: "Energon",
         barDeep: "Deep Neon",
-barSoft: "Soft Matte",
-barPixel: "Pixel Blocks",
-barCandy: "Candy Gloss",
-barPrism: "Prism Glass",
-barSigil: "Sigil Bands",
+        barSoft: "Soft Matte",
+        barPixel: "Pixel Blocks",
+        barCandy: "Candy Gloss",
+        barPrism: "Prism Glass",
+        barSigil: "Sigil Bands",
         barRosary: "Rosary Chain",
+        barWeb: "Spiderweb",
+        barBrush: "Brush Stroke",
+        barHeartbeat: "Heartbeat ECG",
+        barMoonphases: "Moon Phases",
+        barKanon: "Kanon Souls",
+        cornerStyle: "Corner Shape",
+        cornerAuto: "Auto (by theme)",
+        cornerRound: "Rounded",
+        cornerSharp: "Sharp (square)",
+        bindCharStyle: "Bind style to this character",
+        addEventPlaceholder: "Add chronicle event...",
+        addThreadPlaceholder: "Add open plot thread...",
+        addBtn: "+",
+        deleteItem: "Delete",
         themePreview: "Theme palette",
-themePreviewMissing: "Preview unavailable",
-        injectNotes: "Inject notes into prompt",
+        themePreviewMissing: "Preview unavailable",
+        injectNotes: "Inject notes into prompt"
     }
 };
 
@@ -540,7 +575,6 @@ function NamesLikelyMatch(a, b) {
     const aParts = aClean.split(/\s+/).filter(Boolean);
     const bParts = bClean.split(/\s+/).filter(Boolean);
 
-    // Два разных полных имени с общей фамилией не являются одним NPC.
     if (
         aParts.length > 1 &&
         bParts.length > 1 &&
@@ -698,12 +732,78 @@ function GetChatId() {
     );
 }
 
+function GetCharacterKey() {
+    const stContext = GetContextSafe();
+    const char = stContext.characters?.[stContext.characterId];
+    return char?.avatar || char?.name || stContext.name2 || "default_char";
+}
+
+function GetCharStyleStorageKey() {
+    return kCharStylePrefix + GetCharacterKey();
+}
+
+function HasCharacterBoundStyle() {
+    return Boolean(localStorage.getItem(GetCharStyleStorageKey()));
+}
+
+function SaveCharacterBoundStyle() {
+    try {
+        localStorage.setItem(GetCharStyleStorageKey(), JSON.stringify({
+            theme: gTheme,
+            barStyle: gBarStyle,
+            cornerStyle: gCornerStyle
+        }));
+    } catch {}
+}
+
+function ClearCharacterBoundStyle() {
+    localStorage.removeItem(GetCharStyleStorageKey());
+}
+
+function LoadCharacterBoundStyleIfPresent() {
+    try {
+        const raw = localStorage.getItem(GetCharStyleStorageKey());
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (data?.theme) gTheme = data.theme;
+        if (data?.barStyle) gBarStyle = data.barStyle;
+        if (data?.cornerStyle) gCornerStyle = data.cornerStyle;
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 function GetStateKey() {
     return kStatePrefix + GetChatId();
 }
 
 function GetNotesKey() {
     return kNotesPrefix + GetChatId();
+}
+
+function GetDismissedChronicleKey() {
+    return kDismissedChroniclePrefix + GetChatId();
+}
+
+function GetDismissedChronicleSet() {
+    try {
+        const raw = localStorage.getItem(GetDismissedChronicleKey());
+        const arr = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(arr) ? arr : []);
+    } catch {
+        return new Set();
+    }
+}
+
+function AddDismissedChronicleItem(text) {
+    const norm = NormalizeText(text);
+    if (!norm) return;
+    const set = GetDismissedChronicleSet();
+    set.add(norm);
+    try {
+        localStorage.setItem(GetDismissedChronicleKey(), JSON.stringify([...set]));
+    } catch {}
 }
 
 function IsUserLikeName(name) {
@@ -728,6 +828,8 @@ function LoadSettings() {
     gEnabled = localStorage.getItem(kEnabledKey) === "true";
     gLang = localStorage.getItem(kLangKey) || "ru";
     gTheme = localStorage.getItem(kThemeKey) || "nocturne";
+    gBarStyle = localStorage.getItem(kBarStyleKey) || "classic";
+    gCornerStyle = localStorage.getItem(kCornerStyleKey) || "auto";
     gDisplayMode = localStorage.getItem(kDisplayModeKey) || "inline";
     gDockSide = localStorage.getItem(kDockSideKey) || "right";
     gHideRaw = localStorage.getItem(kHideRawKey) !== "false";
@@ -740,14 +842,17 @@ function LoadSettings() {
     gRelationFilter = localStorage.getItem(kRelationFilterKey) || "top3";
     gFontSize = localStorage.getItem(kFontSizeKey) || "normal";
     gThoughtsEnabled = localStorage.getItem(kThoughtsEnabledKey) !== "false";
-    gBarStyle = localStorage.getItem(kBarStyleKey) || "classic";
     gInjectNotes = localStorage.getItem(kInjectNotesKey) === "true";
+
+    LoadCharacterBoundStyleIfPresent();
 }
 
 function SaveSettings() {
     localStorage.setItem(kEnabledKey, String(gEnabled));
     localStorage.setItem(kLangKey, gLang);
     localStorage.setItem(kThemeKey, gTheme);
+    localStorage.setItem(kBarStyleKey, gBarStyle);
+    localStorage.setItem(kCornerStyleKey, gCornerStyle);
     localStorage.setItem(kDisplayModeKey, gDisplayMode);
     localStorage.setItem(kDockSideKey, gDockSide);
     localStorage.setItem(kHideRawKey, String(gHideRaw));
@@ -760,8 +865,11 @@ function SaveSettings() {
     localStorage.setItem(kRelationFilterKey, gRelationFilter);
     localStorage.setItem(kFontSizeKey, gFontSize);
     localStorage.setItem(kThoughtsEnabledKey, String(gThoughtsEnabled));
-    localStorage.setItem(kBarStyleKey, gBarStyle);
     localStorage.setItem(kInjectNotesKey, String(gInjectNotes));
+
+    if (HasCharacterBoundStyle()) {
+        SaveCharacterBoundStyle();
+    }
 }
 
 function GetThemeLocationIcon(theme = gTheme) {
@@ -775,7 +883,7 @@ function GetThemeLocationIcon(theme = gTheme) {
         systemlog: "💾",
         reliquary: "🕯",
         aurum: "◆",
-silvernitrate: "◉",
+        silvernitrate: "◉",
         gengar: "🕯️",
         shockwave: "⚛︎",
         lockdown: "⌖",
@@ -785,7 +893,13 @@ silvernitrate: "◉",
         ravenclaw: "📜",
         hufflepuff: "📜",
         spiderman: "🕸",
-venom: "◈"
+        venom: "◈",
+        disco: "🥃",
+        vhs: "📼",
+        porcelain: "⛩️",
+        abyss: "🪼",
+        tarot: "🎴",
+        kanon: "⚓"
     };
 
     return map[theme] || "📍";
@@ -802,7 +916,7 @@ function GetThemeCharsIcon(theme = gTheme) {
         systemlog: "📊",
         reliquary: "♙",
         aurum: "♛",
-silvernitrate: "🎞",
+        silvernitrate: "🎞",
         gengar: "👻",
         shockwave: "⚙",
         lockdown: "◎",
@@ -812,7 +926,13 @@ silvernitrate: "🎞",
         ravenclaw: "🪶",
         hufflepuff: "🪶",
         spiderman: "🕷",
-venom: "◉"
+        venom: "◉",
+        disco: "🎭",
+        vhs: "📺",
+        porcelain: "印",
+        abyss: "◈",
+        tarot: "Ⅰ",
+        kanon: "👁️"
     };
 
     return map[theme] || "•";
@@ -829,7 +949,7 @@ function GetThemeRelationsIcon(theme = gTheme) {
         systemlog: "🔗",
         reliquary: "☩",
         aurum: "⚜",
-silvernitrate: "✰",
+        silvernitrate: "✰",
         gengar: "💜",
         shockwave: "🧪",
         lockdown: "💥",
@@ -839,143 +959,59 @@ silvernitrate: "✰",
         ravenclaw: "💙",
         hufflepuff: "💛",
         spiderman: "♥️",
-venom: "🖤"
+        venom: "🖤",
+        disco: "🚬",
+        vhs: "📡",
+        porcelain: "糸",
+        abyss: "🫧",
+        tarot: "Ⅱ",
+        kanon: "🩵"
     };
 
     return map[theme] || "♥";
 }
 
-
 function GetThemeTitleData(theme = gTheme) {
     const map = {
-        nocturne: {
-            main: "INFOBLOCK",
-            sub: "✩₊˚.⋆☾⋆⁺₊✧"
-        },
-        burgundy: {
-            main: "INFOBLOCK",
-            sub: "✩₊˚.⋆🕸️⋆⁺₊✧"
-        },
-        ashrose: {
-            main: "INFOBLOCK",
-            sub: "── ⋆⋅𖤓⋅⋆ ──"
-        },
-        coldsteel: {
-            main: "INFOBLOCK",
-            sub: "⫘⫘⫘⫘⫘⫘"
-        },
-        frostwhite: {
-            main: "INFOBLOCK",
-            sub: "⋆꙳•❅*°⋆❆.ೃ࿔*:･*"
-        },
-        pixel: {
-            main: "PIXEL INFOBLOCK",
-            sub: "⩇⩇:⩇⩇"
-        },
-        pinkbite: {
-            main: "INFOBLOCK",
-            sub: "-ˋˏ ༻❁✿❀༺ ˎˊ-"
-        },
-        violetglass: {
-            main: "INFOBLOCK",
-            sub: "· ─ ·𖥸· ─ ·"
-        },
-        verdantgrove: {
-            main: "INFOBLOCK",
-            sub: "☆.𓋼𓍊 𓆏 𓍊𓋼𓍊.☆"
-        },
-        sandalwood: {
-            main: "INFOBLOCK",
-            sub: "❁✿❀❁✿❀"
-        },
-        gengar: {
-            main: "☠ 𝔊𝔢𝔫𝔤𝔞𝔯 ☠",
-            sub: "𖦹 ⋆ ˚｡🩻｡˚ ⋆ 𖦹"
-        },
-        systemlog: {
-            main: "▾ SYSTEM LOG // ACCESS GRANTED 🖳",
-            sub: "↳ signal stable ✔"
-        },
-        terminal: {
-            main: "INFOBLOCK // USER ACCESS",
-            sub: "> relationship data loaded"
-        },
-        oraclemoon: {
-            main: "ORACLE BOARD",
-            sub: "🀧.✮..☽..✮.🀧"
-        },
-        bloodmoon: {
-            main: "𝐵𝐿𝒪𝒪𝒟 𝑀𝒪𝒪𝒩",
-            sub: ".˚⊹. ࣪𓉸 ࣪⊹˚."
-        },
-        casefile: {
-            main: "CASE FILE // SUBJECT RELATIONS",
-            sub: "˖⌕ ۫ . . . .𖥔"
-        },
-        obsidianregistry: {
-            main: "Infoblock",
-            sub: "⋆˖⁺‧₊⚜₊‧⁺˖⋆"
-        },
-        reliquary: {
-    main: "THE RELIQUARY",
-    sub: "† VOWS · DEBTS · WOUNDS †"
-},
-
-        aurum: {
-    main: "INFOBLOCK",
-    sub: "˗ˋˏ⛀⛁ ⛁⛀ˎˊ˗"
-},
-
-silvernitrate: {
-    main: "SCENE IN PROGRESS 📽",
-    sub: "↻ ◁ || ▷ ↺"
-},
-        neonquest: {
-            main: "𝄃𝄃𝄂𝄂𝄀RP BLOCK𝄁𝄃𝄂𝄂𝄃",
-            sub: "█Err⃟⃤r⁴⁰⁴"
-        },
-        shockwave: {
-            main: "☣..𝚁𝚎𝚊𝚌𝚝𝚒𝚘𝚗 𝚝𝚛𝚊𝚌𝚔𝚒𝚗𝚐..☣",
-            sub: "ﮩ٨ـﮩﮩ٨ـﮩ٨ـﮩﮩ٨ـ"
-        },
-        lockdown: {
-            main: "𝕋𝕒𝕣𝕘𝕖𝕥 𖦏 𝕕𝕖𝕥𝕖𝕔𝕥𝕖𝕕",
-            sub: "▄︻テحكـ━一💥"
-        },
-        hotrod: {
-            main: "▶Infoblock◀",
-            sub: "🏁.........🏎.."
-        },
-        gryffindor: {
-            main: "𓃬 𝔊𝔯𝔶𝔣𝔣𝔦𝔫𝔡𝔬𝔯 𓃬",
-            sub: "✩₊˚.⋆🦁⋆⁺₊✧"
-        },
-        slytherin: {
-            main: "𓆙 𝔖𝔩𝔶𝔱𝔥𝔢𝔯𝔦𝔫 𓆙",
-            sub: "⊹₊˚‧︵‿₊🐍₊‿︵‧˚₊⊹"
-        },
-        ravenclaw: {
-            main: "𓄿 ℜ𝔞𝔳𝔢𝔫𝔠𝔩𝔞𝔴 𓄿",
-            sub: "✦•┈๑⋅⋯🦅⋯⋅๑┈•✦"
-        },
-        hufflepuff: {
-            main: "𓃮 ℌ𝔲𝔣𝔣𝔩𝔢𝔭𝔲𝔣𝔣 𓃮",
-            sub: "-ˋˏ ༻❁🦡❀༺ ˎˊ-"
-        },
-        spiderman: {
-    main: "FRIENDLY NEIGHBORHOOD",
-    sub: "🕷️⋆｡°✩🕸️✩°｡⋆🕷️"
-},
-venom: {
-    main: "🕷️WE ARE",
-    sub: "𝑽𝒆𝒏𝒐𝒎🕷️"
-}
+        nocturne: { main: "INFOBLOCK", sub: "✩₊˚.⋆☾⋆⁺₊✧" },
+        burgundy: { main: "INFOBLOCK", sub: "✩₊˚.⋆🕸️⋆⁺₊✧" },
+        ashrose: { main: "INFOBLOCK", sub: "── ⋆⋅𖤓⋅⋆ ──" },
+        coldsteel: { main: "INFOBLOCK", sub: "⫘⫘⫘⫘⫘⫘" },
+        frostwhite: { main: "INFOBLOCK", sub: "⋆꙳•❅*°⋆❆.ೃ࿔*:･*" },
+        pixel: { main: "PIXEL INFOBLOCK", sub: "⩇⩇:⩇⩇" },
+        pinkbite: { main: "INFOBLOCK", sub: "-ˋˏ ༻❁✿❀༺ ˎˊ-" },
+        violetglass: { main: "INFOBLOCK", sub: "· ─ ·𖥸· ─ ·" },
+        verdantgrove: { main: "INFOBLOCK", sub: "☆.𓋼𓍊 𓆏 𓍊𓋼𓍊.☆" },
+        sandalwood: { main: "INFOBLOCK", sub: "❁✿❀❁✿❀" },
+        gengar: { main: "☠ 𝔊𝔢𝔫𝔤𝔞𝔯 ☠", sub: "𖦹 ⋆ ˚｡🩻｡˚ ⋆ 𖦹" },
+        systemlog: { main: "▾ SYSTEM LOG // ACCESS GRANTED 🖳", sub: "↳ signal stable ✔" },
+        terminal: { main: "INFOBLOCK // USER ACCESS", sub: "> relationship data loaded" },
+        oraclemoon: { main: "ORACLE BOARD", sub: "🀧.✮..☽..✮.🀧" },
+        bloodmoon: { main: "𝐵𝐿𝒪𝒪𝒟 𝑀𝒪𝒪𝒩", sub: ".˚⊹. ࣪𓉸 ࣪⊹˚." },
+        casefile: { main: "CASE FILE // SUBJECT RELATIONS", sub: "˖⌕ ۫ . . . .𖥔" },
+        obsidianregistry: { main: "Infoblock", sub: "⋆˖⁺‧₊⚜₊‧⁺˖⋆" },
+        reliquary: { main: "THE RELIQUARY", sub: "† VOWS · DEBTS · WOUNDS †" },
+        aurum: { main: "INFOBLOCK", sub: "˗ˋˏ⛀⛁ ⛁⛀ˎˊ˗" },
+        silvernitrate: { main: "SCENE IN PROGRESS 📽", sub: "↻ ◁ || ▷ ↺" },
+        neonquest: { main: "𝄃𝄃𝄂𝄂𝄀RP BLOCK𝄁𝄃𝄂𝄂𝄃", sub: "█Err⃟⃤r⁴⁰⁴" },
+        shockwave: { main: "☣..𝚁𝚎𝚊𝚌𝚝𝚒𝚘𝚗 𝚝𝚛𝚊𝚌𝚔𝚒𝚗𝚐..☣", sub: "ﮩ٨ـﮩﮩ٨ـﮩ٨ـﮩﮩ٨ـ" },
+        lockdown: { main: "𝕋𝕒𝕣𝕘𝕖𝕥 𖦏 𝕕𝕖𝕥𝕖𝕔𝕥𝕖𝕕", sub: "▄︻テحكـ━一💥" },
+        hotrod: { main: "▶Infoblock◀", sub: "🏁.........🏎.." },
+        gryffindor: { main: "𓃬 𝔊𝔯𝔶𝔣𝔣𝔦𝔫𝔡𝔬𝔯 𓃬", sub: "✩₊˚.⋆🦁⋆⁺₊✧" },
+        slytherin: { main: "𓆙 𝔖𝔩𝔶𝔱𝔥𝔢𝔯𝔦𝔫 𓆙", sub: "⊹₊˚‧︵‿₊🐍₊‿︵‧˚₊⊹" },
+        ravenclaw: { main: "𓄿 ℜ𝔞𝔳𝔢𝔫𝔠𝔩𝔞𝔴 𓄿", sub: "✦•┈๑⋅⋯🦅⋯⋅๑┈•✦" },
+        hufflepuff: { main: "𓃮 ℌ𝔲𝔣𝔣𝔩𝔢𝔭𝔲𝔣𝔣 𓃮", sub: "-ˋˏ ༻❁🦡❀༺ ˎˊ-" },
+        spiderman: { main: "FRIENDLY NEIGHBORHOOD", sub: "🕷️⋆｡°✩🕸️✩°｡⋆🕷️" },
+        venom: { main: "🕷️WE ARE", sub: "𝑽𝒆𝒏𝒐𝒎🕷️" },
+        disco: { main: "REVACHOL // INLAND EMPIRE", sub: "── ⋆⋅ 🥃 ⋅⋆ ── [ Volition: Easy ]" },
+        vhs: { main: "PLAY ▷ 00:42:19", sub: "● REC // SP MODE // CH-03" },
+        porcelain: { main: "金継ぎ // KINTSUGI", sub: "── 朱印 · 黄金 · 陶器 ──" },
+        abyss: { main: "HADAL ZONE // -10,994m", sub: "∘˚˳° 𓆝 𓆟 𓆞 °˳˚∘" },
+        tarot: { main: "✦ LIBER ARCANORUM ✦", sub: "Ⅰ · Ⅱ · Ⅲ · Ⅳ · Ⅴ · Ⅵ · Ⅶ" },
+        kanon: { main: "KANON.EXE // SECTOR VII-0", sub: "⚓ MONSTER ENTHUSIAST · SALT & STATIC" }
     };
 
-    return map[theme] || {
-        main: "INFOBLOCK",
-        sub: ""
-    };
+    return map[theme] || { main: "INFOBLOCK", sub: "" };
 }
 
 function LoadState() {
@@ -1154,6 +1190,16 @@ function ApplyFontSize() {
     document.documentElement.setAttribute("data-mib-font-size", gFontSize || "normal");
 }
 
+function ApplyCornerStyleToDom() {
+    const classes = ["mib-corners-auto", "mib-corners-round", "mib-corners-sharp"];
+    const targetClass = `mib-corners-${gCornerStyle || "auto"}`;
+
+    document.querySelectorAll(".mib-board, #mib_floating_host, #mib_dock_host, #mib_mobile_panel_host").forEach(el => {
+        el.classList.remove(...classes);
+        el.classList.add(targetClass);
+    });
+}
+
 function LoadPinnedNpcs() {
     try {
         const raw = localStorage.getItem(kPinnedNpcsKey);
@@ -1249,7 +1295,9 @@ function NormalizeImportedState(input) {
     if (source.chronicle) {
         state.chronicle = {
             events: Array.isArray(source.chronicle.events) ? source.chronicle.events : [],
-            threads: Array.isArray(source.chronicle.threads) ? source.chronicle.threads : []
+            threads: Array.isArray(source.chronicle.threads) ? source.chronicle.threads : [],
+            manualEvents: Array.isArray(source.chronicle.manualEvents) ? source.chronicle.manualEvents : [],
+            manualThreads: Array.isArray(source.chronicle.manualThreads) ? source.chronicle.manualThreads : []
         };
     }
 
@@ -1297,17 +1345,17 @@ function BuildStateInjection() {
         }
     }
 
-if (gInjectNotes && gNotes.trim()) {
-    lines.push("User notes:");
-    lines.push(gNotes.trim());
-}
-
-if (gThoughtsEnabled && gState.thoughts.length) {
-    lines.push("Private NPC thoughts - internal memory only, never write these in visible narrative:");
-    for (const t of gState.thoughts) {
-        lines.push(`- ${t.name}: ${t.text}`);
+    if (gInjectNotes && gNotes.trim()) {
+        lines.push("User notes:");
+        lines.push(gNotes.trim());
     }
-}
+
+    if (gThoughtsEnabled && gState.thoughts.length) {
+        lines.push("Private NPC thoughts - internal memory only, never write these in visible narrative:");
+        for (const t of gState.thoughts) {
+            lines.push(`- ${t.name}: ${t.text}`);
+        }
+    }
 
     lines.push("[/MOM INFOBLOCK STATE]");
 
@@ -1326,15 +1374,15 @@ function InjectPrompt() {
         RebuildStateFromCurrentChat();
 
         const systemPrompt = gLang === "en" ? kSystemPromptEn : kSystemPromptRu;
-const chronicleHint = gChronicleEnabled
-    ? ""
-    : "\nChronicle module is disabled. Omit <chronicle>.";
+        const chronicleHint = gChronicleEnabled
+            ? ""
+            : "\nChronicle module is disabled. Omit <chronicle>.";
 
-const thoughtsHint = gThoughtsEnabled
-    ? ""
-    : "\nNPC thoughts module is disabled. Omit <thk> entirely and do not write private NPC thoughts.";
+        const thoughtsHint = gThoughtsEnabled
+            ? ""
+            : "\nNPC thoughts module is disabled. Omit <thk> entirely and do not write private NPC thoughts.";
 
- const fullPrompt = `${systemPrompt}${chronicleHint}${thoughtsHint}\n\n${BuildStateInjection()}`;
+        const fullPrompt = `${systemPrompt}${chronicleHint}${thoughtsHint}\n\n${BuildStateInjection()}`;
 
         stContext.setExtensionPrompt?.(kPromptInjectionId, fullPrompt, 1, 0);
     } catch (error) {
@@ -1360,10 +1408,8 @@ function ParseThoughtLine(line) {
 
     if (!clean) return null;
 
-const match = clean.match(/^([^:]+?)\s*:\s*(.+)$/u);
+    const match = clean.match(/^([^:]+?)\s*:\s*(.+)$/u);
 
-    // Модель не указала владельца мысли.
-    // NormalizeThoughtOwners() потом привяжет её к единственному rel/char.
     if (!match) {
         return {
             name: "__UNASSIGNED__",
@@ -1388,9 +1434,6 @@ const match = clean.match(/^([^:]+?)\s*:\s*(.+)$/u);
 function NormalizeThoughtOwners(parsed) {
     if (!parsed?.thoughts?.length) return;
 
-    // Сначала собираем канонические имена NPC.
-    // Отношения приоритетнее chars, потому что мысли показываются
-    // прежде всего внутри карточек отношений.
     const npcNames = [];
 
     for (const rel of parsed.rels || []) {
@@ -1399,7 +1442,7 @@ function NormalizeThoughtOwners(parsed) {
         if (
             name &&
             !IsUserLikeName(name) &&
- !npcNames.some(existing => NormalizeName(existing) === NormalizeName(name))
+            !npcNames.some(existing => NormalizeName(existing) === NormalizeName(name))
         ) {
             npcNames.push(name);
         }
@@ -1411,7 +1454,7 @@ function NormalizeThoughtOwners(parsed) {
         if (
             name &&
             !IsUserLikeName(name) &&
-!npcNames.some(existing => NormalizeName(existing) === NormalizeName(name))
+            !npcNames.some(existing => NormalizeName(existing) === NormalizeName(name))
         ) {
             npcNames.push(name);
         }
@@ -1426,8 +1469,6 @@ function NormalizeThoughtOwners(parsed) {
     const resolvedThoughts = [];
     const unassignedThoughts = [];
 
-    // Сначала обрабатываем все явно подписанные мысли,
-    // независимо от их порядка внутри <thk>.
     for (const thought of parsed.thoughts) {
         const rawName = String(thought?.name || "").trim();
 
@@ -1444,17 +1485,16 @@ function NormalizeThoughtOwners(parsed) {
             continue;
         }
 
-const exactMatches = npcNames.filter(npcName =>
-    NormalizeName(rawName) === NormalizeName(npcName)
-);
+        const exactMatches = npcNames.filter(npcName =>
+            NormalizeName(rawName) === NormalizeName(npcName)
+        );
 
-const matches = exactMatches.length
-    ? exactMatches
-    : npcNames.filter(npcName =>
-        ThoughtOwnerMatchesNpc(rawName, npcName, npcNames)
-    );
+        const matches = exactMatches.length
+            ? exactMatches
+            : npcNames.filter(npcName =>
+                ThoughtOwnerMatchesNpc(rawName, npcName, npcNames)
+            );
 
-        // Берём только однозначное совпадение.
         if (matches.length === 1) {
             const canonicalName = matches[0];
 
@@ -1467,7 +1507,6 @@ const matches = exactMatches.length
         }
     }
 
-    // NPC, которым ещё не назначена явно подписанная мысль.
     let availableNpcNames = npcNames.filter(name =>
         !claimedNpcNames.has(NormalizeName(name))
     );
@@ -1475,24 +1514,20 @@ const matches = exactMatches.length
     for (const thought of unassignedThoughts) {
         let owner = "";
 
-        // Если NPC вообще один — всё очевидно.
         if (npcNames.length === 1) {
             owner = npcNames[0];
-        }
-        // Если после явно подписанных мыслей остался ровно один NPC,
-        // безымянная мысль принадлежит ему.
-        else if (availableNpcNames.length === 1) {
+        } else if (availableNpcNames.length === 1) {
             owner = availableNpcNames[0];
         }
 
-if (!owner) {
-    resolvedThoughts.push({
-        ...thought,
-        name: "__UNASSIGNED__"
-    });
+        if (!owner) {
+            resolvedThoughts.push({
+                ...thought,
+                name: "__UNASSIGNED__"
+            });
 
-    continue;
-}
+            continue;
+        }
 
         resolvedThoughts.push({
             ...thought,
@@ -1555,19 +1590,19 @@ function ParseMomInfoblock(text) {
         const name = node.getAttribute("name") || "";
         if (IsUserLikeName(name)) return;
 
-const tags = String(node.getAttribute("tags") || "")
-    .split("|")
-    .map(x => LimitText(x, 24))
-    .filter(Boolean)
-    .slice(0, 4);
+        const tags = String(node.getAttribute("tags") || "")
+            .split("|")
+            .map(x => LimitText(x, 24))
+            .filter(Boolean)
+            .slice(0, 4);
 
-parsed.chars.push({
-    icon: node.getAttribute("icon") || "•",
-    name: LimitText(name, 80),
-    tags,
-    mood: LimitText(node.getAttribute("mood") || "", 40),
-    presence: ParsePresenceState(tags)
-});
+        parsed.chars.push({
+            icon: node.getAttribute("icon") || "•",
+            name: LimitText(name, 80),
+            tags,
+            mood: LimitText(node.getAttribute("mood") || "", 40),
+            presence: ParsePresenceState(tags)
+        });
     });
 
     doc.querySelectorAll("rels > rel").forEach(node => {
@@ -1601,95 +1636,80 @@ parsed.chars.push({
         });
     }
 
-const thk = doc.querySelector("thk");
+    const thk = doc.querySelector("thk");
 
-if (thk && gThoughtsEnabled) {
-    const structuredThoughts = [...thk.querySelectorAll(":scope > t")]
-        .map(node => {
-            const name = StripNameDecorators(
-                node.getAttribute("name") || ""
-            );
+    if (thk && gThoughtsEnabled) {
+        const structuredThoughts = [...thk.querySelectorAll(":scope > t")]
+            .map(node => {
+                const name = StripNameDecorators(node.getAttribute("name") || "");
+                const text = LimitText(node.textContent || "", 220);
 
-            const text = LimitText(
-                node.textContent || "",
-                220
-            );
+                if (!name || !text || IsUserLikeName(name)) {
+                    return null;
+                }
 
-            if (!name || !text || IsUserLikeName(name)) {
-                return null;
-            }
-
-            return {
-                name: LimitText(name, 80),
-                text
-            };
-        })
-        .filter(Boolean);
-
-    if (structuredThoughts.length) {
-        // Новый структурированный формат:
-        // <t name="Full Name">thought</t>
-        parsed.thoughts = structuredThoughts;
-    } else {
-        // Поддержка старых сообщений:
-        // Имя: мысль или безымянная строка.
-        parsed.thoughts = String(thk.textContent || "")
-            .replace(/\r/g, "\n")
-            .split("\n")
-            .map(ParseThoughtLine)
+                return {
+                    name: LimitText(name, 80),
+                    text
+                };
+            })
             .filter(Boolean);
+
+        if (structuredThoughts.length) {
+            parsed.thoughts = structuredThoughts;
+        } else {
+            parsed.thoughts = String(thk.textContent || "")
+                .replace(/\r/g, "\n")
+                .split("\n")
+                .map(ParseThoughtLine)
+                .filter(Boolean);
+        }
     }
-}
 
-// Основной формат: <nsfw /> находится внутри <mom_infoblock>.
-const nsfwNode = root.querySelector("nsfw");
+    const nsfwNode = root.querySelector("nsfw");
 
-if (nsfwNode) {
-    const f = LimitText(nsfwNode.getAttribute("f") || "", 160);
-    const p = LimitText(nsfwNode.getAttribute("p") || "", 160);
-
-    if (f || p) {
-        parsed.nsfw = { f, p };
-    }
-} else {
-    // Legacy: поддерживаем <nsfw /> после </mom_infoblock>.
-    const tailText = rawText.slice(
-        rawText.indexOf(rawXml) + rawXml.length
-    );
-
-    const legacyMatch = tailText.match(/<nsfw\b([^>]*)\/?>/i);
-
-    if (legacyMatch) {
-        const attributes = legacyMatch[1] || "";
-        const fMatch = attributes.match(/\bf="([^"]*)"/i);
-        const pMatch = attributes.match(/\bp="([^"]*)"/i);
-
-        const f = LimitText(fMatch?.[1] || "", 160);
-        const p = LimitText(pMatch?.[1] || "", 160);
+    if (nsfwNode) {
+        const f = LimitText(nsfwNode.getAttribute("f") || "", 160);
+        const p = LimitText(nsfwNode.getAttribute("p") || "", 160);
 
         if (f || p) {
             parsed.nsfw = { f, p };
         }
-    }
-}
+    } else {
+        const tailText = rawText.slice(rawText.indexOf(rawXml) + rawXml.length);
+        const legacyMatch = tailText.match(/<nsfw\b([^>]*)\/?>/i);
 
-if (parsed.rels.length && parsed.chars.length) {
-    parsed.rels = parsed.rels.map(rel => {
-        const matches = parsed.chars.filter(char => NamesLikelyMatch(char.name, rel.source));
+        if (legacyMatch) {
+            const attributes = legacyMatch[1] || "";
+            const fMatch = attributes.match(/\bf="([^"]*)"/i);
+            const pMatch = attributes.match(/\bp="([^"]*)"/i);
 
-        if (matches.length === 1) {
-            return {
-                ...rel,
-                source: matches[0].name
-            };
+            const f = LimitText(fMatch?.[1] || "", 160);
+            const p = LimitText(pMatch?.[1] || "", 160);
+
+            if (f || p) {
+                parsed.nsfw = { f, p };
+            }
         }
+    }
 
-        return rel;
-    });
-}
+    if (parsed.rels.length && parsed.chars.length) {
+        parsed.rels = parsed.rels.map(rel => {
+            const matches = parsed.chars.filter(char => NamesLikelyMatch(char.name, rel.source));
 
-NormalizeThoughtOwners(parsed);
-    
+            if (matches.length === 1) {
+                return {
+                    ...rel,
+                    source: matches[0].name
+                };
+            }
+
+            return rel;
+        });
+    }
+
+    NormalizeThoughtOwners(parsed);
+
     return parsed;
 }
 
@@ -1721,21 +1741,29 @@ function ApplyParsedToState(parsed, baseState = gState) {
 
     next.chars = Array.isArray(parsed.chars) ? parsed.chars : [];
     next.rels = Array.isArray(parsed.rels) ? parsed.rels : [];
- next.thoughts = gThoughtsEnabled && Array.isArray(parsed.thoughts) ? parsed.thoughts : [];
+    next.thoughts = gThoughtsEnabled && Array.isArray(parsed.thoughts) ? parsed.thoughts : [];
     next.nsfw = parsed.nsfw || null;
 
+    if (!next.chronicle) {
+        next.chronicle = { events: [], threads: [], manualEvents: [], manualThreads: [] };
+    }
+    if (!Array.isArray(next.chronicle.manualEvents)) next.chronicle.manualEvents = [];
+    if (!Array.isArray(next.chronicle.manualThreads)) next.chronicle.manualThreads = [];
+
     if (gChronicleEnabled) {
+        const dismissed = GetDismissedChronicleSet();
+
         next.chronicle.events = MergeUniqueList(
             next.chronicle.events,
-            parsed.chronicle?.events || [],
+            [...(parsed.chronicle?.events || []), ...next.chronicle.manualEvents],
             gChronicleLimit
-        );
+        ).filter(item => !dismissed.has(NormalizeText(item)));
 
-next.chronicle.threads = MergeUniqueList(
-    next.chronicle.threads,
-    parsed.chronicle?.threads || [],
-    6
-);
+        next.chronicle.threads = MergeUniqueList(
+            next.chronicle.threads,
+            [...(parsed.chronicle?.threads || []), ...next.chronicle.manualThreads],
+            8
+        ).filter(item => !dismissed.has(NormalizeText(item)));
     }
 
     if (parsed.rawXml) {
@@ -1747,8 +1775,10 @@ next.chronicle.threads = MergeUniqueList(
 
 function RenderMetric(label, value, delta, positiveLabel, negativeLabel) {
     const n = Clamp(value, -100, 100);
+    const d = parseInt(delta, 10) || 0;
     const abs = Math.abs(n);
     const sideClass = n >= 0 ? "mib-meter-pos" : "mib-meter-neg";
+    const bigDeltaClass = Math.abs(d) >= 4 ? (d > 0 ? "mib-meter-surge-pos" : "mib-meter-surge-neg") : "";
     const title = n >= 0 ? positiveLabel : negativeLabel;
 
     let barClass = "";
@@ -1762,10 +1792,10 @@ function RenderMetric(label, value, delta, positiveLabel, negativeLabel) {
     }
 
     return `
-        <div class="mib-meter ${sideClass}">
+        <div class="mib-meter ${sideClass} ${bigDeltaClass}">
             <div class="mib-meter-top">
                 <span>${EscapeHtml(title)}</span>
-                <span>${n}/100 (${EscapeHtml(SignedText(delta))})</span>
+                <span>${n}/100 (${EscapeHtml(SignedText(d))})</span>
             </div>
             <div class="mib-bar">
                 <div class="mib-bar-fill ${barClass}" style="width:${Math.max(abs, abs ? 4 : 0)}%"></div>
@@ -1773,18 +1803,23 @@ function RenderMetric(label, value, delta, positiveLabel, negativeLabel) {
         </div>`;
 }
 
-function RenderTabs() {
+function RenderTabs(state = gState) {
+    const chronCount = gChronicleEnabled
+        ? ((state?.chronicle?.events?.length || 0) + (state?.chronicle?.threads?.length || 0))
+        : 0;
+    const hasNotes = Boolean((gNotes || "").trim());
+
     const tabs = [
-        ["scene", T("sceneTab")],
-        ["chronicle", T("chronicleTab")],
-        ["notes", T("notesTab")]
+        ["scene", T("sceneTab"), ""],
+        ["chronicle", T("chronicleTab"), chronCount > 0 ? `<span class="mib-tab-badge">${chronCount}</span>` : ""],
+        ["notes", T("notesTab"), hasNotes ? `<span class="mib-tab-dot ${gInjectNotes ? "mib-tab-dot-injected" : ""}"></span>` : ""]
     ];
 
     return `
         <div class="mib-tabs">
-            ${tabs.map(([key, label]) => `
+            ${tabs.map(([key, label, badgeHtml]) => `
                 <button type="button" class="mib-tab ${gActiveTab === key ? "mib-tab-active" : ""}" data-mib-tab="${key}">
-                    ${EscapeHtml(label)}
+                    <span>${EscapeHtml(label)}</span>${badgeHtml}
                 </button>
             `).join("")}
         </div>`;
@@ -1802,12 +1837,14 @@ function RenderMiniStatChip(label, value, delta, kind) {
     const n = Clamp(value, -100, 100);
     const d = parseInt(delta, 10) || 0;
     const cls = n >= 0 ? "mib-mini-pos" : "mib-mini-neg";
+    const isBig = Math.abs(d) >= 4;
+    const bigCls = isBig ? (d > 0 ? "mib-delta-big mib-delta-big-pos" : "mib-delta-big mib-delta-big-neg") : "";
     const deltaHtml = d
         ? `<span class="mib-mini-delta ${d > 0 ? "mib-delta-pos" : "mib-delta-neg"}">${EscapeHtml(SignedText(d))}</span>`
         : "";
 
     return `
-        <span class="mib-mini-stat ${cls} mib-mini-${EscapeHtml(kind)}">
+        <span class="mib-mini-stat ${cls} ${bigCls} mib-mini-${EscapeHtml(kind)}">
             <span class="mib-mini-label">${EscapeHtml(label)}</span>
             <span class="mib-mini-value">${n}</span>
             ${deltaHtml}
@@ -1815,11 +1852,13 @@ function RenderMiniStatChip(label, value, delta, kind) {
 }
 
 function RenderRelationCard(r, state) {
-const thought = gThoughtsEnabled ? FindThoughtForNpc(state.thoughts, r.source, state.rels) : null;
+    const thought = gThoughtsEnabled ? FindThoughtForNpc(state.thoughts, r.source, state.rels) : null;
+    const relKey = NormalizeName(r.source);
+    const isOpen = !gCollapsedRels.has(relKey);
 
     return `
-        <div class="mib-rel mib-rel-accordion mib-open">
-            <button type="button" class="mib-rel-toggle" aria-expanded="true">
+        <div class="mib-rel mib-rel-accordion ${isOpen ? "mib-open" : ""}" data-mib-rel-source="${EscapeHtml(relKey)}">
+            <button type="button" class="mib-rel-toggle" aria-expanded="${isOpen ? "true" : "false"}">
                 <div class="mib-rel-toggle-main">
                     <span class="mib-rel-name">${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
                     <span class="mib-status-chip">${EscapeHtml(r.status)}</span>
@@ -1838,15 +1877,14 @@ const thought = gThoughtsEnabled ? FindThoughtForNpc(state.thoughts, r.source, s
                 ${RenderMetric("tr", r.tr, r.tc, T("trust"), T("distrust"))}
                 ${RenderMetric("l", r.l, r.lc, T("love"), T("hatred"))}
 
-${thought ? `
-    <div class="mib-thought mib-rel-thought">
-        ${EscapeHtml(thought.text)}
-    </div>
-` : ""}
+                ${thought ? `
+                    <div class="mib-thought mib-rel-thought">
+                        ${EscapeHtml(thought.text)}
+                    </div>
+                ` : ""}
             </div>
         </div>`;
 }
-
 
 function RelationHasDelta(rel) {
     return (
@@ -1883,67 +1921,65 @@ function RenderRelationFilterNote(rels = []) {
 }
 
 function RenderSceneTab(state) {
-const sortedChars = SortCharsByPriority(state.chars);
+    const sortedChars = SortCharsByPriority(state.chars);
 
-const charsHtml = sortedChars.length
-    ? sortedChars.map(c => {
-        const visibleTags = (c.tags || []).filter(tag => !IsPresenceTag(tag));
-        const mood = String(c.mood || "").trim();
+    const charsHtml = sortedChars.length
+        ? sortedChars.map(c => {
+            const visibleTags = (c.tags || []).filter(tag => !IsPresenceTag(tag));
+            const mood = String(c.mood || "").trim();
 
-        return `
-            <div class="mib-char">
-                <div class="mib-char-main">
-                    <span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
-                    <span class="mib-char-name">${EscapeHtml(c.name)}</span>
-                    <button
-                        type="button"
-                        class="mib-pin-btn ${IsPinnedNpc(c.name) ? "mib-pinned" : ""}"
-                        data-mib-pin="${EscapeHtml(c.name)}"
-                        title="${EscapeHtml(IsPinnedNpc(c.name) ? "Unpin NPC" : "Pin NPC")}"
-                    ></button>
-                    ${c.presence ? `<span class="mib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
-                    ${mood ? `<span class="mib-chip mib-mood">${EscapeHtml(mood)}</span>` : ""}
+            return `
+                <div class="mib-char">
+                    <div class="mib-char-main">
+                        <span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
+                        <span class="mib-char-name">${EscapeHtml(c.name)}</span>
+                        <button
+                            type="button"
+                            class="mib-pin-btn ${IsPinnedNpc(c.name) ? "mib-pinned" : ""}"
+                            data-mib-pin="${EscapeHtml(c.name)}"
+                            title="${EscapeHtml(IsPinnedNpc(c.name) ? "Unpin NPC" : "Pin NPC")}"
+                        ></button>
+                        ${c.presence ? `<span class="mib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
+                        ${mood ? `<span class="mib-chip mib-mood">${EscapeHtml(mood)}</span>` : ""}
+                    </div>
+                    <div class="mib-tags">
+                        ${visibleTags.map(tag => `<span class="mib-chip">${EscapeHtml(tag)}</span>`).join("")}
+                    </div>
                 </div>
-                <div class="mib-tags">
-                    ${visibleTags.map(tag => `<span class="mib-chip">${EscapeHtml(tag)}</span>`).join("")}
-                </div>
+            `;
+        }).join("")
+        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+
+    const sortedRels = SortRelationsByPriority(state.rels);
+    const filteredRels = GetFilteredRelations(state.rels);
+
+    const relsHtml = filteredRels.length
+        ? `${RenderRelationFilterNote(sortedRels)}${filteredRels.map(r => RenderRelationCard(r, state)).join("")}`
+        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+
+    const allNpcNames = sortedRels.map(rel => rel.source);
+
+    const extraThoughts = gThoughtsEnabled
+        ? (state.thoughts || []).filter(thought => {
+            const name = NormalizeName(thought.name);
+
+            if (name === "__unassigned__" || name === "npc") {
+                return false;
+            }
+
+            return !sortedRels.some(rel =>
+                ThoughtOwnerMatchesNpc(thought.name, rel.source, allNpcNames)
+            );
+        })
+        : [];
+
+    const thoughtsHtml = extraThoughts.length
+        ? extraThoughts.map(t => `
+            <div class="mib-thought">
+                <b>${EscapeHtml(t.name)}:</b> ${EscapeHtml(t.text)}
             </div>
-        `;
-    }).join("")
-    : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
-
-const sortedRels = SortRelationsByPriority(state.rels);
-const filteredRels = GetFilteredRelations(state.rels);
-
-const relsHtml = filteredRels.length
-    ? `${RenderRelationFilterNote(sortedRels)}${filteredRels.map(r => RenderRelationCard(r, state)).join("")}`
-    : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
-
-const allNpcNames = sortedRels.map(rel => rel.source);
-
-const extraThoughts = gThoughtsEnabled
-    ? (state.thoughts || []).filter(thought => {
-        const name = NormalizeName(thought.name);
-
-        // Не показываем мысль без установленного владельца
-        // отдельной карточкой с надписью __UNASSIGNED__.
-        if (name === "__unassigned__" || name === "npc") {
-            return false;
-        }
-
-        return !sortedRels.some(rel =>
-            ThoughtOwnerMatchesNpc(thought.name, rel.source, allNpcNames)
-        );
-    })
-    : [];
-
-const thoughtsHtml = extraThoughts.length
-    ? extraThoughts.map(t => `
-        <div class="mib-thought">
-            <b>${EscapeHtml(t.name)}:</b> ${EscapeHtml(t.text)}
-        </div>
-    `).join("")
-    : "";
+        `).join("")
+        : "";
 
     const nsfwHtml = gShowNsfw && state.nsfw
         ? `
@@ -1954,10 +1990,10 @@ const thoughtsHtml = extraThoughts.length
             </div>`
         : "";
 
-return `
-    <div class="mib-scene-grid">
-        <div class="mib-header">
-<div class="mib-location">${EscapeHtml(GetThemeLocationIcon())} ${EscapeHtml(state.scene.loc)}</div>
+    return `
+        <div class="mib-scene-grid">
+            <div class="mib-header">
+                <div class="mib-location">${EscapeHtml(GetThemeLocationIcon())} ${EscapeHtml(state.scene.loc)}</div>
                 <div class="mib-meta">
                     <span>⏰ ${EscapeHtml(state.scene.time)}</span>
                     <span>📅 ${EscapeHtml(state.scene.date)}</span>
@@ -1966,12 +2002,12 @@ return `
             </div>
 
             <div class="mib-section">
-<div class="mib-section-title">${EscapeHtml(GetThemeCharsIcon())} ${EscapeHtml(T("chars"))}</div>
+                <div class="mib-section-title">${EscapeHtml(GetThemeCharsIcon())} ${EscapeHtml(T("chars"))}</div>
                 ${charsHtml}
             </div>
 
             <div class="mib-section">
-<div class="mib-section-title">${EscapeHtml(GetThemeRelationsIcon())} ${EscapeHtml(T("rels"))}</div>
+                <div class="mib-section-title">${EscapeHtml(GetThemeRelationsIcon())} ${EscapeHtml(T("rels"))}</div>
                 ${relsHtml}
             </div>
 
@@ -2000,9 +2036,13 @@ function RenderChronicleTab(state) {
                 ? `<ol class="mib-chronicle-list">${events.map((event, idx) => `
                     <li class="mib-chronicle-item">
                         <span class="mib-chronicle-text">${EscapeHtml(event)}</span>
-                        <button type="button" class="mib-chronicle-del" data-mib-del-event="${idx}" title="Удалить">×</button>
+                        <button type="button" class="mib-chronicle-del" data-mib-del-event="${idx}" title="${EscapeHtml(T("deleteItem"))}">×</button>
                     </li>`).join("")}</ol>`
                 : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`}
+            <div class="mib-chronicle-add-row">
+                <input type="text" class="mib-chronicle-input" data-mib-input-event placeholder="${EscapeHtml(T("addEventPlaceholder"))}" />
+                <button type="button" class="mib-chronicle-add-btn" data-mib-add-event>${EscapeHtml(T("addBtn"))}</button>
+            </div>
         </div>
 
         <div class="mib-section">
@@ -2011,9 +2051,13 @@ function RenderChronicleTab(state) {
                 ? `<ul class="mib-thread-list">${threads.map((thread, idx) => `
                     <li class="mib-chronicle-item">
                         <span class="mib-chronicle-text">${EscapeHtml(thread)}</span>
-                        <button type="button" class="mib-chronicle-del" data-mib-del-thread="${idx}" title="Удалить">×</button>
+                        <button type="button" class="mib-chronicle-del" data-mib-del-thread="${idx}" title="${EscapeHtml(T("deleteItem"))}">×</button>
                     </li>`).join("")}</ul>`
                 : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`}
+            <div class="mib-chronicle-add-row">
+                <input type="text" class="mib-chronicle-input" data-mib-input-thread placeholder="${EscapeHtml(T("addThreadPlaceholder"))}" />
+                <button type="button" class="mib-chronicle-add-btn" data-mib-add-thread>${EscapeHtml(T("addBtn"))}</button>
+            </div>
         </div>`;
 }
 
@@ -2026,6 +2070,7 @@ function RenderNotesTab() {
 }
 
 const kBarStyleOptions = [
+    ["kanon", "barKanon"],
     ["classic", "barClassic"],
     ["deep", "barDeep"],
     ["glass", "barGlass"],
@@ -2042,10 +2087,15 @@ const kBarStyleOptions = [
     ["runic", "barRunic"],
     ["rosary", "barRosary"],
     ["sigil", "barSigil"],
-    ["energon", "barEnergon"]
+    ["energon", "barEnergon"],
+    ["web", "barWeb"],
+    ["brush", "barBrush"],
+    ["heartbeat", "barHeartbeat"],
+    ["moonphases", "barMoonphases"]
 ];
 
 const kThemeOptions = [
+    ["kanon", "Kanon.exe"],
     ["nocturne", "Nocturne"],
     ["burgundy", "Burgundy"],
     ["ashrose", "Ash Rose"],
@@ -2065,7 +2115,7 @@ const kThemeOptions = [
     ["obsidianregistry", "Obsidian Registry"],
     ["reliquary", "Reliquary"],
     ["aurum", "Aurum"],
-["silvernitrate", "Silver Nitrate"],
+    ["silvernitrate", "Silver Nitrate"],
     ["neonquest", "Neon Quest"],
     ["shockwave", "Shockwave"],
     ["lockdown", "Lockdown"],
@@ -2073,10 +2123,29 @@ const kThemeOptions = [
     ["gryffindor", "Gryffindor"],
     ["slytherin", "Slytherin"],
     ["ravenclaw", "Ravenclaw"],
-    ["hufflepuff", "Hufflepuff"]
+    ["hufflepuff", "Hufflepuff"],
+    ["spiderman", "Spider-Man"],
+    ["venom", "Venom"],
+    ["disco", "Revachol Disco"],
+    ["vhs", "VHS 1994"],
+    ["porcelain", "Kintsugi Porcelain"],
+    ["abyss", "Bio-Abyss"],
+    ["tarot", "Arcana Tarot"]
 ];
 
 const kThemePreviewMap = {
+    kanon: {
+        label: {
+            ru: "Маяк в шторм, голубые маки, пиксельный Ктулху и статика",
+            en: "Storm lighthouse, blue poppies, pixel eldritch & static"
+        },
+        bg: "#050c16",
+        bg2: "#0c1d33",
+        accent: "#5ce1ff",
+        accent2: "#2e7bff",
+        text: "#e6f6ff",
+        danger: "#ff3e7f"
+    },
     nocturne: {
         label: { ru: "Ночное синее стекло", en: "Midnight blue glass" },
         bg: "#141824",
@@ -2185,45 +2254,33 @@ const kThemePreviewMap = {
         text: "#d8e7ee",
         danger: "#ff5e6c"
     },
-reliquary: {
-    label: {
-        ru: "Чёрное дерево, старая бронза и окисленная медь",
-        en: "Black wood, aged bronze and oxidized copper"
+    reliquary: {
+        label: { ru: "Чёрное дерево, старая бронза и окисленная медь", en: "Black wood, aged bronze and oxidized copper" },
+        bg: "#080c0b",
+        bg2: "#131a17",
+        accent: "#b89a5d",
+        accent2: "#4f8b7b",
+        text: "#e7dfce",
+        danger: "#a94f59"
     },
-    bg: "#080c0b",
-    bg2: "#131a17",
-    accent: "#b89a5d",
-    accent2: "#4f8b7b",
-    text: "#e7dfce",
-    danger: "#a94f59"
-},
-
-aurum: {
-    label: {
-        ru: "Старое золото, чёрный лак и тёплое шампанское",
-        en: "Old gold, black lacquer and warm champagne"
+    aurum: {
+        label: { ru: "Старое золото, чёрный лак и тёплое шампанское", en: "Old gold, black lacquer and warm champagne" },
+        bg: "#100d09",
+        bg2: "#241a0e",
+        accent: "#d4af5a",
+        accent2: "#f0d89a",
+        text: "#f3e8ce",
+        danger: "#a95e4b"
     },
-    bg: "#100d09",
-    bg2: "#241a0e",
-    accent: "#d4af5a",
-    accent2: "#f0d89a",
-    text: "#f3e8ce",
-    danger: "#a95e4b"
-},
-
-silvernitrate: {
-    label: {
-        ru: "Серебряная плёнка, угольный дым и старое кино",
-        en: "Silver film, charcoal smoke and old cinema"
+    silvernitrate: {
+        label: { ru: "Серебряная плёнка, угольный дым и старое кино", en: "Silver film, charcoal smoke and old cinema" },
+        bg: "#111313",
+        bg2: "#292b2a",
+        accent: "#b7b7ad",
+        accent2: "#777b78",
+        text: "#e2e0d7",
+        danger: "#92716c"
     },
-    bg: "#111313",
-    bg2: "#292b2a",
-    accent: "#b7b7ad",
-    accent2: "#777b78",
-    text: "#e2e0d7",
-    danger: "#92716c"
-},
-    
     terminal: {
         label: { ru: "Старый зелёный CRT", en: "Old green CRT" },
         bg: "#020b06",
@@ -2340,6 +2397,69 @@ silvernitrate: {
         accent2: "#f3d889",
         text: "#f8eed5",
         danger: "#d69a62"
+    },
+    spiderman: {
+        label: { ru: "Красный костюм, ночной Нью-Йорк и паутина", en: "Red suit, midnight New York and web threads" },
+        bg: "#080f20",
+        bg2: "#122745",
+        accent: "#ff6572",
+        accent2: "#8dc8ff",
+        text: "#eef4ff",
+        danger: "#ff8d85"
+    },
+    venom: {
+        label: { ru: "Чёрный симбиот, белые блики и бордовый след", en: "Black symbiote, white highlights and burgundy" },
+        bg: "#040507",
+        bg2: "#171b23",
+        accent: "#e4eaf2",
+        accent2: "#d47b8c",
+        text: "#f1f3f7",
+        danger: "#f18496"
+    },
+    disco: {
+        label: { ru: "Масляные мазки, ржавая охра и нуар Ревашоля", en: "Oil brushstrokes, rusty ochre and Revachol noir" },
+        bg: "#161311",
+        bg2: "#261f1a",
+        accent: "#e06d3b",
+        accent2: "#7fa69b",
+        text: "#efe6d8",
+        danger: "#d94e41"
+    },
+    vhs: {
+        label: { ru: "Ночной эфир 1994, кассетный глитч и жёлтые субтитры", en: "Late night 1994, tape glitch and yellow subtitles" },
+        bg: "#090817",
+        bg2: "#161233",
+        accent: "#ffd84d",
+        accent2: "#05d9e8",
+        text: "#f0eff7",
+        danger: "#ff2a6d"
+    },
+    porcelain: {
+        label: { ru: "Тёплый фарфор, золотые швы кинцуги и красная тушь", en: "Warm porcelain, gold kintsugi seams and cinnabar ink" },
+        bg: "#ece5d8",
+        bg2: "#dfd6c5",
+        accent: "#b8332a",
+        accent2: "#b88928",
+        text: "#241f1c",
+        danger: "#c92a2a"
+    },
+    abyss: {
+        label: { ru: "Марианская впадина и биолюминесцентные пузырьки", en: "Mariana trench and bioluminescent bubbles" },
+        bg: "#020810",
+        bg2: "#061829",
+        accent: "#00f5d4",
+        accent2: "#9b5de5",
+        text: "#dcfaf7",
+        danger: "#ff4d7d"
+    },
+    tarot: {
+        label: { ru: "Старинная гравюра, арканы Таро и античное золото", en: "Old engraving, Tarot arcana and antique gold" },
+        bg: "#0d0b12",
+        bg2: "#1b1626",
+        accent: "#d9b464",
+        accent2: "#8f79b8",
+        text: "#f2ead8",
+        danger: "#c75866"
     }
 };
 
@@ -2394,7 +2514,7 @@ function RenderStyleSelectOptions(options, activeValue) {
 }
 
 function RenderCompactPanel(state = gState) {
-const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter === "all" ? 8 : 5);
+    const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter === "all" ? 8 : 5);
 
     const relsHtml = rels.length
         ? rels.map(r => `
@@ -2412,95 +2532,58 @@ const rels = GetFilteredRelations(state.rels || []).slice(0, gRelationFilter ===
             </div>
         `).join("")
         : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
-    
+
     const titleData = GetThemeTitleData();
 
     return `
-<div class="mib-board mib-board-compact mib-theme-${EscapeHtml(gTheme)} mib-bars-${EscapeHtml(gBarStyle)}" data-mib-board>
+        <div class="mib-board mib-board-compact mib-theme-${EscapeHtml(gTheme)} mib-bars-${EscapeHtml(gBarStyle)} mib-corners-${EscapeHtml(gCornerStyle)}" data-mib-board>
             <div class="mib-compact-topbar">
- <div class="mib-compact-brand">${EscapeHtml(titleData.main)}</div>
+                <div class="mib-compact-brand">${EscapeHtml(titleData.main)}</div>
 
-<div class="mib-title-actions">
-    <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
-    <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
-    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="full" title="${EscapeHtml(T("sceneFull"))}">↗</button>
-    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-</div>
+                <div class="mib-title-actions">
+                    <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
+                    <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="full" title="${EscapeHtml(T("sceneFull"))}">↗</button>
+                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+                </div>
             </div>
 
             <div class="mib-compact-list">
                 ${relsHtml}
             </div>
 
-            <div class="mib-compact-location">📍 ${EscapeHtml(state.scene.loc || "???")}</div>
+            <div class="mib-compact-location">${EscapeHtml(GetThemeLocationIcon())} ${EscapeHtml(state.scene.loc || "???")}</div>
         </div>`;
 }
 
 function RenderMobilePanelContent(state = gState) {
-    const sortedChars = SortCharsByPriority(state.chars || []);
-    const filteredRels = GetFilteredRelations(state.rels || []);
-
-    const charsHtml = sortedChars.length
-        ? sortedChars.map(c => {
-            const visibleTags = (c.tags || []).filter(tag => !IsPresenceTag(tag));
-            const mood = String(c.mood || "").trim();
-
-            return `
-                <div class="mib-char">
-                    <div class="mib-char-main">
-                        <span class="mib-char-icon">${EscapeHtml(c.icon || "•")}</span>
-                        <span class="mib-char-name">${EscapeHtml(c.name)}</span>
-                        ${c.presence ? `<span class="mib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
-                        ${mood ? `<span class="mib-chip mib-mood">${EscapeHtml(mood)}</span>` : ""}
-                    </div>
-                    <div class="mib-tags">
-                        ${visibleTags.map(tag => `<span class="mib-chip">${EscapeHtml(tag)}</span>`).join("")}
-                    </div>
-                </div>
-            `;
-        }).join("")
-        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
-
-    const relsHtml = filteredRels.length
-        ? `${RenderRelationFilterNote(state.rels || [])}${filteredRels.map(r => RenderRelationCard(r, state)).join("")}`
-        : `<div class="mib-empty">${EscapeHtml(T("noData"))}</div>`;
+    const titleData = GetThemeTitleData();
+    const body = gActiveTab === "chronicle"
+        ? RenderChronicleTab(state)
+        : gActiveTab === "notes"
+            ? RenderNotesTab()
+            : RenderSceneTab(state);
 
     return `
-        <div class="mib-mobile-board">
+        <div class="mib-mobile-board" data-mib-board>
             <div class="mib-mobile-head">
-                <div class="mib-mobile-title">${EscapeHtml(T("dockTitle"))}</div>
-                <div class="mib-mobile-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
+                <div class="mib-mobile-head-top">
+                    <div class="mib-mobile-titles">
+                        <div class="mib-mobile-title">${EscapeHtml(titleData.main)}</div>
+                        <div class="mib-mobile-subtitle">${EscapeHtml(state.scene.loc || "???")}</div>
+                    </div>
+                    <div class="mib-title-actions">
+                        <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
+                        <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+                        <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+                    </div>
+                </div>
             </div>
 
-            ${RenderTabs()}
+            ${RenderTabs(state)}
 
             <div class="mib-mobile-content">
-                ${
-                    gActiveTab === "chronicle"
-                        ? RenderChronicleTab(state)
-                        : gActiveTab === "notes"
-                            ? RenderNotesTab()
-                            : `
-                                <div class="mib-header">
-                                    <div class="mib-location">${EscapeHtml(GetThemeLocationIcon())} ${EscapeHtml(state.scene.loc)}</div>
-                                    <div class="mib-meta">
-                                        <span>⏰ ${EscapeHtml(state.scene.time)}</span>
-                                        <span>📅 ${EscapeHtml(state.scene.date)}</span>
-                                        <span>☁ ${EscapeHtml(state.scene.weather)}</span>
-                                    </div>
-                                </div>
-
-                                <div class="mib-section">
-                                    <div class="mib-section-title">${EscapeHtml(GetThemeCharsIcon())} ${EscapeHtml(T("chars"))}</div>
-                                    ${charsHtml}
-                                </div>
-
-                                <div class="mib-section">
-                                    <div class="mib-section-title">${EscapeHtml(GetThemeRelationsIcon())} ${EscapeHtml(T("rels"))}</div>
-                                    ${relsHtml}
-                                </div>
-                            `
-                }
+                ${body}
             </div>
         </div>
     `;
@@ -2520,22 +2603,22 @@ function RenderPanel(state = gState) {
     const titleData = GetThemeTitleData();
 
     return `
-<div class="mib-board mib-theme-${EscapeHtml(gTheme)} mib-bars-${EscapeHtml(gBarStyle)}" data-mib-board>
+        <div class="mib-board mib-theme-${EscapeHtml(gTheme)} mib-bars-${EscapeHtml(gBarStyle)} mib-corners-${EscapeHtml(gCornerStyle)}" data-mib-board>
             <div class="mib-title-row">
-<div>
-    <div class="mib-title">${EscapeHtml(titleData.main)}</div>
-    ${titleData.sub ? `<div class="mib-subtitle">${EscapeHtml(titleData.sub)}</div>` : ""}
-</div>
+                <div>
+                    <div class="mib-title">${EscapeHtml(titleData.main)}</div>
+                    ${titleData.sub ? `<div class="mib-subtitle">${EscapeHtml(titleData.sub)}</div>` : ""}
+                </div>
 
-<div class="mib-title-actions">
-<button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
-    <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
-<button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">↘</button>
-    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-</div>
+                <div class="mib-title-actions">
+                    <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
+                    <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="compact" title="${EscapeHtml(T("sceneCompact"))}">↘</button>
+                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+                </div>
             </div>
 
-            ${RenderTabs()}
+            ${RenderTabs(state)}
 
             <div class="mib-tab-body">
                 ${body}
@@ -2543,8 +2626,42 @@ function RenderPanel(state = gState) {
         </div>`;
 }
 
+function AddManualChronicleEntry(type, rawValue) {
+    const clean = LimitText(rawValue, 160);
+    if (!clean) return;
+
+    if (!gState.chronicle) {
+        gState.chronicle = { events: [], threads: [], manualEvents: [], manualThreads: [] };
+    }
+    if (!Array.isArray(gState.chronicle.manualEvents)) gState.chronicle.manualEvents = [];
+    if (!Array.isArray(gState.chronicle.manualThreads)) gState.chronicle.manualThreads = [];
+
+    const norm = NormalizeText(clean);
+    const dismissed = GetDismissedChronicleSet();
+    if (dismissed.has(norm)) {
+        dismissed.delete(norm);
+        try {
+            localStorage.setItem(GetDismissedChronicleKey(), JSON.stringify([...dismissed]));
+        } catch {}
+    }
+
+    if (type === "event") {
+        gState.chronicle.manualEvents = MergeUniqueList(gState.chronicle.manualEvents, [clean], gChronicleLimit);
+        gState.chronicle.events = MergeUniqueList(gState.chronicle.events, [clean], gChronicleLimit);
+    } else {
+        gState.chronicle.manualThreads = MergeUniqueList(gState.chronicle.manualThreads, [clean], 8);
+        gState.chronicle.threads = MergeUniqueList(gState.chronicle.threads, [clean], 8);
+    }
+
+    SaveState();
+    InjectPrompt();
+    RerenderAllPanels();
+}
+
 function WirePanel(root) {
     if (!root) return;
+
+    ApplyCornerStyleToDom();
 
     root.querySelectorAll("[data-mib-tab]").forEach(button => {
         button.addEventListener("click", () => {
@@ -2559,75 +2676,150 @@ function WirePanel(root) {
             gNotes = textarea.value || "";
             SaveNotes();
             SyncNotesTextareas(textarea);
+            if (gInjectNotes) InjectPrompt();
         });
     });
 
     root.querySelectorAll(".mib-pin-btn").forEach(button => {
-    button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
 
-        const name = button.dataset.mibPin || "";
-        if (!name) return;
+            const name = button.dataset.mibPin || "";
+            if (!name) return;
 
-        TogglePinnedNpc(name);
-        ReprocessChat();
-        RenderFloatingOrDock();
+            TogglePinnedNpc(name);
+            ReprocessChat();
+            RenderFloatingOrDock();
+        });
     });
-});
 
-root.querySelectorAll(".mib-rel-toggle").forEach(toggle => {
-    toggle.addEventListener("click", event => {
-        event.preventDefault();
+    root.querySelectorAll(".mib-rel-toggle").forEach(toggle => {
+        toggle.addEventListener("click", event => {
+            event.preventDefault();
 
-        const card = toggle.closest(".mib-rel-accordion");
-        if (!card) return;
+            const card = toggle.closest(".mib-rel-accordion");
+            if (!card) return;
 
-        const isOpen = card.classList.toggle("mib-open");
-        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            const isOpen = card.classList.toggle("mib-open");
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+
+            const sourceKey = card.dataset.mibRelSource;
+            if (sourceKey) {
+                if (isOpen) {
+                    gCollapsedRels.delete(sourceKey);
+                } else {
+                    gCollapsedRels.add(sourceKey);
+                }
+            }
+        });
     });
-});
 
-root.querySelectorAll(".mib-style-btn").forEach(button => {
-    button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-        ToggleStyleMenu(root);
+    root.querySelectorAll(".mib-style-btn").forEach(button => {
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            ToggleStyleMenu(root);
+        });
     });
-});
-    
+
     root.querySelectorAll(".mib-dossier-btn").forEach(button => {
-    button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-        ToggleDossier(root);
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            ToggleDossier(root);
+        });
     });
-});
-    
-root.querySelectorAll("[data-mib-panel-mode]").forEach(button => {
-    button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
 
-        gSceneViewMode = button.dataset.mibPanelMode || "full";
-        localStorage.setItem(kSceneViewModeKey, gSceneViewMode);
+    root.querySelectorAll("[data-mib-panel-mode]").forEach(button => {
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
 
-        RerenderAllPanels();
+            gSceneViewMode = button.dataset.mibPanelMode || "full";
+            localStorage.setItem(kSceneViewModeKey, gSceneViewMode);
+
+            RerenderAllPanels();
+        });
     });
-});
-    
+
     root.querySelectorAll(".mib-debug-btn").forEach(button => {
-    button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-        ToggleXmlInspector(root);
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            ToggleXmlInspector(root);
+        });
     });
-});
 
+    root.querySelectorAll("[data-mib-del-event]").forEach(button => {
+        button.onclick = event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const idx = parseInt(button.dataset.mibDelEvent, 10);
+            const itemText = gState.chronicle?.events?.[idx];
+            if (itemText === undefined) return;
+
+            const norm = NormalizeText(itemText);
+            AddDismissedChronicleItem(itemText);
+            gState.chronicle.events.splice(idx, 1);
+            if (Array.isArray(gState.chronicle.manualEvents)) {
+                gState.chronicle.manualEvents = gState.chronicle.manualEvents.filter(x => NormalizeText(x) !== norm);
+            }
+            SaveState();
+            InjectPrompt();
+            RerenderAllPanels();
+        };
+    });
+
+    root.querySelectorAll("[data-mib-del-thread]").forEach(button => {
+        button.onclick = event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const idx = parseInt(button.dataset.mibDelThread, 10);
+            const itemText = gState.chronicle?.threads?.[idx];
+            if (itemText === undefined) return;
+
+            const norm = NormalizeText(itemText);
+            AddDismissedChronicleItem(itemText);
+            gState.chronicle.threads.splice(idx, 1);
+            if (Array.isArray(gState.chronicle.manualThreads)) {
+                gState.chronicle.manualThreads = gState.chronicle.manualThreads.filter(x => NormalizeText(x) !== norm);
+            }
+            SaveState();
+            InjectPrompt();
+            RerenderAllPanels();
+        };
+    });
+
+    const eventInput = root.querySelector("[data-mib-input-event]");
+    const eventAddBtn = root.querySelector("[data-mib-add-event]");
+    if (eventInput && eventAddBtn) {
+        eventAddBtn.onclick = () => AddManualChronicleEntry("event", eventInput.value);
+        eventInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                AddManualChronicleEntry("event", eventInput.value);
+            }
+        });
+    }
+
+    const threadInput = root.querySelector("[data-mib-input-thread]");
+    const threadAddBtn = root.querySelector("[data-mib-add-thread]");
+    if (threadInput && threadAddBtn) {
+        threadAddBtn.onclick = () => AddManualChronicleEntry("thread", threadInput.value);
+        threadInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                AddManualChronicleEntry("thread", threadInput.value);
+            }
+        });
+    }
 }
 
 function GetInspectorHost(root) {
-    return root.closest(".mib-board-host, #mib_floating_host, #mib_dock_host") || root;
+    return root.closest(".mib-board-host, #mib_floating_host, #mib_dock_host, #mib_mobile_panel_host") || root;
 }
 
 function FindMessageByHost(host) {
@@ -2704,10 +2896,10 @@ function ToggleDossier(root) {
 
     const existing = board.querySelector(".mib-dossier-panel");
 
-if (existing) {
-    existing.remove();
-    return;
-}
+    if (existing) {
+        existing.remove();
+        return;
+    }
 
     const dossier = GetCurrentCharacterDossier();
 
@@ -2733,7 +2925,12 @@ if (existing) {
         panel.remove();
     });
 
-    board.appendChild(panel);
+    const anchor = board.querySelector(".mib-title-row, .mib-compact-topbar, .mib-mobile-head");
+    if (anchor) {
+        anchor.after(panel);
+    } else {
+        board.appendChild(panel);
+    }
 }
 
 function ToggleStyleMenu(root) {
@@ -2748,19 +2945,21 @@ function ToggleStyleMenu(root) {
         return;
     }
 
+    const isBound = HasCharacterBoundStyle();
+
     const menu = document.createElement("div");
     menu.className = "mib-style-menu";
     menu.innerHTML = `
-<div class="mib-style-menu-row">
-    <label>
-        <span>${EscapeHtml(T("theme"))}</span>
-        <select class="mib-style-theme-select">
-            ${RenderThemeSelectOptions(gTheme)}
-        </select>
-    </label>
-</div>
+        <div class="mib-style-menu-row">
+            <label>
+                <span>${EscapeHtml(T("theme"))}</span>
+                <select class="mib-style-theme-select">
+                    ${RenderThemeSelectOptions(gTheme)}
+                </select>
+            </label>
+        </div>
 
-${RenderThemePreview(gTheme)}
+        ${RenderThemePreview(gTheme)}
 
         <div class="mib-style-menu-row">
             <label>
@@ -2770,19 +2969,37 @@ ${RenderThemePreview(gTheme)}
                 </select>
             </label>
         </div>
+
+        <div class="mib-style-menu-row">
+            <label>
+                <span>${EscapeHtml(T("cornerStyle"))}</span>
+                <select class="mib-style-corner-select">
+                    <option value="auto" ${gCornerStyle === "auto" ? "selected" : ""}>${EscapeHtml(T("cornerAuto"))}</option>
+                    <option value="round" ${gCornerStyle === "round" ? "selected" : ""}>${EscapeHtml(T("cornerRound"))}</option>
+                    <option value="sharp" ${gCornerStyle === "sharp" ? "selected" : ""}>${EscapeHtml(T("cornerSharp"))}</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="mib-style-menu-row mib-style-bind-row">
+            <label class="mib-style-bind-label">
+                <input type="checkbox" class="mib-style-bind-check" ${isBound ? "checked" : ""} />
+                <span>${EscapeHtml(T("bindCharStyle"))}</span>
+            </label>
+        </div>
     `;
 
-menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event => {
-    gTheme = event.target.value || "nocturne";
-    SaveSettings();
+    menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event => {
+        gTheme = event.target.value || "nocturne";
+        SaveSettings();
 
-    const previewHost = menu.querySelector("[data-mib-theme-preview]");
-    if (previewHost) {
-        previewHost.outerHTML = RenderThemePreview(gTheme);
-    }
+        const previewHost = menu.querySelector("[data-mib-theme-preview]");
+        if (previewHost) {
+            previewHost.outerHTML = RenderThemePreview(gTheme);
+        }
 
-    RerenderAllPanels();
-});
+        RerenderAllPanels();
+    });
 
     menu.querySelector(".mib-style-bar-select")?.addEventListener("change", event => {
         gBarStyle = event.target.value || "classic";
@@ -2790,10 +3007,29 @@ menu.querySelector(".mib-style-theme-select")?.addEventListener("change", event 
         RerenderAllPanels();
     });
 
-const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar, .mib-floating-header, .mib-dock-header");
-titleRow?.after(menu);
-gStyleMenuOpen = true;
+    menu.querySelector(".mib-style-corner-select")?.addEventListener("change", event => {
+        gCornerStyle = event.target.value || "auto";
+        SaveSettings();
+        ApplyCornerStyleToDom();
+    });
+
+    menu.querySelector(".mib-style-bind-check")?.addEventListener("change", event => {
+        if (event.target.checked) {
+            SaveCharacterBoundStyle();
+        } else {
+            ClearCharacterBoundStyle();
+        }
+    });
+
+    const titleRow = board.querySelector(".mib-title-row, .mib-compact-topbar, .mib-mobile-head, .mib-floating-header, .mib-dock-header");
+    if (titleRow) {
+        titleRow.after(menu);
+    } else {
+        board.prepend(menu);
     }
+
+    gStyleMenuOpen = true;
+}
 
 function ToggleXmlInspector(root) {
     const host = GetInspectorHost(root);
@@ -2901,7 +3137,12 @@ function ToggleXmlInspector(root) {
         applyXmlToFoundMessage(found, nextXml);
     });
 
-    board.appendChild(inspector);
+    const anchor = board.querySelector(".mib-title-row, .mib-compact-topbar, .mib-mobile-head");
+    if (anchor) {
+        anchor.after(inspector);
+    } else {
+        board.appendChild(inspector);
+    }
 }
 
 function SyncNotesTextareas(source) {
@@ -2939,16 +3180,11 @@ function GetOrCreateMessageHost(mesTextEl) {
 function CleanupRawXmlDom(messageTextEl) {
     if (!gHideRaw || !messageTextEl) return;
 
-    // Удаляем только корневой элемент нашего XML.
-    // Его дочерние chars/rels/thk и прочее удалятся вместе с ним.
     messageTextEl.querySelectorAll("mom_infoblock").forEach(node => {
         if (node.closest(".mib-board-host, .mib-board")) return;
         node.remove();
     });
 
-    // Поддержка старого формата, где nsfw мог находиться
-    // отдельно после mom_infoblock. Проверяем характерные атрибуты,
-    // чтобы не сносить чужой кастомный HTML-тег <nsfw>.
     messageTextEl.querySelectorAll("nsfw").forEach(node => {
         if (node.closest(".mib-board-host, .mib-board")) return;
 
@@ -2996,431 +3232,9 @@ function RemoveRawXmlFromText(messageTextEl) {
     }
 }
 
-function NormalizeLeakText(value) {
-    return String(value ?? "")
-        .toLowerCase()
-        .replace(/[«»„“”"']/g, "")
-        .replace(/[—–]/g, "-")
-        .replace(/[!?.,:;]+/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-function NormalizeThoughtText(value) {
-    return String(value ?? "")
-        .toLowerCase()
-        .replace(/[«»„“”"']/g, "")
-        .replace(/[—–-]/g, " ")
-        .replace(/[!?.,:;()[\]{}]+/g, " ")
-        .replace(/\.\.\./g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-function NormalizeStandaloneThought(value) {
-    return String(value ?? "")
-        .toLowerCase()
-        .replace(/^[\s"'«„“”]+|[\s"'»“”]+$/g, "")
-        .replace(/[.!?,:;]+$/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-function LooksLikeStandaloneThoughtFragment(rawText, thoughtEntries = []) {
-    const raw = StripBulletPrefix(String(rawText || "").trim());
-    if (!raw) return false;
-
-    const standalone = NormalizeStandaloneThought(raw);
-    if (!standalone) return false;
-
-    return thoughtEntries.some(thought => {
-        const thoughtText = NormalizeStandaloneThought(thought?.text || "");
-        if (!thoughtText) return false;
-
-        if (thoughtText.length < 10) {
-            return standalone === thoughtText;
-        }
-
-        return standalone === thoughtText;
-    });
-}
-
-function StripBulletPrefix(line) {
-    return String(line || "")
-        .replace(/^\s*[-–—*•]+\s*/u, "")
-        .replace(/^\s*\d+[.)]\s*/u, "")
-        .trim();
-}
-
-function LooksLikeChronicleLeakLine(line, parsed) {
-    const raw = StripBulletPrefix(line);
-    if (!raw) return false;
-
-    const normalized = NormalizeLeakText(raw);
-
-    const chronicleItems = [
-        ...(parsed?.chronicle?.events || []),
-        ...(parsed?.chronicle?.threads || [])
-    ]
-        .map(item => ({
-            original: String(item || "").trim(),
-            normalized: NormalizeLeakText(item)
-        }))
-        .filter(item => item.normalized.length >= 10);
-
-    if (!chronicleItems.length) return false;
-
-    // Удаляем только строку, совпадающую с записью хроники целиком.
-    // Частичное сходство с обычным нарративом не считается утечкой.
-    return chronicleItems.some(item => {
-        return normalized === item.normalized;
-    });
-}
-
-function RemoveChronicleLeaks(messageTextEl, parsed) {
-    if (!messageTextEl || !parsed?.chronicle) return;
-
-    const hasChronicle =
-        parsed.chronicle.events?.length ||
-        parsed.chronicle.threads?.length;
-
-    if (!hasChronicle) return;
-
-    const walker = document.createTreeWalker(
-        messageTextEl,
-        NodeFilter.SHOW_TEXT,
-        {
-            acceptNode(node) {
-                if (!node.parentElement) return NodeFilter.FILTER_REJECT;
-                if (node.parentElement.closest(".mib-board-host, .mib-board")) {
-                    return NodeFilter.FILTER_REJECT;
-                }
-
-                const raw = node.textContent || "";
-                if (!raw.trim()) return NodeFilter.FILTER_SKIP;
-
-                const lines = raw.split(/\r?\n/);
-                return lines.some(line => LooksLikeChronicleLeakLine(line, parsed))
-                    ? NodeFilter.FILTER_ACCEPT
-                    : NodeFilter.FILTER_SKIP;
-            }
-        }
-    );
-
-    const targets = [];
-    let current = walker.nextNode();
-
-    while (current) {
-        targets.push(current);
-        current = walker.nextNode();
-    }
-
-    for (const node of targets) {
-        const lines = String(node.textContent || "").split(/\r?\n/);
-        node.textContent = lines
-            .filter(line => !LooksLikeChronicleLeakLine(line, parsed))
-            .join("\n")
-            .replace(/\n{3,}/g, "\n\n");
-    }
-}
-
-function ParseVisibleThoughtLine(line) {
-    const clean = String(line || "").trim();
-    if (!clean) return null;
-
-const match = clean.match(/^([^:]+?)\s*:\s*(.+)$/u);
-    if (!match) return null;
-
-    return {
-        name: match[1].trim(),
-        text: match[2].trim()
-    };
-}
-
-function NamesSoftMatch(a, b) {
-    if (NamesLikelyMatch(a, b)) return true;
-    const x = NormalizeLeakText(a);
-    const y = NormalizeLeakText(b);
-
-    if (!x || !y) return false;
-    if (x === y) return true;
-
-    if (x.includes(y) || y.includes(x)) {
-        const minLen = Math.min(x.length, y.length);
-        const maxLen = Math.max(x.length, y.length);
-        return minLen >= 3 && minLen / maxLen >= 0.62;
-    }
-
-    return false;
-}
-
-function LooksLikeQuotedThoughtPrefix(rawText, thoughtText) {
-    const raw = String(rawText || "").trim();
-    const thought = String(thoughtText || "").trim();
-
-    if (!raw || !thought) return false;
-
-    const hasGuillemets = raw.includes("«") && raw.includes("»");
-    const hasCurlyQuotes =
-        (raw.includes("“") && raw.includes("”")) ||
-        (raw.includes("„") && raw.includes("“"));
-    const hasStraightQuotes =
-        (raw.match(/"/g) || []).length >= 2;
-
-    if (!hasGuillemets && !hasCurlyQuotes && !hasStraightQuotes) {
-        return false;
-    }
-
-    const normalizedRaw = NormalizeThoughtText(raw);
-    const normalizedThought = NormalizeThoughtText(thought);
-
-    if (!normalizedRaw || !normalizedThought) return false;
-
-    return (
-        normalizedRaw.length >= 12 &&
-        normalizedThought.startsWith(normalizedRaw)
-    );
-}
-
-function LooksLikeThoughtLeakLine(line, parsed) {
-    const raw = StripBulletPrefix(line);
-    if (!raw) return false;
-
-    const parsedLine = ParseVisibleThoughtLine(raw);
-    const normalizedLine = NormalizeLeakText(raw);
-
-    const thoughts = (parsed?.thoughts || [])
-        .map(thought => ({
-            name: String(thought.name || "").trim(),
-            text: String(thought.text || "").trim(),
-            full: `${String(thought.name || "").trim()}: ${String(thought.text || "").trim()}`,
-            softText: NormalizeThoughtText(thought.text || ""),
-            normalizedText: NormalizeLeakText(thought.text || ""),
-            normalizedFull: NormalizeLeakText(`${String(thought.name || "").trim()}: ${String(thought.text || "").trim()}`)
-        }))
-        .filter(thought => thought.name && thought.text);
-
-    if (!thoughts.length) return false;
-
-    if (LooksLikeStandaloneThoughtFragment(raw, thoughts)) return true;
-
-return thoughts.some(thought => {
-    const thoughtText = thought.softText;
-    const thoughtFull = thought.normalizedFull;
-
-    if (!thoughtText) return false;
-
-if (LooksLikeQuotedThoughtPrefix(raw, thought.text)) {
-    return true;
-}
-    
-    const rawStandalone = NormalizeStandaloneThought(raw);
-    const thoughtStandalone = NormalizeStandaloneThought(thought.text);
-
-    // Короткие мысли: только точное совпадение всей строки.
-    // "спать" не должен вырезать "Саша пошёл спать".
-    if (thoughtStandalone.length < 10) {
-        return (
-            rawStandalone === thoughtStandalone &&
-            rawStandalone.length > 0
-        );
-    }
-
-    // Для длинных мыслей можно использовать существующую
-    // более гибкую логику совпадений.
-    const rawSoft = NormalizeThoughtText(raw);
-    const rawNormalized = NormalizeLeakText(raw);
-
-    if (
-        rawSoft === thoughtText ||
-        rawNormalized === thought.normalizedText ||
-        rawNormalized === thoughtFull
-    ) {
-        return true;
-    }
-
-    const parsedLine = ParseVisibleThoughtLine(raw);
-
-    if (parsedLine) {
-        const ownerMatches =
-            NamesLikelyMatch(parsedLine.name, thought.name) ||
-            ThoughtOwnerMatchesNpc(
-                parsedLine.name,
-                thought.name,
-                (parsed?.chars || []).map(char => char.name)
-            );
-
-        const lineText = NormalizeThoughtText(parsedLine.text);
-
-        if (ownerMatches) {
-            if (lineText === thoughtText) return true;
-
-            if (
-                lineText.length >= 12 &&
-                thoughtText.length >= 12 &&
-                (
-                    lineText.includes(thoughtText) ||
-                    thoughtText.includes(lineText)
-                )
-            ) {
-                const minLen = Math.min(lineText.length, thoughtText.length);
-                const maxLen = Math.max(lineText.length, thoughtText.length);
-
-                return minLen / maxLen >= 0.62;
-            }
-        }
-    }
-
-    const softRaw = NormalizeThoughtText(raw);
-
-    if (softRaw.length < 14 || thoughtText.length < 14) {
-        return false;
-    }
-
-    if (
-        softRaw.includes(thoughtText) ||
-        thoughtText.includes(softRaw)
-    ) {
-        const minLen = Math.min(softRaw.length, thoughtText.length);
-        const maxLen = Math.max(softRaw.length, thoughtText.length);
-
-        return minLen / maxLen >= 0.62;
-    }
-
-    return false;
-});
-    }
-
-function IsQuotedThoughtPrefix(rawText, thoughtText) {
-    const raw = String(rawText || "").trim();
-    const thought = String(thoughtText || "").trim();
-
-    if (!raw || !thought) return false;
-
-    // Видимый обрыв должен содержать законченную цитату.
-    const hasClosedQuote =
-        /«[^»]+»/u.test(raw) ||
-        /„[^“]+“/u.test(raw) ||
-        /“[^”]+”/u.test(raw) ||
-        /"[^"]+"/u.test(raw);
-
-    if (!hasClosedQuote) return false;
-
-    const normalizedRaw = NormalizeThoughtText(raw);
-    const normalizedThought = NormalizeThoughtText(thought);
-
-    if (!normalizedRaw || !normalizedThought) return false;
-
-    // Видимый абзац должен целиком совпадать с началом мысли.
-    return (
-        normalizedRaw.length >= 10 &&
-        normalizedThought.startsWith(normalizedRaw)
-    );
-}
-
-function RemoveThoughtLeaks(messageTextEl, parsed) {
-    if (
-        !gHideThoughtLeaks ||
-        !messageTextEl ||
-        !parsed?.thoughts?.length
-    ) {
-        return;
-    }
-
-
-    const blockElements = [
-        ...messageTextEl.querySelectorAll("p, li, blockquote")
-    ];
-
-    for (const element of blockElements) {
-        if (!element.isConnected) continue;
-
-        if (element.closest(".mib-board-host, .mib-board")) {
-            continue;
-        }
-
-
-        if (element.querySelector("p, li, blockquote")) {
-            continue;
-        }
-
-        const visibleText = String(element.textContent || "").trim();
-        if (!visibleText) continue;
-
-        const isThoughtLeak = parsed.thoughts.some(thought => {
-            return IsQuotedThoughtPrefix(
-                visibleText,
-                thought.text
-            );
-        });
-
-        if (isThoughtLeak) {
-            element.remove();
-        }
-    }
-
-
-    const walker = document.createTreeWalker(
-        messageTextEl,
-        NodeFilter.SHOW_TEXT,
-        {
-            acceptNode(node) {
-                if (!node.parentElement) {
-                    return NodeFilter.FILTER_REJECT;
-                }
-
-                if (
-                    node.parentElement.closest(
-                        ".mib-board-host, .mib-board"
-                    )
-                ) {
-                    return NodeFilter.FILTER_REJECT;
-                }
-
-                const raw = node.textContent || "";
-                if (!raw.trim()) {
-                    return NodeFilter.FILTER_SKIP;
-                }
-
-                const lines = raw.split(/\r?\n/);
-
-                return lines.some(line =>
-                    LooksLikeThoughtLeakLine(line, parsed)
-                )
-                    ? NodeFilter.FILTER_ACCEPT
-                    : NodeFilter.FILTER_SKIP;
-            }
-        }
-    );
-
-    const targets = [];
-    let current = walker.nextNode();
-
-    while (current) {
-        targets.push(current);
-        current = walker.nextNode();
-    }
-
-    for (const node of targets) {
-        const lines = String(node.textContent || "")
-            .split(/\r?\n/);
-
-        node.textContent = lines
-            .filter(line =>
-                !LooksLikeThoughtLeakLine(line, parsed)
-            )
-            .join("\n")
-            .replace(/\n{3,}/g, "\n\n");
-    }
-}
-
 function CleanupEmptyMessageNodes(messageTextEl) {
     if (!messageTextEl) return;
 
-    // Удаляем только действительно пустые абзацы,
-    // которые могли остаться после удаления XML.
-    // Произвольные div/span не трогаем: они могут быть
-    // декоративными и отображаться через CSS.
     messageTextEl.querySelectorAll("p").forEach(node => {
         if (node.closest(".mib-board-host, .mib-board")) return;
 
@@ -3484,25 +3298,10 @@ function RemoveTrailingInfoblockPayload(messageTextEl, parsed) {
     const candidates = [...messageTextEl.querySelectorAll(blockSelector)]
         .filter(element => {
             if (element === messageTextEl) return false;
-
-            if (
-                element.closest(
-                    ".mib-board-host, .mib-board"
-                )
-            ) {
-                return false;
-            }
-
-            // Берём только конечный текстовый блок, а не контейнер,
-            // внутри которого лежат другие абзацы.
+            if (element.closest(".mib-board-host, .mib-board")) return false;
             return !element.querySelector(blockSelector);
         });
 
-    /*
-     * XML находится в конце ответа, поэтому идём снизу вверх.
-     * Как только встречается обычная проза, останавливаемся:
-     * выше ничего удалять уже нельзя.
-     */
     for (let index = candidates.length - 1; index >= 0; index--) {
         const element = candidates[index];
 
@@ -3514,9 +3313,7 @@ function RemoveTrailingInfoblockPayload(messageTextEl, parsed) {
             .map(NormalizeInfoblockPayloadText)
             .filter(Boolean);
 
-        if (!lines.length) {
-            continue;
-        }
+        if (!lines.length) continue;
 
         const wholeText = NormalizeInfoblockPayloadText(rawText);
 
@@ -3529,7 +3326,6 @@ function RemoveTrailingInfoblockPayload(messageTextEl, parsed) {
             continue;
         }
 
-        // Началась обычная часть сообщения.
         break;
     }
 }
@@ -3537,11 +3333,11 @@ function RemoveTrailingInfoblockPayload(messageTextEl, parsed) {
 function RenderBoardIntoMessage(mesTextEl, state, parsed) {
     if (!mesTextEl || !parsed) return;
 
-CleanupRawXmlDom(mesTextEl);
-RemoveRawXmlFromText(mesTextEl);
-CleanupRawXmlDom(mesTextEl);
-RemoveTrailingInfoblockPayload(mesTextEl, parsed);
-CleanupEmptyMessageNodes(mesTextEl);
+    CleanupRawXmlDom(mesTextEl);
+    RemoveRawXmlFromText(mesTextEl);
+    CleanupRawXmlDom(mesTextEl);
+    RemoveTrailingInfoblockPayload(mesTextEl, parsed);
+    CleanupEmptyMessageNodes(mesTextEl);
 
     if (!ShouldRenderInline()) {
         const host = mesTextEl.querySelector(".mib-board-host");
@@ -3549,40 +3345,24 @@ CleanupEmptyMessageNodes(mesTextEl);
         return;
     }
 
-const host = GetOrCreateMessageHost(mesTextEl);
-const mesNode = mesTextEl.closest(".mes");
+    const host = GetOrCreateMessageHost(mesTextEl);
+    const mesNode = mesTextEl.closest(".mes");
 
-host.dataset.rawXml = parsed.rawXml || "";
-host.dataset.mesId = mesNode?.getAttribute("mesid") || "";
-host.innerHTML = RenderPanel(state);
-WirePanel(host);
-}
-
-function ProcessMessage(messageDiv, msgIndex) {
-    if (!gEnabled) return;
-
-    const stContext = GetContextSafe();
-    const msg = stContext.chat?.[msgIndex];
-
-    if (!msg || msg.is_user) return;
-
-    const parsed = ParseMomInfoblock(msg.mes || "");
-    if (!parsed) return;
-
-    const mesTextEl = messageDiv.querySelector(".mes_text");
-    if (!mesTextEl) return;
-
-    gState = ApplyParsedToState(parsed);
-    SaveState();
-
-    RenderBoardIntoMessage(mesTextEl, gState, parsed);
-    UpdateStatusDisplay();
-    RenderFloatingOrDock();
+    host.dataset.rawXml = parsed.rawXml || "";
+    host.dataset.mesId = mesNode?.getAttribute("mesid") || "";
+    host.innerHTML = RenderPanel(state);
+    WirePanel(host);
 }
 
 function RebuildStateFromCurrentChat() {
     const stContext = GetContextSafe();
+    const prevManualEvents = Array.isArray(gState?.chronicle?.manualEvents) ? [...gState.chronicle.manualEvents] : [];
+    const prevManualThreads = Array.isArray(gState?.chronicle?.manualThreads) ? [...gState.chronicle.manualThreads] : [];
+
     let rollingState = Clone(kDefaultState);
+    rollingState.chronicle.manualEvents = prevManualEvents;
+    rollingState.chronicle.manualThreads = prevManualThreads;
+
     let lastRawXml = "";
 
     if (!Array.isArray(stContext.chat)) {
@@ -3590,6 +3370,8 @@ function RebuildStateFromCurrentChat() {
         SaveState();
         return;
     }
+
+    const dismissed = GetDismissedChronicleSet();
 
     for (const msg of stContext.chat) {
         if (!msg || msg.is_user) continue;
@@ -3604,6 +3386,20 @@ function RebuildStateFromCurrentChat() {
         }
     }
 
+    if (gChronicleEnabled) {
+        rollingState.chronicle.events = MergeUniqueList(
+            rollingState.chronicle.events,
+            prevManualEvents,
+            gChronicleLimit
+        ).filter(x => !dismissed.has(NormalizeText(x)));
+
+        rollingState.chronicle.threads = MergeUniqueList(
+            rollingState.chronicle.threads,
+            prevManualThreads,
+            8
+        ).filter(x => !dismissed.has(NormalizeText(x)));
+    }
+
     gState = rollingState;
 
     if (lastRawXml) {
@@ -3615,7 +3411,12 @@ function RebuildStateFromCurrentChat() {
 
 function ReprocessChat() {
     const stContext = GetContextSafe();
+    const prevManualEvents = Array.isArray(gState?.chronicle?.manualEvents) ? [...gState.chronicle.manualEvents] : [];
+    const prevManualThreads = Array.isArray(gState?.chronicle?.manualThreads) ? [...gState.chronicle.manualThreads] : [];
+
     let rollingState = Clone(kDefaultState);
+    rollingState.chronicle.manualEvents = prevManualEvents;
+    rollingState.chronicle.manualThreads = prevManualThreads;
 
     if (!Array.isArray(stContext.chat)) return;
 
@@ -3635,21 +3436,36 @@ function ReprocessChat() {
         RemoveRawXmlFromText(mesTextEl);
         CleanupRawXmlDom(mesTextEl);
 
-if (parsed) {
-    RemoveTrailingInfoblockPayload(mesTextEl, parsed);
-    CleanupEmptyMessageNodes(mesTextEl);
-}
+        if (parsed) {
+            RemoveTrailingInfoblockPayload(mesTextEl, parsed);
+            CleanupEmptyMessageNodes(mesTextEl);
+        }
 
-if (!parsed) {
-    const host = mesTextEl.querySelector(".mib-board-host");
-    if (host) host.remove();
-    CleanupEmptyMessageNodes(mesTextEl);
-    return;
-}
+        if (!parsed) {
+            const host = mesTextEl.querySelector(".mib-board-host");
+            if (host) host.remove();
+            CleanupEmptyMessageNodes(mesTextEl);
+            return;
+        }
 
         rollingState = ApplyParsedToState(parsed, rollingState);
         RenderBoardIntoMessage(mesTextEl, rollingState, parsed);
     });
+
+    const dismissed = GetDismissedChronicleSet();
+    if (gChronicleEnabled) {
+        rollingState.chronicle.events = MergeUniqueList(
+            rollingState.chronicle.events,
+            prevManualEvents,
+            gChronicleLimit
+        ).filter(x => !dismissed.has(NormalizeText(x)));
+
+        rollingState.chronicle.threads = MergeUniqueList(
+            rollingState.chronicle.threads,
+            prevManualThreads,
+            8
+        ).filter(x => !dismissed.has(NormalizeText(x)));
+    }
 
     gState = rollingState;
     SaveState();
@@ -3697,9 +3513,10 @@ function RenderFloating() {
 
     const collapsed = IsFloatingCollapsed();
 
-host.className = [
-    `mib-theme-${gTheme}`,
-    `mib-bars-${gBarStyle}`,
+    host.className = [
+        `mib-theme-${gTheme}`,
+        `mib-bars-${gBarStyle}`,
+        `mib-corners-${gCornerStyle}`,
         collapsed ? "mib-floating-collapsed" : "mib-floating-open"
     ].join(" ");
 
@@ -3722,19 +3539,19 @@ host.className = [
 
     host.innerHTML = `
         <div class="mib-floating-shell">
-<div class="mib-floating-header">
-    <div class="mib-floating-title">${EscapeHtml(T("floatingTitle"))}</div>
+            <div class="mib-floating-header">
+                <div class="mib-floating-title">${EscapeHtml(T("floatingTitle"))}</div>
 
-    <div class="mib-title-actions">
-        <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
-        <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
-        <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="${gSceneViewMode === "compact" ? "full" : "compact"}" title="${EscapeHtml(T(gSceneViewMode === "compact" ? "sceneFull" : "sceneCompact"))}">
-            ${gSceneViewMode === "compact" ? "↗" : "↘"}
-        </button>
-        <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-        <button type="button" class="mib-floating-close" title="Collapse">×</button>
-    </div>
-</div>
+                <div class="mib-title-actions">
+                    <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
+                    <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="${gSceneViewMode === "compact" ? "full" : "compact"}" title="${EscapeHtml(T(gSceneViewMode === "compact" ? "sceneFull" : "sceneCompact"))}">
+                        ${gSceneViewMode === "compact" ? "↗" : "↘"}
+                    </button>
+                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+                    <button type="button" class="mib-floating-close" title="Collapse">×</button>
+                </div>
+            </div>
             <div class="mib-floating-body">
                 ${RenderPanel(gState)}
             </div>
@@ -3750,6 +3567,7 @@ host.className = [
 
     MakeFloatingDraggable(host);
 }
+
 function RestoreFloatingLayout(host) {
     try {
         const raw = localStorage.getItem(kFloatingLayoutKey);
@@ -3763,9 +3581,7 @@ function RestoreFloatingLayout(host) {
         host.style.height = `${Clamp(data.height, 220, window.innerHeight - 20)}px`;
         host.style.right = "auto";
         host.style.bottom = "auto";
-    } catch {
-        // Layout restore is optional.
-    }
+    } catch {}
 }
 
 function SaveFloatingLayout(host) {
@@ -3901,13 +3717,6 @@ function SetMobilePanelOpen(value) {
 }
 
 function RenderMobileDockPanel() {
-    console.log("[MIB mobile] render", {
-        enabled: gEnabled,
-        displayMode: gDisplayMode,
-        mobile: IsMobileView(),
-        open: IsMobilePanelOpen()
-    });
-
     if (!gEnabled || !ShouldRenderDock() || !IsMobileView()) {
         RemoveMobileDockPanel();
         return;
@@ -3923,15 +3732,17 @@ function RenderMobileDockPanel() {
 
     const open = IsMobilePanelOpen();
 
-host.className = [
-    `mib-theme-${gTheme}`,
-    `mib-bars-${gBarStyle}`,
-    `mib-mobile-panel-${gDockSide === "left" ? "left" : "right"}`,
-    open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
-].join(" ");
+    host.dataset.rawXml = gLastRawXml || "";
+    host.className = [
+        `mib-theme-${gTheme}`,
+        `mib-bars-${gBarStyle}`,
+        `mib-corners-${gCornerStyle}`,
+        `mib-mobile-panel-${gDockSide === "left" ? "left" : "right"}`,
+        open ? "mib-mobile-panel-open" : "mib-mobile-panel-collapsed"
+    ].join(" ");
 
-host.style.left = gDockSide === "left" ? "0" : "auto";
-host.style.right = gDockSide === "right" ? "0" : "auto";
+    host.style.left = gDockSide === "left" ? "0" : "auto";
+    host.style.right = gDockSide === "right" ? "0" : "auto";
 
     host.innerHTML = `
         <button type="button" class="mib-mobile-panel-toggle">
@@ -3944,8 +3755,6 @@ host.style.right = gDockSide === "right" ? "0" : "auto";
             </div>
         </div>
     `;
-
-    console.log("[MIB mobile] host after render", host);
 
     host.querySelector(".mib-mobile-panel-toggle")?.addEventListener("click", () => {
         SetMobilePanelOpen(!open);
@@ -3971,10 +3780,10 @@ function SetDockCollapsed(value) {
 
 function RenderDock() {
     if (IsMobileView()) {
-    RemoveDock();
-    RenderMobileDockPanel();
-    return;
-}
+        RemoveDock();
+        RenderMobileDockPanel();
+        return;
+    }
     if (!gEnabled || !ShouldRenderDock()) {
         RemoveDock();
         return;
@@ -3988,33 +3797,35 @@ function RenderDock() {
         document.body.appendChild(host);
     }
 
-   const collapsed = IsDockCollapsed();
+    const collapsed = IsDockCollapsed();
 
-host.dataset.rawXml = gLastRawXml || "";
+    host.dataset.rawXml = gLastRawXml || "";
 
-host.className = [
-    `mib-theme-${gTheme}`,
-    `mib-dock-${gDockSide}`,
-    collapsed ? "mib-dock-collapsed" : "mib-dock-open"
-].join(" ");
+    host.className = [
+        `mib-theme-${gTheme}`,
+        `mib-bars-${gBarStyle}`,
+        `mib-corners-${gCornerStyle}`,
+        `mib-dock-${gDockSide}`,
+        collapsed ? "mib-dock-collapsed" : "mib-dock-open"
+    ].join(" ");
 
     host.innerHTML = `
         <button type="button" class="mib-dock-handle">
             ${collapsed ? EscapeHtml(T("openDock")) : EscapeHtml(T("closeDock"))}
         </button>
         <div class="mib-dock-panel">
-<div class="mib-dock-header">
-    <div class="mib-dock-title">${EscapeHtml(T("dockTitle"))}</div>
+            <div class="mib-dock-header">
+                <div class="mib-dock-title">${EscapeHtml(T("dockTitle"))}</div>
 
-    <div class="mib-title-actions">
-        <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
-        <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
-        <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="${gSceneViewMode === "compact" ? "full" : "compact"}" title="${EscapeHtml(T(gSceneViewMode === "compact" ? "sceneFull" : "sceneCompact"))}">
-            ${gSceneViewMode === "compact" ? "↗" : "↘"}
-        </button>
-        <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
-    </div>
-</div>
+                <div class="mib-title-actions">
+                    <button type="button" class="mib-style-btn" title="${EscapeHtml(T("styleMenu"))}">◈</button>
+                    <button type="button" class="mib-dossier-btn" title="${EscapeHtml(T("dossier"))}">☰</button>
+                    <button type="button" class="mib-panel-mode-btn" data-mib-panel-mode="${gSceneViewMode === "compact" ? "full" : "compact"}" title="${EscapeHtml(T(gSceneViewMode === "compact" ? "sceneFull" : "sceneCompact"))}">
+                        ${gSceneViewMode === "compact" ? "↗" : "↘"}
+                    </button>
+                    <button type="button" class="mib-debug-btn" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</button>
+                </div>
+            </div>
             <div class="mib-dock-body">
                 ${RenderPanel(gState)}
             </div>
@@ -4056,7 +3867,7 @@ function RerenderAllPanels() {
     RenderFloatingOrDock();
 
     if (gStyleMenuOpen) {
-        document.querySelectorAll("#mib_floating_host, #mib_dock_host").forEach(host => {
+        document.querySelectorAll("#mib_floating_host, #mib_dock_host, #mib_mobile_panel_host").forEach(host => {
             if (host.querySelector(".mib-style-btn") && !host.querySelector(".mib-style-menu")) {
                 ToggleStyleMenu(host);
             }
@@ -4073,6 +3884,8 @@ function BuildExportPackage() {
         settings: {
             lang: gLang,
             theme: gTheme,
+            barStyle: gBarStyle,
+            cornerStyle: gCornerStyle,
             displayMode: gDisplayMode,
             dockSide: gDockSide,
             hideRaw: gHideRaw,
@@ -4084,12 +3897,12 @@ function BuildExportPackage() {
             relationFilter: gRelationFilter,
             customCss: gCustomCss,
             fontSize: gFontSize,
-thoughtsEnabled: gThoughtsEnabled,
-            injectNotes: gInjectNotes,
-            barStyle: gBarStyle,
+            thoughtsEnabled: gThoughtsEnabled,
+            injectNotes: gInjectNotes
         },
         state: gState,
         notes: gNotes,
+        dismissedChronicle: [...GetDismissedChronicleSet()],
         ui: {
             floatingLayout: SafeJsonParse(localStorage.getItem(kFloatingLayoutKey)),
             dockCollapsed: IsDockCollapsed()
@@ -4129,9 +3942,17 @@ function ApplyImportedPackage(data) {
         gState = NormalizeImportedState(data.state);
         gNotes = String(data.notes || "");
 
+        if (Array.isArray(data.dismissedChronicle)) {
+            try {
+                localStorage.setItem(GetDismissedChronicleKey(), JSON.stringify(data.dismissedChronicle));
+            } catch {}
+        }
+
         if (data.settings) {
             gLang = data.settings.lang || gLang;
             gTheme = data.settings.theme || gTheme;
+            gBarStyle = data.settings.barStyle || gBarStyle;
+            gCornerStyle = data.settings.cornerStyle || gCornerStyle;
             gDisplayMode = data.settings.displayMode || gDisplayMode;
             gDockSide = data.settings.dockSide || gDockSide;
             gHideRaw = data.settings.hideRaw !== false;
@@ -4143,9 +3964,8 @@ function ApplyImportedPackage(data) {
             gRelationFilter = data.settings.relationFilter || gRelationFilter;
             gCustomCss = data.settings.customCss || gCustomCss;
             gFontSize = data.settings.fontSize || gFontSize;
-gThoughtsEnabled = data.settings.thoughtsEnabled !== false;
+            gThoughtsEnabled = data.settings.thoughtsEnabled !== false;
             gInjectNotes = data.settings.injectNotes === true;
-            gBarStyle = data.settings.barStyle || gBarStyle;
         }
 
         if (data.ui?.floatingLayout) {
@@ -4161,11 +3981,10 @@ gThoughtsEnabled = data.settings.thoughtsEnabled !== false;
         SaveNotes();
         ApplyFontSize();
         SaveCustomCss();
-ApplyCustomCss();
+        ApplyCustomCss();
         return;
     }
 
-    // Legacy fallback: old plain state export.
     gState = NormalizeImportedState(data);
     SaveState();
 }
@@ -4192,7 +4011,6 @@ async function ImportDataFromFile(file) {
 function UpdateSettingsText() {
     $('label[for="mib_enabled"]').html(`<b>${T("enable")}</b>`);
     $('label[for="mib_lang"]').html(`<b>${T("language")}</b>`);
-    $('label[for="mib_theme"]').html(`<b>${T("theme")}</b>`);
     $('label[for="mib_display_mode"]').html(`<b>${T("displayMode")}</b>`);
     $('label[for="mib_dock_side"]').html(`<b>${T("dockSide")}</b>`);
     $('label[for="mib_hide_raw"]').text(T("hideRaw"));
@@ -4200,11 +4018,13 @@ function UpdateSettingsText() {
     $('label[for="mib_show_nsfw"]').text(T("showNsfw"));
     $('label[for="mib_chronicle_enabled"]').text(T("chronicleEnabled"));
     $('label[for="mib_chronicle_limit"]').html(`<b>${T("chronicleLimit")}</b>`);
-$('label[for="mib_relation_filter"]').html(`<b>${T("relationFilter")}</b>`);
-$("#mib_relation_filter option[value='top3']").text(T("relationTop3"));
-$("#mib_relation_filter option[value='top1']").text(T("relationTop1"));
-$("#mib_relation_filter option[value='changed']").text(T("relationChanged"));
-$("#mib_relation_filter option[value='all']").text(T("relationAll"));
+    $('label[for="mib_relation_filter"]').html(`<b>${T("relationFilter")}</b>`);
+
+    $("#mib_relation_filter option[value='top3']").text(T("relationTop3"));
+    $("#mib_relation_filter option[value='top1']").text(T("relationTop1"));
+    $("#mib_relation_filter option[value='changed']").text(T("relationChanged"));
+    $("#mib_relation_filter option[value='all']").text(T("relationAll"));
+
     $("#mib_display_mode option[value='inline']").text(T("displayInline"));
     $("#mib_display_mode option[value='floating']").text(T("displayFloating"));
     $("#mib_display_mode option[value='dock']").text(T("displayDock"));
@@ -4219,29 +4039,29 @@ $("#mib_relation_filter option[value='all']").text(T("relationAll"));
     $("#mib_export_data").text(T("exportData"));
     $("#mib_import_data").text(T("importData"));
     $("#mib_toggle_custom_css").text(T("customCss"));
-$("#mib_save_custom_css").text(T("saveCustomCss"));
-$("#mib_clear_custom_css").text(T("clearCustomCss"));
-$("#mib_custom_css_input").attr("placeholder", T("customCssPlaceholder"));
+    $("#mib_save_custom_css").text(T("saveCustomCss"));
+    $("#mib_clear_custom_css").text(T("clearCustomCss"));
+    $("#mib_custom_css_input").attr("placeholder", T("customCssPlaceholder"));
+
     $('label[for="mib_font_size"]').html(`<b>${T("fontSize")}</b>`);
-$("#mib_font_size option[value='small']").text(T("fontSmall"));
-$("#mib_font_size option[value='normal']").text(T("fontNormal"));
-$("#mib_font_size option[value='large']").text(T("fontLarge"));
-$("#mib_font_size option[value='xlarge']").text(T("fontXLarge"));
-    $("#mib_thoughts_enabled").closest("label").find("span").text(T("thoughtsEnabled"));
-    $("#mib_inject_notes").closest("label").find("span").text(T("injectNotes"));
+    $("#mib_font_size option[value='small']").text(T("fontSmall"));
+    $("#mib_font_size option[value='normal']").text(T("fontNormal"));
+    $("#mib_font_size option[value='large']").text(T("fontLarge"));
+    $("#mib_font_size option[value='xlarge']").text(T("fontXLarge"));
+
+    $('label[for="mib_thoughts_enabled"] span').text(T("thoughtsEnabled"));
+    $('label[for="mib_inject_notes"] span').text(T("injectNotes"));
 
     $('[data-mib-css-preset="compactThin"]').text(T("cssPresetCompactThin"));
-$('[data-mib-css-preset="biggerText"]').text(T("cssPresetBiggerText"));
-$('[data-mib-css-preset="transparent"]').text(T("cssPresetTransparent"));
-$('[data-mib-css-preset="highContrast"]').text(T("cssPresetHighContrast"));
-$('[data-mib-css-preset="purpleGlow"]').text(T("cssPresetPurpleGlow"));
-    
+    $('[data-mib-css-preset="biggerText"]').text(T("cssPresetBiggerText"));
+    $('[data-mib-css-preset="transparent"]').text(T("cssPresetTransparent"));
+    $('[data-mib-css-preset="highContrast"]').text(T("cssPresetHighContrast"));
+    $('[data-mib-css-preset="purpleGlow"]').text(T("cssPresetPurpleGlow"));
 }
 
 function SyncSettingsControls() {
     $("#mib_enabled").prop("checked", gEnabled);
     $("#mib_lang").val(gLang);
-    $("#mib_theme").val(gTheme);
     $("#mib_display_mode").val(gDisplayMode);
     $("#mib_dock_side").val(gDockSide);
     $("#mib_hide_raw").prop("checked", gHideRaw);
@@ -4252,7 +4072,7 @@ function SyncSettingsControls() {
     $("#mib_relation_filter").val(gRelationFilter);
     $("#mib_custom_css_input").val(gCustomCss);
     $("#mib_font_size").val(gFontSize);
-$("#mib_thoughts_enabled").prop("checked", gThoughtsEnabled);
+    $("#mib_thoughts_enabled").prop("checked", gThoughtsEnabled);
     $("#mib_inject_notes").prop("checked", gInjectNotes);
 }
 
@@ -4288,6 +4108,7 @@ function WireSettings() {
             document.querySelectorAll(".mib-board-host").forEach(el => el.remove());
             RemoveFloating();
             RemoveDock();
+            RemoveMobileDockPanel();
         }
     });
 
@@ -4297,12 +4118,6 @@ function WireSettings() {
         UpdateSettingsText();
         UpdateStatusDisplay();
         InjectPrompt();
-        RerenderAllPanels();
-    });
-
-    $("#mib_theme").on("change", function () {
-        gTheme = $(this).val() || "nocturne";
-        SaveSettings();
         RerenderAllPanels();
     });
 
@@ -4325,12 +4140,13 @@ function WireSettings() {
         ReprocessChat();
     });
 
-$("#mib_inject_notes").on("change", function () {
-    gInjectNotes = $(this).is(":checked");
-    SaveSettings();
-    InjectPrompt();
-});
-    
+    $("#mib_inject_notes").on("change", function () {
+        gInjectNotes = $(this).is(":checked");
+        SaveSettings();
+        InjectPrompt();
+        RerenderAllPanels();
+    });
+
     $("#mib_hide_thought_leaks").on("change", function () {
         gHideThoughtLeaks = $(this).is(":checked");
         SaveSettings();
@@ -4356,41 +4172,41 @@ $("#mib_inject_notes").on("change", function () {
         RerenderAllPanels();
     });
 
+    $("#mib_font_size").on("change", function () {
+        gFontSize = $(this).val() || "normal";
+        SaveSettings();
+        ApplyFontSize();
+    });
 
-$("#mib_font_size").on("change", function () {
-    gFontSize = $(this).val() || "normal";
-    SaveSettings();
-    ApplyFontSize();
-});
+    $(".mib-css-preset").on("click", function () {
+        InsertCustomCssPreset($(this).data("mibCssPreset"));
+    });
 
-$(".mib-css-preset").on("click", function () {
-    InsertCustomCssPreset($(this).data("mibCssPreset"));
-});
-    
-$("#mib_thoughts_enabled").on("change", function () {
-    gThoughtsEnabled = $(this).is(":checked");
-    SaveSettings();
+    $("#mib_thoughts_enabled").on("change", function () {
+        gThoughtsEnabled = $(this).is(":checked");
+        SaveSettings();
 
-    if (!gThoughtsEnabled) {
-        gState.thoughts = [];
-        SaveState();
-    }
+        if (!gThoughtsEnabled) {
+            gState.thoughts = [];
+            SaveState();
+        }
 
-    InjectPrompt();
-    ReprocessChat();
-    RenderFloatingOrDock();
-});
-    
-$("#mib_relation_filter").on("change", function () {
-    gRelationFilter = $(this).val() || "top3";
-    SaveSettings();
-    RerenderAllPanels();
-});
-    
+        InjectPrompt();
+        ReprocessChat();
+        RenderFloatingOrDock();
+    });
+
+    $("#mib_relation_filter").on("change", function () {
+        gRelationFilter = $(this).val() || "top3";
+        SaveSettings();
+        RerenderAllPanels();
+    });
+
     $("#mib_reset_state").on("click", function () {
         if (!confirm(T("resetConfirm"))) return;
 
         gState = Clone(kDefaultState);
+        localStorage.removeItem(GetDismissedChronicleKey());
         SaveState();
         UpdateStatusDisplay();
         ReprocessChat();
@@ -4402,22 +4218,22 @@ $("#mib_relation_filter").on("change", function () {
     });
 
     $("#mib_toggle_custom_css").on("click", function () {
-    $("#mib_custom_css_block").toggle();
-});
+        $("#mib_custom_css_block").toggle();
+    });
 
-$("#mib_save_custom_css").on("click", function () {
-    gCustomCss = $("#mib_custom_css_input").val() || "";
-    SaveCustomCss();
-    ApplyCustomCss();
-});
+    $("#mib_save_custom_css").on("click", function () {
+        gCustomCss = $("#mib_custom_css_input").val() || "";
+        SaveCustomCss();
+        ApplyCustomCss();
+    });
 
-$("#mib_clear_custom_css").on("click", function () {
-    gCustomCss = "";
-    $("#mib_custom_css_input").val("");
-    SaveCustomCss();
-    ApplyCustomCss();
-});
-    
+    $("#mib_clear_custom_css").on("click", function () {
+        gCustomCss = "";
+        $("#mib_custom_css_input").val("");
+        SaveCustomCss();
+        ApplyCustomCss();
+    });
+
     $("#mib_export_data").on("click", function () {
         ExportData();
     });
@@ -4436,6 +4252,14 @@ $("#mib_clear_custom_css").on("click", function () {
 }
 
 function OnChatChanged() {
+    gCollapsedRels.clear();
+
+    if (!LoadCharacterBoundStyleIfPresent()) {
+        gTheme = localStorage.getItem(kThemeKey) || "nocturne";
+        gBarStyle = localStorage.getItem(kBarStyleKey) || "classic";
+        gCornerStyle = localStorage.getItem(kCornerStyleKey) || "auto";
+    }
+
     LoadState();
     LoadNotes();
     LoadPinnedNpcs();
@@ -4446,349 +4270,6 @@ function OnChatChanged() {
         RenderFloatingOrDock();
     }
 }
-
-/* Spider-Man / Venom / Web bars */
-kThemeOptions.push(
-    ["spiderman", "Spider-Man"],
-    ["venom", "Venom"]
-);
-
-kBarStyleOptions.push(["web", "barWeb"]);
-kLangMap.ru.barWeb = "Spiderweb";
-kLangMap.en.barWeb = "Spiderweb";
-
-Object.assign(kThemePreviewMap, {
-    spiderman: {
-        label: {
-            ru: "Красный костюм, ночной Нью-Йорк и паутина",
-            en: "Red suit, midnight New York and web threads"
-        },
-        bg: "#080f20",
-        bg2: "#122745",
-        accent: "#ff6572",
-        accent2: "#8dc8ff",
-        text: "#eef4ff",
-        danger: "#ff8d85"
-    },
-    venom: {
-        label: {
-            ru: "Чёрный симбиот, белые блики и бордовый след",
-            en: "Black symbiote, white highlights and burgundy"
-        },
-        bg: "#040507",
-        bg2: "#171b23",
-        accent: "#e4eaf2",
-        accent2: "#d47b8c",
-        text: "#f1f3f7",
-        danger: "#f18496"
-    }
-});
-
-/* =========================================================
-   EXPANSION PACK: 5 Themes + 3 Bar Styles
-   (Revachol Disco, VHS 1994, Kintsugi Porcelain, Bio-Abyss, Arcana Tarot)
-   ========================================================= */
-
-kThemeOptions.push(
-    ["disco", "Revachol Disco"],
-    ["vhs", "VHS 1994"],
-    ["porcelain", "Kintsugi Porcelain"],
-    ["abyss", "Bio-Abyss"],
-    ["tarot", "Arcana Tarot"]
-);
-
-kBarStyleOptions.push(
-    ["brush", "barBrush"],
-    ["heartbeat", "barHeartbeat"],
-    ["moonphases", "barMoonphases"]
-);
-
-Object.assign(kLangMap.ru, {
-    barBrush: "Brush Stroke",
-    barHeartbeat: "Heartbeat ECG",
-    barMoonphases: "Moon Phases"
-});
-
-Object.assign(kLangMap.en, {
-    barBrush: "Brush Stroke",
-    barHeartbeat: "Heartbeat ECG",
-    barMoonphases: "Moon Phases"
-});
-
-Object.assign(kThemePreviewMap, {
-    disco: {
-        label: {
-            ru: "Масляные мазки, ржавая охра и нуар Ревашоля",
-            en: "Oil brushstrokes, rusty ochre and Revachol noir"
-        },
-        bg: "#161311",
-        bg2: "#261f1a",
-        accent: "#e06d3b",
-        accent2: "#7fa69b",
-        text: "#efe6d8",
-        danger: "#d94e41"
-    },
-    vhs: {
-        label: {
-            ru: "Ночной эфир 1994, кассетный глитч и жёлтые субтитры",
-            en: "Late night 1994, tape glitch and yellow subtitles"
-        },
-        bg: "#090817",
-        bg2: "#161233",
-        accent: "#ffd84d",
-        accent2: "#05d9e8",
-        text: "#f0eff7",
-        danger: "#ff2a6d"
-    },
-    porcelain: {
-        label: {
-            ru: "Тёплый фарфор, золотые швы кинцуги и красная тушь",
-            en: "Warm porcelain, gold kintsugi seams and cinnabar ink"
-        },
-        bg: "#ece5d8",
-        bg2: "#dfd6c5",
-        accent: "#b8332a",
-        accent2: "#b88928",
-        text: "#241f1c",
-        danger: "#c92a2a"
-    },
-    abyss: {
-        label: {
-            ru: "Марианская впадина и биолюминесцентный планктон",
-            en: "Mariana trench and bioluminescent plankton"
-        },
-        bg: "#020810",
-        bg2: "#061829",
-        accent: "#00f5d4",
-        accent2: "#9b5de5",
-        text: "#dcfaf7",
-        danger: "#ff4d7d"
-    },
-    tarot: {
-        label: {
-            ru: "Старинная гравюра, арканы Таро и античное золото",
-            en: "Old engraving, Tarot arcana and antique gold"
-        },
-        bg: "#0d0b12",
-        bg2: "#1b1626",
-        accent: "#d9b464",
-        accent2: "#8f79b8",
-        text: "#f2ead8",
-        danger: "#c75866"
-    }
-});
-
-// Дополняем иконки и заголовки для новых тем
-const _origLocIcon = GetThemeLocationIcon;
-GetThemeLocationIcon = function(theme = gTheme) {
-    const extra = { disco: "🥃", vhs: "📼", porcelain: "⛩️", abyss: "🪼", tarot: "🎴" };
-    return extra[theme] || _origLocIcon(theme);
-};
-
-const _origCharsIcon = GetThemeCharsIcon;
-GetThemeCharsIcon = function(theme = gTheme) {
-    const extra = { disco: "🎭", vhs: "📺", porcelain: "印", abyss: "◈", tarot: "Ⅰ" };
-    return extra[theme] || _origCharsIcon(theme);
-};
-
-const _origRelsIcon = GetThemeRelationsIcon;
-GetThemeRelationsIcon = function(theme = gTheme) {
-    const extra = { disco: "🚬", vhs: "📡", porcelain: "糸", abyss: "🫧", tarot: "Ⅱ" };
-    return extra[theme] || _origRelsIcon(theme);
-};
-
-const _origTitleData = GetThemeTitleData;
-GetThemeTitleData = function(theme = gTheme) {
-    const extra = {
-        disco: {
-            main: "REVACHOL // INLAND EMPIRE",
-            sub: "── ⋆⋅ 🥃 ⋅⋆ ── [ Volition: Easy ]"
-        },
-        vhs: {
-            main: "PLAY ▷ 00:42:19",
-            sub: "● REC // SP MODE // CH-03"
-        },
-        porcelain: {
-            main: "金継ぎ // KINTSUGI",
-            sub: "──  朱印 · 黄金 · 陶器 ──"
-        },
-        abyss: {
-            main: "HADAL ZONE // -10,994m",
-            sub: "∘˚˳° 𓆝 𓆟 𓆞 °˳˚∘"
-        },
-        tarot: {
-            main: "✦ LIBER ARCANORUM ✦",
-            sub: "Ⅰ · Ⅱ · Ⅲ · Ⅳ · Ⅴ · Ⅵ · Ⅶ"
-        }
-    };
-    return extra[theme] || _origTitleData(theme);
-};
-
-/* =========================================================
-   PATCH: Working Chronicle Deletion + Corner Shape Switcher
-   ========================================================= */
-
-const kCornerStyleKey = `${kStoragePrefix}CornerStyle`;
-const kDismissedChroniclePrefix = `${kStoragePrefix}DismissedChronicle_`;
-let gCornerStyle = localStorage.getItem(kCornerStyleKey) || "auto";
-
-Object.assign(kLangMap.ru, {
-    cornerStyle: "Форма углов",
-    cornerAuto: "Авто (по теме)",
-    cornerRound: "Мягкие (круглые)",
-    cornerSharp: "Острые (квадратные)"
-});
-
-Object.assign(kLangMap.en, {
-    cornerStyle: "Corner Shape",
-    cornerAuto: "Auto (by theme)",
-    cornerRound: "Rounded",
-    cornerSharp: "Sharp (square)"
-});
-
-function GetDismissedChronicleKey() {
-    return kDismissedChroniclePrefix + GetChatId();
-}
-
-function GetDismissedChronicleSet() {
-    try {
-        const raw = localStorage.getItem(GetDismissedChronicleKey());
-        const arr = raw ? JSON.parse(raw) : [];
-        return new Set(Array.isArray(arr) ? arr : []);
-    } catch {
-        return new Set();
-    }
-}
-
-function AddDismissedChronicleItem(text) {
-    const norm = NormalizeText(text);
-    if (!norm) return;
-    const set = GetDismissedChronicleSet();
-    set.add(norm);
-    try {
-        localStorage.setItem(GetDismissedChronicleKey(), JSON.stringify([...set]));
-    } catch {}
-}
-
-// Фильтруем удалённые пользователем события и нити при любом парсинге чата
-const _origApplyParsedToState = ApplyParsedToState;
-ApplyParsedToState = function(parsed, baseState = gState) {
-    const next = _origApplyParsedToState(parsed, baseState);
-    if (next?.chronicle) {
-        const dismissed = GetDismissedChronicleSet();
-        if (dismissed.size > 0) {
-            next.chronicle.events = (next.chronicle.events || []).filter(
-                item => !dismissed.has(NormalizeText(item))
-            );
-            next.chronicle.threads = (next.chronicle.threads || []).filter(
-                item => !dismissed.has(NormalizeText(item))
-            );
-        }
-    }
-    return next;
-};
-
-// При сбросе состояния чата очищаем и список удалённых записей
-$(document).on("click", "#mib_reset_state", () => {
-    setTimeout(() => {
-        if (!gState.chronicle.events.length && !gState.chronicle.threads.length) {
-            localStorage.removeItem(GetDismissedChronicleKey());
-        }
-    }, 50);
-});
-
-// Применяем класс углов ко всем доскам
-function ApplyCornerStyleToDom() {
-    const classes = ["mib-corners-auto", "mib-corners-round", "mib-corners-sharp"];
-    const targetClass = `mib-corners-${gCornerStyle || "auto"}`;
-
-    document.querySelectorAll(".mib-board, #mib_floating_host, #mib_dock_host, #mib_mobile_panel_host").forEach(el => {
-        el.classList.remove(...classes);
-        el.classList.add(targetClass);
-    });
-}
-
-// Переопределяем WirePanel, чтобы навешивать удаление хроники и углы
-const _origWirePanel = WirePanel;
-WirePanel = function(root) {
-    _origWirePanel(root);
-    ApplyCornerStyleToDom();
-
-    if (!root) return;
-
-    root.querySelectorAll("[data-mib-del-event]").forEach(button => {
-        button.onclick = event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const idx = parseInt(button.dataset.mibDelEvent, 10);
-            const itemText = gState.chronicle?.events?.[idx];
-            if (itemText === undefined) return;
-
-            AddDismissedChronicleItem(itemText);
-            gState.chronicle.events.splice(idx, 1);
-            SaveState();
-            InjectPrompt();
-            RerenderAllPanels();
-        };
-    });
-
-    root.querySelectorAll("[data-mib-del-thread]").forEach(button => {
-        button.onclick = event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const idx = parseInt(button.dataset.mibDelThread, 10);
-            const itemText = gState.chronicle?.threads?.[idx];
-            if (itemText === undefined) return;
-
-            AddDismissedChronicleItem(itemText);
-            gState.chronicle.threads.splice(idx, 1);
-            SaveState();
-            InjectPrompt();
-            RerenderAllPanels();
-        };
-    });
-};
-
-// Дополняем меню стиля (ромбик ◈) выбором формы углов и чиним закрытие
-const _origToggleStyleMenu = ToggleStyleMenu;
-ToggleStyleMenu = function(root) {
-    const board = root.querySelector?.("[data-mib-board]") || root.closest?.("[data-mib-board]") || root;
-    if (!board) return;
-
-    const existing = board.querySelector(".mib-style-menu");
-    if (existing) {
-        existing.remove();
-        gStyleMenuOpen = false;
-        return;
-    }
-
-    _origToggleStyleMenu(root);
-
-    const menu = board.querySelector(".mib-style-menu");
-    if (menu && !menu.querySelector(".mib-style-corner-select")) {
-        const row = document.createElement("div");
-        row.className = "mib-style-menu-row";
-        row.innerHTML = `
-            <label>
-                <span>${EscapeHtml(T("cornerStyle"))}</span>
-                <select class="mib-style-corner-select">
-                    <option value="auto" ${gCornerStyle === "auto" ? "selected" : ""}>${EscapeHtml(T("cornerAuto"))}</option>
-                    <option value="round" ${gCornerStyle === "round" ? "selected" : ""}>${EscapeHtml(T("cornerRound"))}</option>
-                    <option value="sharp" ${gCornerStyle === "sharp" ? "selected" : ""}>${EscapeHtml(T("cornerSharp"))}</option>
-                </select>
-            </label>
-        `;
-        menu.appendChild(row);
-
-        row.querySelector(".mib-style-corner-select")?.addEventListener("change", event => {
-            gCornerStyle = event.target.value || "auto";
-            localStorage.setItem(kCornerStyleKey, gCornerStyle);
-            ApplyCornerStyleToDom();
-        });
-    }
-};
 
 jQuery(async () => {
     const stContext = GetContextSafe();
@@ -4807,13 +4288,13 @@ jQuery(async () => {
         console.warn("[MIB] settings.html not loaded:", error);
     }
 
-LoadSettings();
-LoadState();
-LoadNotes();
-LoadPinnedNpcs();
-LoadCustomCss();
-ApplyCustomCss();
-ApplyFontSize();
+    LoadSettings();
+    LoadState();
+    LoadNotes();
+    LoadPinnedNpcs();
+    LoadCustomCss();
+    ApplyCustomCss();
+    ApplyFontSize();
 
     SyncSettingsControls();
     UpdateSettingsText();
@@ -4834,30 +4315,27 @@ ApplyFontSize();
         });
     }
 
-if (stContext.eventTypes?.MESSAGE_EDITED) {
-    stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
-        // SillyTavern может несколько раз перерисовать сообщение
-        // после сохранения редактирования. Обрабатываем его повторно,
-        // когда DOM уже успел устаканиться.
-        setTimeout(() => {
-            RebuildStateFromCurrentChat();
-            ReprocessChat();
-        }, 100);
+    if (stContext.eventTypes?.MESSAGE_EDITED) {
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
+            setTimeout(() => {
+                RebuildStateFromCurrentChat();
+                ReprocessChat();
+            }, 100);
 
-        setTimeout(() => {
-            RebuildStateFromCurrentChat();
-            ReprocessChat();
-            RenderFloatingOrDock();
-        }, 500);
+            setTimeout(() => {
+                RebuildStateFromCurrentChat();
+                ReprocessChat();
+                RenderFloatingOrDock();
+            }, 500);
 
-        setTimeout(() => {
-            RebuildStateFromCurrentChat();
-            ReprocessChat();
-            RenderFloatingOrDock();
-            InjectPrompt();
-        }, 1200);
-    });
-}
+            setTimeout(() => {
+                RebuildStateFromCurrentChat();
+                ReprocessChat();
+                RenderFloatingOrDock();
+                InjectPrompt();
+            }, 1200);
+        });
+    }
 
     if (stContext.eventTypes?.MESSAGE_SWIPED) {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, () => {
