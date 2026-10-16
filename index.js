@@ -3279,6 +3279,9 @@ function RemoveTrailingInfoblockPayload(messageTextEl, parsed) {
         ...(gHideThoughtLeaks ? parsed.thoughts || [] : [])
             .map(thought => thought?.text),
 
+        ...(gHideThoughtLeaks ? parsed.thoughts || [] : [])
+            .map(thought => thought?.name && thought?.text ? `${thought.name}: ${thought.text}` : ""),
+
         ...(gChronicleEnabled
             ? parsed.chronicle?.events || []
             : []),
@@ -3313,6 +3316,8 @@ function RemoveTrailingInfoblockPayload(messageTextEl, parsed) {
             .map(NormalizeInfoblockPayloadText)
             .filter(Boolean);
 
+        // Если это пустой блок или контейнер с картинкой/кнопкой без текста —
+        // просто идём выше, не прерывая очистку.
         if (!lines.length) continue;
 
         const wholeText = NormalizeInfoblockPayloadText(rawText);
@@ -3323,6 +3328,30 @@ function RemoveTrailingInfoblockPayload(messageTextEl, parsed) {
 
         if (isPayload) {
             element.remove();
+            continue;
+        }
+
+        // Если внутри элемента только कुछ тех. подписи от генератора картинок или медиа —
+        // не считаем это концом проверки, но и сам элемент не удаляем.
+        if (element.querySelector("img, video, audio, canvas, svg")) {
+            continue;
+        }
+
+        // Если в одном абзаце склеились несколько мыслей через перенос строки —
+        // вырезаем именно строчки мыслей из текстовых нод.
+        if (lines.some(line => payloadSet.has(line))) {
+            const keptLines = rawText
+                .split(/\r?\n/)
+                .filter(line => {
+                    const norm = NormalizeInfoblockPayloadText(line);
+                    return !norm || !payloadSet.has(norm);
+                });
+
+            if (!keptLines.join("").trim()) {
+                element.remove();
+            } else {
+                element.textContent = keptLines.join("\n");
+            }
             continue;
         }
 
@@ -4271,6 +4300,71 @@ function OnChatChanged() {
     }
 }
 
+let gIsInternalDomUpdate = false;
+let gChatObserver = null;
+
+function WatchChatDomForExternalRerenders() {
+    const chatEl = document.getElementById("chat");
+    if (!chatEl || gChatObserver) return;
+
+    const triggerSafeReprocess = Debounce(() => {
+        if (!gEnabled || gIsInternalDomUpdate) return;
+        gIsInternalDomUpdate = true;
+        try {
+            ReprocessChat();
+        } finally {
+            setTimeout(() => {
+                gIsInternalDomUpdate = false;
+            }, 60);
+        }
+    }, 120);
+
+    gChatObserver = new MutationObserver(mutations => {
+        if (!gEnabled || gIsInternalDomUpdate) return;
+
+        for (const mutation of mutations) {
+            const targetEl = mutation.target?.nodeType === 1
+                ? mutation.target
+                : mutation.target?.parentElement;
+
+            if (!targetEl) continue;
+
+            // Игнорируем изменения внутри самой нашей доски
+            if (targetEl.closest(".mib-board-host, .mib-board, #mib_floating_host, #mib_dock_host, #mib_mobile_panel_host")) {
+                continue;
+            }
+
+            const mesNode = targetEl.closest(".mes");
+            if (!mesNode || mesNode.getAttribute("is_user") === "true") continue;
+
+            const mesTextEl = mesNode.querySelector(".mes_text");
+            if (!mesTextEl) continue;
+
+            // Если сторонний плагин (например, генератор картинок) перерисовал .mes_text:
+            // либо появился сырой тег <mom_infoblock>/<thk>, либо пропал наш .mib-board-host,
+            // либо в .mes_text добавили картинку/медиа — запускаем зачистку.
+            const hasRawTag = Boolean(mesTextEl.querySelector("mom_infoblock, thk, rels, chars"));
+            const missingHost = ShouldRenderInline() && !mesTextEl.querySelector(".mib-board-host");
+            const addedMediaOrText = [...mutation.addedNodes].some(node => {
+                if (node.nodeType === 1) {
+                    return !node.classList?.contains("mib-board-host");
+                }
+                return node.nodeType === 3 && Boolean(node.textContent?.trim());
+            });
+
+            if (hasRawTag || missingHost || addedMediaOrText) {
+                triggerSafeReprocess();
+                break;
+            }
+        }
+    });
+
+    gChatObserver.observe(chatEl, {
+        childList: true,
+        subtree: true
+    });
+}
+
 jQuery(async () => {
     const stContext = GetContextSafe();
 
@@ -4355,6 +4449,7 @@ jQuery(async () => {
 
     setTimeout(ReprocessChat, 150);
     setTimeout(RenderFloatingOrDock, 250);
+    setTimeout(WatchChatDomForExternalRerenders, 300);
 
     InjectPrompt();
 
