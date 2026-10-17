@@ -1008,6 +1008,7 @@ function GetThemeTitleData(theme = gTheme) {
         porcelain: { main: "金継ぎ // KINTSUGI", sub: "── 朱印 · 黄金 · 陶器 ──" },
         abyss: { main: "HADAL ZONE // -10,994m", sub: "∘˚˳° 𓆝 𓆟 𓆞 °˳˚∘" },
         tarot: { main: "✦ LIBER ARCANORUM ✦", sub: "Ⅰ · Ⅱ · Ⅲ · Ⅳ · Ⅴ · Ⅵ · Ⅶ" },
+        tavern: { main: "INFOBLOCK", sub: "── ⋆⋅ ✦ ⋅⋆ ──" },
         kanon: { main: "KANON.EXE // SECTOR VII-0", sub: "⚓ MONSTER ENTHUSIAST · SALT & STATIC" }
     };
 
@@ -2096,6 +2097,7 @@ const kBarStyleOptions = [
 
 const kThemeOptions = [
     ["kanon", "Kanon.exe"],
+    ["tavern", "Tavern Native (Adaptive)"],
     ["nocturne", "Nocturne"],
     ["burgundy", "Burgundy"],
     ["ashrose", "Ash Rose"],
@@ -2145,6 +2147,18 @@ const kThemePreviewMap = {
         accent2: "#2e7bff",
         text: "#e6f6ff",
         danger: "#ff3e7f"
+    },
+        tavern: {
+        label: {
+            ru: "Адаптивная тема: подстраивается под цвета, шрифт и стекло вашей темы SillyTavern",
+            en: "Adaptive theme: matches your active SillyTavern colors, font, and blur"
+        },
+        bg: "var(--SmartThemeBlurTintColor, #181a20)",
+        bg2: "var(--SmartThemeChatTintColor, #22252e)",
+        accent: "var(--SmartThemeQuoteColor, #9bb8ff)",
+        accent2: "var(--SmartThemeEmColor, #c4b5fd)",
+        text: "var(--SmartThemeBodyColor, #e5e7eb)",
+        danger: "#f87171"
     },
     nocturne: {
         label: { ru: "Ночное синее стекло", en: "Midnight blue glass" },
