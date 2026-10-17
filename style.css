@@ -3824,6 +3824,71 @@
     font-style: normal;
 }
 
+
+/* 34. TAVERN NATIVE (Adaptive SillyTavern Theme Integration) */
+.mib-theme-tavern {
+    --mib-font-sans: var(--mainFontFamily, "Inter", -apple-system, BlinkMacSystemFont, sans-serif);
+    --mib-font-mono: var(--monoFontFamily, ui-monospace, SFMono-Regular, monospace);
+
+    --mib-bg-1: color-mix(in srgb, var(--SmartThemeBlurTintColor, #16181e) 92%, #000000);
+    --mib-bg-2: color-mix(in srgb, var(--SmartThemeChatTintColor, #20232b) 88%, var(--SmartThemeQuoteColor, #888888) 12%);
+    --mib-bg-3: color-mix(in srgb, var(--SmartThemeBlurTintColor, #121318) 96%, #000000);
+
+    --mib-surface: color-mix(in srgb, var(--SmartThemeChatTintColor, rgba(255, 255, 255, 0.04)) 65%, transparent);
+    --mib-surface-deep: color-mix(in srgb, var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.45)) 80%, #000000 20%);
+
+    --mib-border: var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.22));
+    --mib-soft-border: color-mix(in srgb, var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.15)) 65%, transparent);
+
+    --mib-text: var(--SmartThemeBodyColor, #e6e8ef);
+    --mib-muted: var(--SmartThemeEmColor, #a6adbb);
+    --mib-dim: color-mix(in srgb, var(--SmartThemeEmColor, #8890a0) 68%, transparent);
+
+    --mib-accent: var(--SmartThemeQuoteColor, #8fb4ff);
+    --mib-accent-2: var(--SmartThemeEmColor, #c09cff);
+
+    --mib-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.mib-theme-tavern.mib-board,
+#mib_floating_host.mib-theme-tavern .mib-floating-shell,
+#mib_dock_host.mib-theme-tavern .mib-dock-panel {
+    font-family: var(--mainFontFamily, var(--mib-font-sans));
+    background:
+        radial-gradient(circle at 88% 4%, color-mix(in srgb, var(--SmartThemeQuoteColor, #8fb4ff) 12%, transparent), transparent 42%),
+        color-mix(in srgb, var(--SmartThemeBlurTintColor, #16181e) 86%, transparent);
+    backdrop-filter: blur(var(--blurStrength, 10px));
+    -webkit-backdrop-filter: blur(var(--blurStrength, 10px));
+    border-color: var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.18));
+}
+
+.mib-theme-tavern :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
+    background: color-mix(in srgb, var(--SmartThemeChatTintColor, rgba(255, 255, 255, 0.04)) 55%, rgba(0, 0, 0, 0.18));
+    border-color: color-mix(in srgb, var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.14)) 75%, transparent);
+}
+
+.mib-theme-tavern .mib-thought {
+    color: var(--SmartThemeEmColor, var(--mib-text));
+    border-left: 3px solid var(--SmartThemeQuoteColor, var(--mib-accent));
+    background: color-mix(in srgb, var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.3)) 70%, transparent);
+}
+
+/* Classic bars on Tavern theme adapt to Quote & Em colors */
+.mib-theme-tavern.mib-bars-classic .mib-bar-fill.mib-bar-affection-pos {
+    color: var(--SmartThemeQuoteColor, #5ee6a0);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--SmartThemeQuoteColor, #5ee6a0) 55%, #000), var(--SmartThemeQuoteColor, #5ee6a0));
+}
+
+.mib-theme-tavern.mib-bars-classic .mib-bar-fill.mib-bar-trust-pos {
+    color: var(--SmartThemeEmColor, #6bc5ff);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--SmartThemeEmColor, #6bc5ff) 55%, #000), var(--SmartThemeEmColor, #6bc5ff));
+}
+
+.mib-theme-tavern.mib-bars-classic .mib-bar-fill.mib-bar-love-pos {
+    color: var(--SmartThemeBodyColor, #c68aff);
+    background: linear-gradient(90deg, var(--SmartThemeQuoteColor, #8646cc), var(--SmartThemeEmColor, #cc91ff));
+}
+
 /* =========================================================
    MOBILE PANEL & RESPONSIVE BREAKPOINTS
    ========================================================= */
@@ -4149,68 +4214,4 @@
     .mib-pin-btn
 ) {
     border-radius: 3px !important;
-}
-
-/* 34. TAVERN NATIVE (Adaptive SillyTavern Theme Integration) */
-.mib-theme-tavern {
-    --mib-font-sans: var(--mainFontFamily, "Inter", -apple-system, BlinkMacSystemFont, sans-serif);
-    --mib-font-mono: var(--monoFontFamily, ui-monospace, SFMono-Regular, monospace);
-
-    --mib-bg-1: color-mix(in srgb, var(--SmartThemeBlurTintColor, #16181e) 92%, #000000);
-    --mib-bg-2: color-mix(in srgb, var(--SmartThemeChatTintColor, #20232b) 88%, var(--SmartThemeQuoteColor, #888888) 12%);
-    --mib-bg-3: color-mix(in srgb, var(--SmartThemeBlurTintColor, #121318) 96%, #000000);
-
-    --mib-surface: color-mix(in srgb, var(--SmartThemeChatTintColor, rgba(255, 255, 255, 0.04)) 65%, transparent);
-    --mib-surface-deep: color-mix(in srgb, var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.45)) 80%, #000000 20%);
-
-    --mib-border: var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.22));
-    --mib-soft-border: color-mix(in srgb, var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.15)) 65%, transparent);
-
-    --mib-text: var(--SmartThemeBodyColor, #e6e8ef);
-    --mib-muted: var(--SmartThemeEmColor, #a6adbb);
-    --mib-dim: color-mix(in srgb, var(--SmartThemeEmColor, #8890a0) 68%, transparent);
-
-    --mib-accent: var(--SmartThemeQuoteColor, #8fb4ff);
-    --mib-accent-2: var(--SmartThemeEmColor, #c09cff);
-
-    --mib-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
-}
-
-.mib-theme-tavern.mib-board,
-#mib_floating_host.mib-theme-tavern .mib-floating-shell,
-#mib_dock_host.mib-theme-tavern .mib-dock-panel {
-    font-family: var(--mainFontFamily, var(--mib-font-sans));
-    background:
-        radial-gradient(circle at 88% 4%, color-mix(in srgb, var(--SmartThemeQuoteColor, #8fb4ff) 12%, transparent), transparent 42%),
-        color-mix(in srgb, var(--SmartThemeBlurTintColor, #16181e) 86%, transparent);
-    backdrop-filter: blur(var(--blurStrength, 10px));
-    -webkit-backdrop-filter: blur(var(--blurStrength, 10px));
-    border-color: var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.18));
-}
-
-.mib-theme-tavern :is(.mib-header, .mib-section, .mib-char, .mib-rel, .mib-compact-rel) {
-    background: color-mix(in srgb, var(--SmartThemeChatTintColor, rgba(255, 255, 255, 0.04)) 55%, rgba(0, 0, 0, 0.18));
-    border-color: color-mix(in srgb, var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.14)) 75%, transparent);
-}
-
-.mib-theme-tavern .mib-thought {
-    color: var(--SmartThemeEmColor, var(--mib-text));
-    border-left: 3px solid var(--SmartThemeQuoteColor, var(--mib-accent));
-    background: color-mix(in srgb, var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.3)) 70%, transparent);
-}
-
-/* Classic bars on Tavern theme adapt to Quote & Em colors */
-.mib-theme-tavern.mib-bars-classic .mib-bar-fill.mib-bar-affection-pos {
-    color: var(--SmartThemeQuoteColor, #5ee6a0);
-    background: linear-gradient(90deg, color-mix(in srgb, var(--SmartThemeQuoteColor, #5ee6a0) 55%, #000), var(--SmartThemeQuoteColor, #5ee6a0));
-}
-
-.mib-theme-tavern.mib-bars-classic .mib-bar-fill.mib-bar-trust-pos {
-    color: var(--SmartThemeEmColor, #6bc5ff);
-    background: linear-gradient(90deg, color-mix(in srgb, var(--SmartThemeEmColor, #6bc5ff) 55%, #000), var(--SmartThemeEmColor, #6bc5ff));
-}
-
-.mib-theme-tavern.mib-bars-classic .mib-bar-fill.mib-bar-love-pos {
-    color: var(--SmartThemeBodyColor, #c68aff);
-    background: linear-gradient(90deg, var(--SmartThemeQuoteColor, #8646cc), var(--SmartThemeEmColor, #cc91ff));
 }
